@@ -1,13 +1,19 @@
 {
-	"search.exclude": {
-		"export/**/*.hx": true
-	},
-	"[haxe]": {
-		"editor.formatOnSave": true,
-		"editor.formatOnPaste": true,
-		"editor.codeActionsOnSave": {
-			"source.sortImports": true
-		}
-	},
-	"haxe.enableExtendedIndentation": true
+    "search.exclude": {
+        "export/**/*.hx": true
+    },
+    "[haxe]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.detectIndentation": false,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.codeActionsOnSave": {
+            "source.sortImports": true
+        }
+    },
+    "haxe.enableExtendedIndentation": false,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "files.eol": "\n",
 }
