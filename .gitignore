@@ -1,2 +1,5 @@
 # ignore all compiled output
 export/
+
+# ignore temp files from vim
+*.swp
