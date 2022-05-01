@@ -1,6 +1,5 @@
 package;
 
-import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -8,16 +7,25 @@ import flixel.group.FlxGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.text.FlxText;
+import flixel.tile.FlxTilemap;
 import flixel.util.FlxCollision;
+import flixel.util.FlxColor;
 
 class PlayState extends FlxState {
     var sprite:Player;
 
     // for prototyping only
     var cameraBound:FlxGroup;
+    var map:FlxTilemap;
 
     override public function create() {
         super.create();
+
+        // add the terrain
+        map = new FlxTilemap();
+        map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        map.screenCenter();
+        add(map);
 
         // add the player character
         sprite = new Player();
@@ -36,5 +44,6 @@ class PlayState extends FlxState {
     override public function update(elapsed:Float) {
         super.update(elapsed);
         FlxG.collide(sprite, cameraBound);
+        FlxG.collide(sprite, map);
     }
 }
