@@ -22,7 +22,7 @@ class Player extends FlxSprite {
         loadGraphic("assets/images/sword_char.png");
         setGraphicSize(0, Std.int(FlxG.height * SIZE_FACTOR_Y));
         updateHitbox();
-        
+
         setFacingFlip(FlxObject.LEFT, false, false);
         setFacingFlip(FlxObject.RIGHT, true, false);
 
