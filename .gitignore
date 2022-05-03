@@ -3,3 +3,9 @@ export/
 
 # ignore temp files from vim
 *.swp
+
+# mac files
+.DS_Store
+
+# a local file to store temporary items
+.local/
