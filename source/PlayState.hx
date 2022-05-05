@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
@@ -13,7 +14,7 @@ import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 
 class PlayState extends FlxState {
-    var sprite:Player;
+    var player:Player;
 
     // for prototyping only
     var cameraBound:FlxGroup;
@@ -30,11 +31,9 @@ class PlayState extends FlxState {
         add(map);
 
         // add the player character
-        sprite = new Player();
-        sprite.setPosition();
-        sprite.x = FlxG.width / 2 - sprite.width / 2;
-        sprite.y = FlxG.height / 2 - sprite.height / 2;
-        add(sprite);
+        player = new Player();
+        player.setPosition(FlxG.width / 2 - player.width / 2, FlxG.height / 2 - player.height / 2);
+        add(player);
 
         // set a background color
         bgColor = FlxColor.GRAY;
@@ -42,7 +41,7 @@ class PlayState extends FlxState {
         // make a collision boundary based on camera boundary
         cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
 
-        sprite.health = 5;
+        player.health = 5;
 
         healthText = new FlxText();
         healthText.size = 16;
@@ -61,21 +60,21 @@ class PlayState extends FlxState {
     override public function update(elapsed:Float) {
         var atkPressed:Bool = FlxG.keys.pressed.K;
         if (atkPressed) {
-            if (sprite.health < -1)
+            if (player.health < -1)
             {
-                sprite.health = 5;
-                sprite.revive();
+                player.health = 5;
+                player.revive();
             }
             else
-                sprite.hurt(elapsed * 5);
+                player.hurt(elapsed * 5);
 
-            if (sprite.health > 0)
-                healthText.text = "Health: " + Std.string(Math.ceil(sprite.health * 20));
+            if (player.health > 0)
+                healthText.text = "Health: " + Std.string(Math.ceil(player.health * 20));
             else
                 healthText.text = "DEAD!";
         }
         super.update(elapsed);
-        FlxG.collide(sprite, cameraBound);
-        FlxG.collide(sprite, map);
+        FlxG.collide(player.collider, cameraBound);
+        FlxG.collide(player.collider, map);
     }
 }
