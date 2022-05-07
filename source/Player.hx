@@ -4,12 +4,13 @@ import flixel.FlxSprite;
 
 class Player extends FlxSprite {
     // controls how large the player character should be relative to the screen size
-    static final SIZE_FACTOR_Y:Float = 0.15;
+    private static final WALK_VELOCITY:Int = 150;
+    private static final JUMP_VELOCITY:Int = 600;
+    private static final GRAVITY:Int = 600;
 
-    static final WALK_VELOCITY:Int = 150;
-    static final JUMP_VELOCITY:Int = 600;
-    static final GRAVITY:Int = 600;
-
+    // offset of the collider relative to the rendered sprite
+    private static final COLLIDER_OFFSET_X = 205;
+    private static final COLLIDER_OFFSET_Y = 49;
     public var collider:FlxSprite;
 
     /**
@@ -24,13 +25,17 @@ class Player extends FlxSprite {
         // load the rendered animation
         loadGraphic("assets/images/spear_sprites_render.png", true, 450, 200);
         animation.add("idle", [0, 1, 2, 3, 4], 10);
-        animation.add("jump", [10, 11, 12, 13, 14], 10);
+        animation.add("jump", [11, 12, 13], 1);
+        animation.add("float", [13], 1);
+        animation.add("land", [15, 16], 10, false);
         animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
+        animation.callback = animationFrameCallback;
+        animation.finishCallback = animationFinishCallback;
         setFacingFlip(FlxObject.LEFT, false, false);
         setFacingFlip(FlxObject.RIGHT, true, false);
 
         // load the collider
-        collider = new FlxSprite(x+205, y+49);
+        collider = new FlxSprite(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
         collider.loadGraphic("assets/images/spear_sprites_collider.png", false);
 
         collider.acceleration.y = GRAVITY;
@@ -52,19 +57,37 @@ class Player extends FlxSprite {
         } else {
             collider.velocity.x = 0;
         }
-        setPosition(collider.x-205, collider.y-49);
+        setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
+    }
+
+    private function animationFinishCallback(animationName:String) {
+        if (animationName == "jump") {
+            trace("animationFinishCallback calling float");
+            animation.play("float");
+        } else if (animationName == "land") {
+            trace("animationFinishCallback calling idle");
+            animation.play("idle");
+        }
+    }
+
+    private function animationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
+        if (collider.isTouching(FlxObject.DOWN) && (name == "jump" || name == "float")) {
+            trace("playing land");
+            animation.play("land");
+        }
     }
 
     // handles jumping, needs to be called before super.update()
     private function jump() {
         if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxObject.FLOOR)) {
             collider.velocity.y = -JUMP_VELOCITY;
+            animation.play("jump", true);
         }
     }
 
     override public function setPosition(x:Float = 0, y:Float = 0) {
         super.setPosition(x, y);
-        collider.setPosition(x+205, y+49);
+        collider.setPosition(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
     }
 
     override public function update(elapsed:Float) {
@@ -73,13 +96,13 @@ class Player extends FlxSprite {
         collider.update(elapsed);
         movement();
 
-        // animation decision
-        if (Math.abs(collider.velocity.x) > 0) {
-            animation.play("walk");
-            collider.animation.play("walk");
-        } else {
-            animation.play("idle");
-            collider.animation.play("idle");
+        // animation decision, only handles the case when player is on the ground
+        if (collider.isTouching(FlxObject.FLOOR)) {
+            if (Math.abs(collider.velocity.x) > 0) {
+                animation.play("walk");
+            } else {
+                animation.play("idle");
+            }
         }
     }
 }
