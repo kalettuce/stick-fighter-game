@@ -11,7 +11,13 @@ class Player extends FlxSprite {
     // offset of the collider relative to the rendered sprite
     private static final COLLIDER_OFFSET_X = 205;
     private static final COLLIDER_OFFSET_Y = 49;
+
+    // the object to compute collision with, should only cover the body of the
+    // player character
     public var collider:FlxSprite;
+
+    // when stunned, the character stops accept input
+    private var stunned:Bool;
 
     /**
      * Constructor of a player character
@@ -21,6 +27,8 @@ class Player extends FlxSprite {
     public function new(x:Int = 0, y:Int = 0) {
         super(x, y);
 
+        stunned = false;
+
         // load the sprites for animation
         // load the rendered animation
         loadGraphic("assets/images/spear_sprites_render.png", true, 450, 200);
@@ -29,6 +37,7 @@ class Player extends FlxSprite {
         animation.add("float", [13], 10);
         animation.add("land", [15, 16], 10, false);
         animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
+        animation.add("high_attack", [30, 31, 32, 33, 34], 10, false);
         animation.callback = animationFrameCallback;
         animation.finishCallback = animationFinishCallback;
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
@@ -46,11 +55,20 @@ class Player extends FlxSprite {
         animation.play("idle");
     }
 
-    private function movement() {
+    private function actions() {
+        if (stunned) return;
+
+        // TODO UX improvement: prioritize attack so that when both the movement keys and the attack key
+        // are pressed, attack is launched but not the movement
+        if (FlxG.keys.pressed.J && (animation.name == "idle" || animation.name == "walking" || animation.name == "land")) {
+            animation.play("high_attack");
+            stunned = true;
+        }
+
         // horizontal movements
         var leftPressed:Bool = FlxG.keys.pressed.A;
         var rightPressed:Bool = FlxG.keys.pressed.D;
-        if (leftPressed && rightPressed) {
+        if ((leftPressed && rightPressed) || stunned) {
             collider.velocity.x = 0;
         } else if (leftPressed) {
             facing = FlxDirectionFlags.LEFT;
@@ -69,6 +87,8 @@ class Player extends FlxSprite {
             animation.play("float");
         } else if (name == "land") {
             animation.play("idle");
+        } else if (name == "high_attack") {
+            stunned = false;
         }
     }
 
@@ -80,6 +100,7 @@ class Player extends FlxSprite {
 
     // handles jumping, needs to be called before super.update()
     private function jump() {
+        if (stunned) return;
         if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
             collider.velocity.y = -JUMP_VELOCITY;
             animation.play("jump", true);
@@ -93,11 +114,13 @@ class Player extends FlxSprite {
 
     override public function update(elapsed:Float) {
         jump();
+        actions();
+
         // animation decision, only handles the case when player is on the ground
         // and not have a vertical velocity
         // TODO: we can possibly optimize these if conditions
         if (collider.isTouching(FlxDirectionFlags.FLOOR)) {
-            if (collider.velocity.y == 0 && animation.name != "float" && animation.name != "land") {
+            if (collider.velocity.y == 0 && animation.name != "float" && animation.name != "land" && !stunned) {
                 if (Math.abs(collider.velocity.x) > 0) {
                     animation.play("walk");
                 } else {
@@ -110,6 +133,5 @@ class Player extends FlxSprite {
         
         super.update(elapsed);
         collider.update(elapsed);
-        movement();
     }
 }
