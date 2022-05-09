@@ -53,6 +53,9 @@ class Player extends FlxSprite {
 
         // start in idle
         animation.play("idle");
+
+        // Starting health
+        health = 100;
     }
 
     private function actions() {

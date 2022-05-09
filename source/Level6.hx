@@ -10,6 +10,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
+import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
@@ -22,6 +23,8 @@ class Level6 extends FlxState {
     var cameraBound:FlxGroup;
     var map:FlxTilemap;
     var exitButton:FlxButton;
+    var healthBar:FlxBar;
+    var staminaBar:FlxBar;
 
     override public function create() {
         super.create();
@@ -41,6 +44,18 @@ class Level6 extends FlxState {
         exitButton.screenCenter(X);
         exitButton.y = 10;
         add(exitButton);
+
+        // create health bar
+        healthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "health", 0, 100, true);
+        healthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
+        healthBar.trackParent(175, 0);
+        add(healthBar);
+
+        // create stamina bar
+        staminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "stamina", 0, 100, true);
+        staminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
+        staminaBar.trackParent(175, 20);
+        add(staminaBar);
 
         // set a background color
         bgColor = FlxColor.GRAY;
