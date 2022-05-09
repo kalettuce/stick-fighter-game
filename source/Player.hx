@@ -102,7 +102,7 @@ class Player extends FlxSprite {
     private function jump() {
         if (stunned) return;
         if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
-            collider.velocity.y = -JUMP_VELOCITY;
+            collider.velocity.y = -JUMP_VELOCITY * 1.2;
             animation.play("jump", true);
         }
     }
@@ -130,7 +130,7 @@ class Player extends FlxSprite {
         } else if (animation.name == "walk" || animation.name == "idle") {
             animation.play("float");
         }
-        
+
         super.update(elapsed);
         collider.update(elapsed);
     }

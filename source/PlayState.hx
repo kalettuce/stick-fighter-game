@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -39,7 +40,10 @@ class PlayState extends FlxState {
         bgColor = FlxColor.GRAY;
 
         // make a collision boundary based on camera boundary
-        cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
+        // cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
+
+        // for testing levels 4-6
+        FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
         player.health = 5;
 
