@@ -10,11 +10,11 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
+import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
-import flixel.ui.FlxBar;
 
 class Level3 extends FlxState {
     var player:Player;
@@ -76,11 +76,11 @@ class Level3 extends FlxState {
         if (atkPressed) {
             if (player.health < -1)
             {
-                player.health = 5;
+                player.health = 100;
                 player.revive();
             }
             else {
-                player.hurt(elapsed * 5);
+                player.hurt(2);
             }
         }
         super.update(elapsed);

@@ -76,11 +76,11 @@ class Level6 extends FlxState {
         if (atkPressed) {
             if (player.health < -1)
             {
-                player.health = 5;
+                player.health = 100;
                 player.revive();
             }
             else {
-                player.hurt(elapsed * 5);
+                player.hurt(2);
             }
         }
         super.update(elapsed);

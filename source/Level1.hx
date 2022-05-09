@@ -27,7 +27,7 @@ class Level1 extends FlxState {
     var staminaBar:FlxBar;
 
     override public function create() {
-        
+
 
         // add the terrain
         map = new FlxTilemap();
@@ -64,9 +64,9 @@ class Level1 extends FlxState {
         cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
-    
+
         super.create();
-        
+
     }
 
     function exit():Void
@@ -81,14 +81,14 @@ class Level1 extends FlxState {
         if (atkPressed) {
             if (player.health < -1)
             {
-                player.health = 5;
+                player.health = 100;
                 player.revive();
             }
             else {
-                player.hurt(elapsed * 5);
+                player.hurt(2);
             }
         }
-    
+
         super.update(elapsed);
         FlxG.collide(player.collider, cameraBound);
         FlxG.collide(player.collider, map);
