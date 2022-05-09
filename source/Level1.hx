@@ -18,8 +18,6 @@ import flixel.util.FlxColor;
 
 class Level1 extends FlxState {
     var player:Player;
-
-    // for prototyping only
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var healthBar:FlxBar;
