@@ -6,6 +6,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
+import flixel.input.actions.FlxAction.FlxActionAnalog;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.text.FlxText;
@@ -15,17 +16,17 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
+import flixel.util.FlxSpriteUtil;
 
 class Level1 extends FlxState {
     var player:Player;
+    var enemy:Enemy;
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var healthBar:FlxBar;
     var staminaBar:FlxBar;
 
     override public function create() {
-
-
         // add the terrain
         map = new FlxTilemap();
         map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
@@ -39,6 +40,12 @@ class Level1 extends FlxState {
         player.setPosition(FlxG.width / 2 - player.width / 2, FlxG.height / 2 - player.height / 2);
         add(player);
         add(player.hitArea);
+
+        // add the enemy
+        enemy = new Enemy();
+        enemy.setPosition(FlxG.width / 2 - enemy.width / 2, FlxG.height / 2 - enemy.height);
+        add(enemy);
+        player.addEnemy(enemy);
 
         exitButton = new FlxButton(0, 0, "Exit", exit);
         exitButton.screenCenter(X);
@@ -86,8 +93,10 @@ class Level1 extends FlxState {
                 player.hurt(2);
             }
         }
-
+        
         super.update(elapsed);
+
         FlxG.collide(player.collider, map);
+        FlxG.collide(enemy, map);
     }
 }

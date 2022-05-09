@@ -1,6 +1,8 @@
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.group.FlxGroup;
 import flixel.system.FlxSplash;
+import flixel.util.FlxCollision;
 import flixel.util.FlxDirectionFlags;
 
 class Player extends FlxSprite {
@@ -21,6 +23,9 @@ class Player extends FlxSprite {
     // by checking its pixel-perfect collision results with the enemy
     public var hitArea:FlxSprite;
 
+    public var enemies:FlxTypedGroup<FlxSprite>;
+    private var enemiesHit:Array<Bool>;
+
     // when stunned, the character stops accept input
     private var stunned:Bool;
 
@@ -31,6 +36,8 @@ class Player extends FlxSprite {
      */
     public function new(x:Int = 0, y:Int = 0) {
         super(x, y);
+        enemies = new FlxTypedGroup<FlxSprite>();
+        enemiesHit = new Array<Bool>();
 
         stunned = false;
 
@@ -75,6 +82,17 @@ class Player extends FlxSprite {
         // Starting health
         health = 100;
     }
+    
+    public function addEnemy(enemy:FlxSprite) {
+        enemies.add(enemy);
+        enemiesHit.push(false);
+    }
+
+    private function resetEnemiesHit() {
+        for (i in 0...enemiesHit.length) {
+            enemiesHit[i] = false;
+        }
+    }
 
     private function actions() {
         if (stunned) return;
@@ -113,6 +131,7 @@ class Player extends FlxSprite {
             animation.play("idle");
         } else if (name == "high_attack") {
             stunned = false;
+            resetEnemiesHit();
             hitArea.animation.play("idle");
         }
     }
@@ -122,6 +141,18 @@ class Player extends FlxSprite {
             animation.play("land");
         }
     }
+
+    private function hitCheck() {
+        if (animation.frameIndex == 32 && animation.name == "high_attack") {
+            for (i in 0...enemies.members.length) {
+                if (!enemiesHit[i] && FlxCollision.pixelPerfectCheck(hitArea, enemies.members[i], 1)) {
+                    trace("enemy hit");
+                    enemiesHit[i] = true;
+                }
+            }
+        }
+    }
+
 
     // handles jumping, needs to be called before super.update()
     private function jump() {
@@ -141,6 +172,7 @@ class Player extends FlxSprite {
     override public function update(elapsed:Float) {
         jump();
         actions();
+        hitCheck();
 
         // animation decision, only handles the case when player is on the ground
         // and not have a vertical velocity
