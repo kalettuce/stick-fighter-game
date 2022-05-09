@@ -1,5 +1,6 @@
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.system.FlxSplash;
 import flixel.util.FlxDirectionFlags;
 
 class Player extends FlxSprite {
@@ -15,6 +16,10 @@ class Player extends FlxSprite {
     // the object to compute collision with, should only cover the body of the
     // player character
     public var collider:FlxSprite;
+
+    // when attacking, this sprite is used to check if an attack could hit an enemy
+    // by checking its pixel-perfect collision results with the enemy
+    public var hitArea:FlxSprite;
 
     // when stunned, the character stops accept input
     private var stunned:Bool;
@@ -51,8 +56,21 @@ class Player extends FlxSprite {
         collider.maxVelocity.y = GRAVITY;
         collider.active = false; // prevents collider.update() from being automatically called
 
+        // load the hit area
+        hitArea = new FlxSprite(x, y);
+        hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 200);
+        hitArea.animation.add("idle", [0, 1, 2, 3, 4], 10);
+        hitArea.animation.add("jump", [11, 12, 13], 10, false);
+        hitArea.animation.add("float", [13], 10);
+        hitArea.animation.add("land", [15, 16], 10, false);
+        hitArea.animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
+        hitArea.animation.add("high_attack", [30, 31, 32, 33, 34], 10, false);
+        hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
+        hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
+
         // start in idle
         animation.play("idle");
+        hitArea.animation.play("idle");
 
         // Starting health
         health = 100;
@@ -65,6 +83,7 @@ class Player extends FlxSprite {
         // are pressed, attack is launched but not the movement
         if (FlxG.keys.pressed.J && (animation.name == "idle" || animation.name == "walking" || animation.name == "land")) {
             animation.play("high_attack");
+            hitArea.animation.play("high_attack");
             stunned = true;
         }
 
@@ -75,9 +94,11 @@ class Player extends FlxSprite {
             collider.velocity.x = 0;
         } else if (leftPressed) {
             facing = FlxDirectionFlags.LEFT;
+            hitArea.facing = FlxDirectionFlags.LEFT;
             collider.velocity.x = -WALK_VELOCITY;
         } else if (rightPressed) {
             facing = FlxDirectionFlags.RIGHT;
+            hitArea.facing = FlxDirectionFlags.RIGHT;
             collider.velocity.x = WALK_VELOCITY;
         } else {
             collider.velocity.x = 0;
@@ -92,6 +113,7 @@ class Player extends FlxSprite {
             animation.play("idle");
         } else if (name == "high_attack") {
             stunned = false;
+            hitArea.animation.play("idle");
         }
     }
 
@@ -112,6 +134,7 @@ class Player extends FlxSprite {
 
     override public function setPosition(x:Float = 0, y:Float = 0) {
         super.setPosition(x, y);
+        hitArea.setPosition(x, y);
         collider.setPosition(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
     }
 

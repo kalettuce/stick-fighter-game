@@ -18,7 +18,6 @@ class PlayState extends FlxState {
     var player:Player;
 
     // for prototyping only
-    var cameraBound:FlxGroup;
     var map:FlxTilemap;
     var healthText:FlxText;
 
@@ -29,6 +28,8 @@ class PlayState extends FlxState {
         map = new FlxTilemap();
         map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
         map.screenCenter();
+        FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
+        FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
 
         // add the player character
@@ -38,9 +39,6 @@ class PlayState extends FlxState {
 
         // set a background color
         bgColor = FlxColor.GRAY;
-
-        // make a collision boundary based on camera boundary
-        // cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
 
         // for testing levels 4-6
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
@@ -78,7 +76,6 @@ class PlayState extends FlxState {
                 healthText.text = "DEAD!";
         }
         super.update(elapsed);
-        FlxG.collide(player.collider, cameraBound);
         FlxG.collide(player.collider, map);
     }
 }

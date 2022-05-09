@@ -20,7 +20,6 @@ class Level5 extends FlxState {
     var player:Player;
 
     // for prototyping only
-    var cameraBound:FlxGroup;
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var healthBar:FlxBar;
@@ -61,7 +60,6 @@ class Level5 extends FlxState {
         bgColor = FlxColor.GRAY;
 
         // make a collision boundary based on camera boundary
-        cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
     }
 
@@ -84,7 +82,6 @@ class Level5 extends FlxState {
             }
         }
         super.update(elapsed);
-        FlxG.collide(player.collider, cameraBound);
         FlxG.collide(player.collider, map);
     }
 }

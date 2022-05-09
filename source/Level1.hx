@@ -20,7 +20,6 @@ class Level1 extends FlxState {
     var player:Player;
 
     // for prototyping only
-    var cameraBound:FlxGroup;
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var healthBar:FlxBar;
@@ -31,14 +30,17 @@ class Level1 extends FlxState {
 
         // add the terrain
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level_1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
         map.screenCenter();
+        FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
+        FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
 
         // add the player character
         player = new Player();
         player.setPosition(FlxG.width / 2 - player.width / 2, FlxG.height / 2 - player.height / 2);
         add(player);
+        add(player.hitArea);
 
         exitButton = new FlxButton(0, 0, "Exit", exit);
         exitButton.screenCenter(X);
@@ -60,8 +62,6 @@ class Level1 extends FlxState {
         // set a background color
         bgColor = FlxColor.GRAY;
 
-        // make a collision boundary based on camera boundary
-        cameraBound = FlxCollision.createCameraWall(FlxG.camera, false, 20);
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
 
@@ -90,7 +90,6 @@ class Level1 extends FlxState {
         }
 
         super.update(elapsed);
-        FlxG.collide(player.collider, cameraBound);
         FlxG.collide(player.collider, map);
     }
 }
