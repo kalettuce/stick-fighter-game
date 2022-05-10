@@ -6,7 +6,7 @@ import flixel.ui.FlxButton;
 
 class LevelsState extends FlxState
 {
-	
+
 	var level1:FlxButton;
     var level2:FlxButton;
     var level3:FlxButton;
@@ -14,10 +14,10 @@ class LevelsState extends FlxState
     var level5:FlxButton;
     var level6:FlxButton;
     var mainMenu:FlxButton;
-	
+
 	override public function create():Void
 	{
-		
+
         level4 = new FlxButton(0, 0, "Level 4", selectLevel4);
         level4.screenCenter(XY);
         add(level4);
@@ -36,7 +36,7 @@ class LevelsState extends FlxState
  		level1.screenCenter(X);
         level1.y = level2.y - level1.height - 2;
         add(level1);
-    
+
 
         level5 = new FlxButton(0, 0, "Level 5", selectLevel5);
  		level5.screenCenter(X);
@@ -60,32 +60,32 @@ class LevelsState extends FlxState
  	{
 	    FlxG.switchState(new Level1());
  	}
-    
+
     function selectLevel2():Void
  	{
 	    FlxG.switchState(new Level2());
  	}
-    
+
     function selectLevel3():Void
  	{
 	    FlxG.switchState(new Level3());
  	}
-    
+
     function selectLevel4():Void
  	{
 	    FlxG.switchState(new Level4());
  	}
-    
+
     function selectLevel5():Void
  	{
 	    FlxG.switchState(new Level5());
  	}
-    
+
     function selectLevel6():Void
  	{
 	    FlxG.switchState(new Level6());
  	}
-    
+
     function selectMainMenu():Void
  	{
 	    FlxG.switchState(new MenuState());

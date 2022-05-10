@@ -7,10 +7,10 @@ import flixel.ui.FlxButton;
 
 class MenuState extends FlxState
 {
-	
+
 	var playButton:FlxButton;
     var levelsButton:FlxButton;
-	
+
 	override public function create():Void
 	{
 		// Play Button
@@ -34,7 +34,7 @@ class MenuState extends FlxState
 		//Switched state from current to PlayState
     		FlxG.switchState(new Level1());
  	}
-    
+
     // Select Levels button is clicked
 	function selectLevel():Void
  	{
