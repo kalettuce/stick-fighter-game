@@ -36,12 +36,14 @@ class Level1 extends FlxState {
 
         // add the player character
         player = new Player();
-        add(player);
         add(player.hitArea);
+        add(player);
 
         // add the enemy
-        enemy = new Enemy();
+        enemy = new Enemy(700, 0);
+        add(enemy.hitArea);
         add(enemy);
+        enemy.setPlayer(player);
         player.addEnemy(enemy);
 
         exitButton = new FlxButton(0, 0, "Exit", exit);
@@ -66,24 +68,23 @@ class Level1 extends FlxState {
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
-
         super.create();
-
     }
 
     function exit():Void
  	{
 	    // log clicking "exit" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+        //Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
 
         // log level end
-        Main.LOGGER.logLevelEnd({won: false});
-        FlxG.switchState(new MenuState());
+        //Main.LOGGER.logLevelEnd({won: false});
+        FlxG.switchState(new Level1());
  	}
 
 
 
     override public function update(elapsed:Float) {
+        /*
         var atkPressed:Bool = FlxG.keys.pressed.K;
         if (atkPressed) {
             if (player.health < -1)
@@ -93,7 +94,7 @@ class Level1 extends FlxState {
 
                 // For the time being until logic is fully implemented
                 // Log player losing all health and losing the game
-                Main.LOGGER.logLevelEnd({won: false});
+                //Main.LOGGER.logLevelEnd({won: false});
 
                 player.health = 100;
                 player.revive();
@@ -104,14 +105,13 @@ class Level1 extends FlxState {
 
                 // For the time being until logic is fully implemented
                 // log "simulated" enemy hit
-                Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK, {direction: "high attack"});
+                //Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK, {direction: "high attack"});
                 player.hurt(2);
             }
-        }
-
+        }*/
         super.update(elapsed);
 
         FlxG.collide(player.collider, map);
-        FlxG.collide(enemy, map);
+        FlxG.collide(enemy.collider, map);
     }
 }

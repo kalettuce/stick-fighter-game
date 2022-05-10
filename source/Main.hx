@@ -37,7 +37,7 @@ class Main extends Sprite {
 
     private function onSessionReady(sessionRecieved:Bool):Void
 	{
-		addChild(new FlxGame(0, 0, MenuState, 1, 60, 60, true));
+		addChild(new FlxGame(0, 0, Level1, 1, 60, 60, true));
 	}
 
 }

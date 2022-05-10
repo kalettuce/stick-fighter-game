@@ -13,7 +13,7 @@ class Player extends FlxSprite {
 
     // offset of the collider relative to the rendered sprite
     private static final COLLIDER_OFFSET_X = 205;
-    private static final COLLIDER_OFFSET_Y = 49;
+    private static final COLLIDER_OFFSET_Y = 88;
 
     // the object to compute collision with, should only cover the body of the
     // player character
@@ -23,7 +23,9 @@ class Player extends FlxSprite {
     // by checking its pixel-perfect collision results with the enemy
     public var hitArea:FlxSprite;
 
-    public var enemies:FlxTypedGroup<FlxSprite>;
+    public var stamina:Float;
+
+    public var enemies:FlxTypedGroup<Enemy>;
     private var enemiesHit:Array<Bool>;
 
     // when stunned, the character stops accept input
@@ -36,20 +38,22 @@ class Player extends FlxSprite {
      */
     public function new(x:Int = 0, y:Int = 0) {
         super(x, y);
-        enemies = new FlxTypedGroup<FlxSprite>();
+        enemies = new FlxTypedGroup<Enemy>();
         enemiesHit = new Array<Bool>();
 
         stunned = false;
 
         // load the sprites for animation
         // load the rendered animation
-        loadGraphic("assets/images/spear_sprites_render.png", true, 450, 200);
+        loadGraphic("assets/images/spear_sprites_render.png", true, 450, 250);
         animation.add("idle", [0, 1, 2, 3, 4], 10);
+        animation.add("parry", [5, 6, 7, 8, 9], 10, false);
         animation.add("jump", [11, 12, 13], 10, false);
         animation.add("float", [13], 10);
         animation.add("land", [15, 16], 10, false);
         animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
         animation.add("high_attack", [30, 31, 32, 33, 34], 10, false);
+        animation.add("hit", [40, 41, 42, 43, 44], 10, false);
         animation.callback = animationFrameCallback;
         animation.finishCallback = animationFinishCallback;
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
@@ -65,7 +69,7 @@ class Player extends FlxSprite {
 
         // load the hit area
         hitArea = new FlxSprite(x, y);
-        hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 200);
+        hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 250);
         hitArea.animation.add("idle", [0, 1, 2, 3, 4], 10);
         hitArea.animation.add("jump", [11, 12, 13], 10, false);
         hitArea.animation.add("float", [13], 10);
@@ -79,13 +83,24 @@ class Player extends FlxSprite {
         animation.play("idle");
         hitArea.animation.play("idle");
 
-        // Starting health
+        // other initializations
         health = 100;
+        stamina = 100;
     }
 
-    public function addEnemy(enemy:FlxSprite) {
+    public function addEnemy(enemy:Enemy) {
         enemies.add(enemy);
         enemiesHit.push(false);
+    }
+
+    public function isParrying():Bool {
+        return animation.frameIndex == 7 || animation.frameIndex == 8;
+    }
+
+    public function hit() {
+        animation.play("hit");
+        stunned = true;
+        hurt(10);
     }
 
     private function resetEnemiesHit() {
@@ -97,15 +112,22 @@ class Player extends FlxSprite {
     private function actions() {
         if (stunned) return;
 
-        // TODO UX improvement: prioritize attack so that when both the movement keys and the attack key
+        // TODO: UX improvement - prioritize attack so that when both the movement keys and the attack key
         // are pressed, attack is launched but not the movement
-        if (FlxG.keys.pressed.J && (animation.name == "idle" || animation.name == "walking" || animation.name == "land")) {
-            animation.play("high_attack");
-            hitArea.animation.play("high_attack");
-            stunned = true;
+        if (animation.name == "idle" || animation.name == "walking" || animation.name == "land") {
+            if (FlxG.keys.pressed.J && stamina >= 20) {
+                animation.play("high_attack");
+                hitArea.animation.play("high_attack");
+                stunned = true;
+                stamina -= 20;
+            } else if (FlxG.keys.pressed.L) {
+                animation.play("parry");
+                hitArea.animation.play("parry");
+                stunned = true;
+            }
 
             // log move "high attack"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+            //Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
 
         }
 
@@ -116,14 +138,14 @@ class Player extends FlxSprite {
             collider.velocity.x = 0;
 
             // Log invalid action when left & right key pressed together
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
+            //Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
         } else if (leftPressed) {
             facing = FlxDirectionFlags.LEFT;
             hitArea.facing = FlxDirectionFlags.LEFT;
             collider.velocity.x = -WALK_VELOCITY;
 
             // log move "left"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+            //Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
 
         } else if (rightPressed) {
             facing = FlxDirectionFlags.RIGHT;
@@ -131,7 +153,7 @@ class Player extends FlxSprite {
             collider.velocity.x = WALK_VELOCITY;
 
             // log move "right"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+            //Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
 
         } else {
             collider.velocity.x = 0;
@@ -148,6 +170,12 @@ class Player extends FlxSprite {
             stunned = false;
             resetEnemiesHit();
             hitArea.animation.play("idle");
+        } else if (name == "hit") {
+            stunned = false;
+            hitArea.animation.play("idle");
+        } else if (name == "parry") {
+            stunned = false;
+            hitArea.animation.play("idle");
         }
     }
 
@@ -161,7 +189,7 @@ class Player extends FlxSprite {
         if (animation.frameIndex == 32 && animation.name == "high_attack") {
             for (i in 0...enemies.members.length) {
                 if (!enemiesHit[i] && FlxCollision.pixelPerfectCheck(hitArea, enemies.members[i], 1)) {
-                    trace("enemy hit");
+                    enemies.members[i].hit();
                     enemiesHit[i] = true;
                 }
             }
@@ -177,7 +205,7 @@ class Player extends FlxSprite {
             animation.play("jump", true);
 
             // log move "jump"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
+            //Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
         }
     }
 
@@ -188,6 +216,7 @@ class Player extends FlxSprite {
     }
 
     override public function update(elapsed:Float) {
+        stamina = Math.min(stamina + elapsed * 20, 100);
         jump();
         actions();
         hitCheck();
