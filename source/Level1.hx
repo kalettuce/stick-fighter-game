@@ -29,21 +29,18 @@ class Level1 extends FlxState {
     override public function create() {
         // add the terrain
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
-        map.screenCenter();
+        map.loadMapFromCSV("assets/levels/level.csv", "assets/images/sf_level_tiles.png", 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
 
         // add the player character
         player = new Player();
-        player.setPosition(FlxG.width / 2 - player.width / 2, FlxG.height / 2 - player.height / 2);
         add(player);
         add(player.hitArea);
 
         // add the enemy
         enemy = new Enemy();
-        enemy.setPosition(FlxG.width / 2 - enemy.width / 2, FlxG.height / 2 - enemy.height);
         add(enemy);
         player.addEnemy(enemy);
 
