@@ -82,7 +82,7 @@ class Player extends FlxSprite {
         // Starting health
         health = 100;
     }
-    
+
     public function addEnemy(enemy:FlxSprite) {
         enemies.add(enemy);
         enemiesHit.push(false);

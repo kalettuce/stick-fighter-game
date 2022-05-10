@@ -109,8 +109,6 @@ class Level1 extends FlxState {
             }
         }
 
-        
-        
         super.update(elapsed);
 
         FlxG.collide(player.collider, map);
