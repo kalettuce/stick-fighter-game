@@ -17,7 +17,6 @@ class MenuState extends FlxState
 		playButton = new FlxButton(0, 0, "Play", clickPlay);
         playButton.screenCenter(X);
         playButton.y = (FlxG.height / 2) - 20;
-        playButton.setSize(200.00, 50.00);
  		add(playButton);
 
         levelsButton = new FlxButton(0, 0, "Select Level", selectLevel);
@@ -31,13 +30,23 @@ class MenuState extends FlxState
 	//Play button is clicked
 	function clickPlay():Void
  	{
-		//Switched state from current to PlayState
-    		FlxG.switchState(new Level1());
+		//Switched state from current to Level1
+
+
+        // Log clicking "Play" button
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_PLAY);
+        
+        // Log start of Level 1
+        Main.LOGGER.logLevelStart(1);
+        FlxG.switchState(new Level1());
  	}
 
     // Select Levels button is clicked
 	function selectLevel():Void
  	{
+
+        // Log clicking "Select Levels" button
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_LEVELS_MENU);
     	FlxG.switchState(new LevelsState());
  	}
 
