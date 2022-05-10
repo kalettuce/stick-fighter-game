@@ -103,6 +103,10 @@ class Player extends FlxSprite {
             animation.play("high_attack");
             hitArea.animation.play("high_attack");
             stunned = true;
+
+            // log move "high attack"
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+
         }
 
         // horizontal movements
@@ -110,14 +114,25 @@ class Player extends FlxSprite {
         var rightPressed:Bool = FlxG.keys.pressed.D;
         if ((leftPressed && rightPressed) || stunned) {
             collider.velocity.x = 0;
+
+            // Log invalid action when left & right key pressed together
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
         } else if (leftPressed) {
             facing = FlxDirectionFlags.LEFT;
             hitArea.facing = FlxDirectionFlags.LEFT;
             collider.velocity.x = -WALK_VELOCITY;
+
+            // log move "left"
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+
         } else if (rightPressed) {
             facing = FlxDirectionFlags.RIGHT;
             hitArea.facing = FlxDirectionFlags.RIGHT;
             collider.velocity.x = WALK_VELOCITY;
+
+            // log move "right"
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+
         } else {
             collider.velocity.x = 0;
         }
@@ -160,6 +175,9 @@ class Player extends FlxSprite {
         if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
             collider.velocity.y = -JUMP_VELOCITY * 1.2;
             animation.play("jump", true);
+
+            // log move "jump"
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
         }
     }
 

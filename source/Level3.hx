@@ -65,7 +65,11 @@ class Level3 extends FlxState {
 
     function exit():Void
  	{
-	    resetSubState();
+	    // log clicking "exit" button
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+
+        // log level end
+        Main.LOGGER.logLevelEnd({won: false});
         FlxG.switchState(new MenuState());
  	}
 
@@ -74,13 +78,27 @@ class Level3 extends FlxState {
         if (atkPressed) {
             if (player.health < -1)
             {
+
+                // PLACEHOLDER!!
+
+                // For the time being until logic is fully implemented
+                // Log player losing all health and losing the game
+                Main.LOGGER.logLevelEnd({won: false});
+
                 player.health = 100;
                 player.revive();
             }
             else {
+
+                // PLACEHOLDER!!
+
+                // For the time being until logic is fully implemented
+                // log "simulated" enemy hit
+                Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK, {direction: "high attack"});
                 player.hurt(2);
             }
         }
+        
         super.update(elapsed);
         FlxG.collide(player.collider, map);
     }

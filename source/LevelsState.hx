@@ -58,37 +58,51 @@ class LevelsState extends FlxState
 
 	function selectLevel1():Void
  	{
+        // Log start of Level 1
+        Main.LOGGER.logLevelStart(1);
 	    FlxG.switchState(new Level1());
  	}
     
     function selectLevel2():Void
  	{
+        // Log start of Level 2
+        Main.LOGGER.logLevelStart(2);
 	    FlxG.switchState(new Level2());
  	}
     
     function selectLevel3():Void
  	{
-	    FlxG.switchState(new Level3());
+	    // Log start of Level 3
+        Main.LOGGER.logLevelStart(3);
+        FlxG.switchState(new Level3());
  	}
     
     function selectLevel4():Void
  	{
-	    FlxG.switchState(new Level4());
+	    // Log start of Level 4
+        Main.LOGGER.logLevelStart(4);
+        FlxG.switchState(new Level4());
  	}
     
     function selectLevel5():Void
  	{
-	    FlxG.switchState(new Level5());
+	    // Log start of Level 5
+        Main.LOGGER.logLevelStart(5);
+        FlxG.switchState(new Level5());
  	}
     
     function selectLevel6():Void
  	{
-	    FlxG.switchState(new Level6());
+	    // Log start of Level 6
+        Main.LOGGER.logLevelStart(6);
+        FlxG.switchState(new Level6());
  	}
     
     function selectMainMenu():Void
  	{
-	    FlxG.switchState(new MenuState());
+        // Log clicking "Main Menu" button
+	    Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_MAIN_MENU);
+        FlxG.switchState(new MenuState());
  	}
 
 	override public function update(elapsed:Float):Void
