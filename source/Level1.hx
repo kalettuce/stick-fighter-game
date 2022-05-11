@@ -39,6 +39,7 @@ class Level1 extends FlxState {
         // add the player character
         player = new Player();
         add(player.hitArea);
+        add(player.collider);
         add(player);
 
         // add the enemy

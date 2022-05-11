@@ -75,6 +75,10 @@ class Enemy extends FlxSprite {
         health = 100;
     }
 
+    public function isParrying():Bool {
+        return true;
+    }
+
     public function setPlayer(player:Player) {
         this.player = player;
     }
@@ -107,6 +111,7 @@ class Enemy extends FlxSprite {
     public function hit() {
         play("hit");
         stunned = true;
+        playerHit = false;
         hurt(20);
     }
 

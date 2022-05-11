@@ -12,8 +12,8 @@ class Player extends FlxSprite {
     private static final GRAVITY:Int = 1000;
 
     // offset of the collider relative to the rendered sprite
-    private static final COLLIDER_OFFSET_X = 205;
-    private static final COLLIDER_OFFSET_Y = 88;
+    private static final COLLIDER_OFFSET_X = 222;
+    private static final COLLIDER_OFFSET_Y = 152;
 
     // the object to compute collision with, should only cover the body of the
     // player character
@@ -45,15 +45,16 @@ class Player extends FlxSprite {
 
         // load the sprites for animation
         // load the rendered animation
-        loadGraphic("assets/images/spear_sprites_render.png", true, 450, 250);
-        animation.add("idle", [0, 1, 2, 3, 4], 10);
-        animation.add("parry", [5, 6, 7, 8, 9], 10, false);
-        animation.add("jump", [11, 12, 13], 10, false);
-        animation.add("float", [13], 10);
-        animation.add("land", [15, 16], 10, false);
-        animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
-        animation.add("high_attack", [30, 31, 32, 33, 34], 10, false);
-        animation.add("hit", [40, 41, 42, 43, 44], 10, false);
+        loadGraphic("assets/images/spear_sprites_render.png", true, 450, 400);
+        animation.add("idle", [0, 1, 2, 3, 0], 10);
+        animation.add("parry", [4, 5, 6, 7, 8, 9], 10, false);
+        animation.add("jump", [0, 10, 11], 10, false);
+        animation.add("float", [11], 10);
+        animation.add("land", [10, 0], 10, false);
+        animation.add("walk", [20, 21, 22, 23, 0], 10);
+        animation.add("high_attack", [0, 30, 31, 32, 0], 10, false);
+        animation.add("hit", [40, 41, 42, 0], 10, false);
+        animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 6, false);
         animation.callback = animationFrameCallback;
         animation.finishCallback = animationFinishCallback;
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
@@ -69,13 +70,13 @@ class Player extends FlxSprite {
 
         // load the hit area
         hitArea = new FlxSprite(x, y);
-        hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 250);
+        hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 400);
         hitArea.animation.add("idle", [0, 1, 2, 3, 4], 10);
         hitArea.animation.add("jump", [11, 12, 13], 10, false);
         hitArea.animation.add("float", [13], 10);
         hitArea.animation.add("land", [15, 16], 10, false);
         hitArea.animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
-        hitArea.animation.add("high_attack", [30, 31, 32, 33, 34], 10, false);
+        hitArea.animation.add("high_attack", [0, 30, 31, 32, 0], 10, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
 
@@ -94,12 +95,14 @@ class Player extends FlxSprite {
     }
 
     public function isParrying():Bool {
-        return animation.frameIndex == 7 || animation.frameIndex == 8;
+        return animation.frameIndex == 5 || animation.frameIndex == 6;
     }
 
     public function hit() {
         animation.play("hit");
         stunned = true;
+        collider.velocity.x = 0;
+        collider.velocity.y = 0;
         hurt(10);
     }
 
@@ -173,7 +176,7 @@ class Player extends FlxSprite {
         } else if (name == "hit") {
             stunned = false;
             hitArea.animation.play("idle");
-        } else if (name == "parry") {
+        } else if (name == "parry" || name == "parried") {
             stunned = false;
             hitArea.animation.play("idle");
         }
@@ -186,11 +189,17 @@ class Player extends FlxSprite {
     }
 
     private function hitCheck() {
-        if (animation.frameIndex == 32 && animation.name == "high_attack") {
+        if (animation.frameIndex == 31) {
             for (i in 0...enemies.members.length) {
                 if (!enemiesHit[i] && FlxCollision.pixelPerfectCheck(hitArea, enemies.members[i], 1)) {
-                    enemies.members[i].hit();
-                    enemiesHit[i] = true;
+                    if (enemies.members[i].isParrying()) {
+                        animation.play("parried");
+                        stunned = true;
+                        resetEnemiesHit();
+                    } else {
+                        enemies.members[i].hit();
+                        enemiesHit[i] = true;
+                    }
                 }
             }
         }
