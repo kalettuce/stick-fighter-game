@@ -6,8 +6,8 @@ import flixel.util.FlxDirectionFlags;
 
 
 class Enemy extends FlxSprite {
-    private static final COLLIDER_OFFSET_X:Int = 133;
-    private static final COLLIDER_OFFSET_Y:Int = 75;
+    private static final COLLIDER_OFFSET_X:Int = 127;
+    private static final COLLIDER_OFFSET_Y:Int = 104;
 
     private static final GRAVITY:Int = 1000;
 
@@ -32,15 +32,16 @@ class Enemy extends FlxSprite {
         random = new FlxRandom();
 
         // rendered image
-        loadGraphic("assets/images/sword_sprites_render.png", true, 300, 250);
-        animation.add("idle", [0, 1, 2, 3, 4], 10);
-        animation.add("jump", [11, 12, 13], 10, false);
-        animation.add("float", [13], 10);
-        animation.add("land", [15, 16], 10, false);
-        animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
-        animation.add("high_attack", [30, 31, 32, 33, 34, 35, 36, 37], 10, false);
-        animation.add("hit", [40, 41, 42, 43, 44], 12, false);
-        animation.add("parried", [40, 41, 42, 43, 44], 5, false);
+        loadGraphic("assets/images/sword_sprites_render.png", true, 300, 350);
+        animation.add("idle", [1, 2, 3, 0], 10);
+        animation.add("parry", [4, 5, 6, 7, 8, 9], 10, false);
+        animation.add("jump", [0, 10, 11], 10, false);
+        animation.add("float", [11], 10);
+        animation.add("land", [10, 0], 10, false);
+        animation.add("walk", [20, 21, 22, 23, 0], 10);
+        animation.add("high_attack", [0, 30, 31, 32, 33, 34, 35, 0], 10, false);
+        animation.add("hit", [40, 41, 42, 0], 10, false);
+        animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 5, false);
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         animation.play("idle");
@@ -56,13 +57,13 @@ class Enemy extends FlxSprite {
 
         // hit detection sprite
         hitArea = new FlxSprite();
-        hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 250);
+        hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 350);
         hitArea.animation.add("idle", [0, 1, 2, 3, 4], 10);
         hitArea.animation.add("jump", [11, 12, 13], 10, false);
         hitArea.animation.add("float", [13], 10);
         hitArea.animation.add("land", [15, 16], 10, false);
         hitArea.animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
-        hitArea.animation.add("high_attack", [30, 31, 32, 33, 34, 35, 36, 37], 10, false);
+        hitArea.animation.add("high_attack", [0, 0, 0, 0, 0, 34, 35, 0], 10, false);
         hitArea.animation.add("hit", [40, 41, 42, 43, 44], 12, false);
         hitArea.animation.add("parried", [40, 41, 42, 43, 44], 5, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
@@ -133,7 +134,7 @@ class Enemy extends FlxSprite {
 
     private function hitCheck() {
         if (playerHit) return;
-        if (animation.frameIndex == 35 || animation.frameIndex == 36) {
+        if (animation.frameIndex == 34 || animation.frameIndex == 35) {
             if (FlxG.pixelPerfectOverlap(hitArea, player.collider)) {
                 if (player.isParrying()){
                     play("parried");

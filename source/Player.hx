@@ -12,7 +12,7 @@ class Player extends FlxSprite {
     private static final GRAVITY:Int = 1000;
 
     // offset of the collider relative to the rendered sprite
-    private static final COLLIDER_OFFSET_X = 222;
+    private static final COLLIDER_OFFSET_X = 205;
     private static final COLLIDER_OFFSET_Y = 152;
 
     // the object to compute collision with, should only cover the body of the
@@ -225,7 +225,7 @@ class Player extends FlxSprite {
     }
 
     override public function update(elapsed:Float) {
-        stamina = Math.min(stamina + elapsed * 20, 100);
+        stamina = Math.min(stamina + elapsed * 13, 100);
         jump();
         actions();
         hitCheck();
