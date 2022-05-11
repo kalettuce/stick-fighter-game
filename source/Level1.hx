@@ -25,6 +25,8 @@ class Level1 extends FlxState {
     var exitButton:FlxButton;
     var healthBar:FlxBar;
     var staminaBar:FlxBar;
+    var enemyHealth:FlxBar;
+    var enemyStamina:FlxBar;
 
     override public function create() {
         // add the terrain
@@ -62,6 +64,18 @@ class Level1 extends FlxState {
         staminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
         staminaBar.trackParent(175, 20);
         add(staminaBar);
+
+        // create health bar
+        enemyHealth = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "health", 0, 100, true);
+        enemyHealth.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
+        enemyHealth.trackParent(175, 0);
+        add(enemyHealth);
+
+        // create stamina bar
+        enemyStamina = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "stamina", 0, 100, true);
+        enemyStamina.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
+        enemyStamina.trackParent(175, 20);
+        add(enemyStamina);
 
         // set a background color
         bgColor = FlxColor.GRAY;
