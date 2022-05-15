@@ -23,10 +23,21 @@ class Level1 extends FlxState {
     var enemy:Enemy;
     var map:FlxTilemap;
     var exitButton:FlxButton;
-    var healthBar:FlxBar;
-    var staminaBar:FlxBar;
-    var enemyHealth:FlxBar;
-    var enemyStamina:FlxBar;
+    var timerMax:Float = 8;
+
+    var playerHealth:Float = 100;
+    var playerHealthTimer:Float = 0;
+    var playerHealthBar:FlxBar;
+
+    var playerStaminaTimer:Float = 0;
+    var playerStaminaBar:FlxBar;
+
+    var enemyHealth:Float = 100;
+    var enemyHealthTimer:Float = 0;
+    var enemyHealthBar:FlxBar;
+
+    var enemyStaminaTimer:Float = 0;
+    var enemyStaminaBar:FlxBar;
 
     override public function create() {
         // add the terrain
@@ -55,28 +66,26 @@ class Level1 extends FlxState {
         add(exitButton);
 
         // create health bar
-        healthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "health", 0, 100, true);
-        healthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
-        healthBar.trackParent(175, 0);
-        add(healthBar);
+        playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "health", 0, 100, true);
+        playerHealthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
+        playerHealthBar.trackParent(175, 0);
 
         // create stamina bar
-        staminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "stamina", 0, 100, true);
-        staminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
-        staminaBar.trackParent(175, 20);
-        add(staminaBar);
+        playerStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "stamina", 0, 100, true);
+        playerStaminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
+        playerStaminaBar.trackParent(175, 20);
 
         // create health bar
-        enemyHealth = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "health", 0, 100, true);
-        enemyHealth.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
-        enemyHealth.trackParent(175, 0);
-        add(enemyHealth);
+        enemyHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "health", 0, 100, true);
+        enemyHealthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
+        enemyHealthBar.trackParent(175, 0);
+        add(enemyHealthBar);
 
         // create stamina bar
-        enemyStamina = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "stamina", 0, 100, true);
-        enemyStamina.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
-        enemyStamina.trackParent(175, 20);
-        add(enemyStamina);
+        enemyStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "stamina", 0, 100, true);
+        enemyStaminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
+        enemyStaminaBar.trackParent(175, 20);
+        add(enemyStaminaBar);
 
         // set a background color
         bgColor = FlxColor.GRAY;
@@ -96,7 +105,48 @@ class Level1 extends FlxState {
         FlxG.switchState(new Level1());
  	}
 
+    private function showHealthBar(isPlayer:Bool, characterHealth:Float, healthBar: FlxBar) {
+        if (characterHealth != playerHealth) {
+            add(healthBar);
+            if (isPlayer) {
+                playerHealth = characterHealth;
+            } else {
+                enemyHealth = characterHealth;
+            }
+        } else {
+            if (isPlayer) {
+                if (playerHealthTimer > timerMax) {
+                    remove(healthBar);
+                    playerHealthTimer = 0;
+                }
+            } else {
+                if (enemyHealthTimer > timerMax) {
+                    remove(healthBar);
+                    enemyHealthTimer = 0;
+                }
+            }
+        }
+    }
 
+    private function showStaminaBar(isPlayer:Bool, characterStamina:Float, staminaBar: FlxBar, elapsed:Float) {
+        if (characterStamina < 1) {
+            add(staminaBar);
+        } else if (characterStamina == 100) {
+            if (isPlayer) {
+                playerStaminaTimer += elapsed;
+                if (playerStaminaTimer > timerMax) {
+                    remove(staminaBar);
+                    playerStaminaTimer = 0;
+                }
+            } else {
+                enemyStaminaTimer += elapsed;
+                if (enemyStaminaTimer > timerMax) {
+                    remove(staminaBar);
+                    enemyStaminaTimer = 0;
+                }
+            }
+        }
+    }
 
     override public function update(elapsed:Float) {
         /*
@@ -125,6 +175,14 @@ class Level1 extends FlxState {
             }
         }*/
         super.update(elapsed);
+
+        playerHealthTimer += elapsed;
+        showHealthBar(true, player.health, playerHealthBar);
+        enemyHealthTimer += elapsed;
+        showHealthBar(false, enemy.health, enemyHealthBar);
+
+        showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
+        // showStaminaBar(false, enemy.stamina, enemyStaminaBar);
 
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
