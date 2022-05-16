@@ -1,5 +1,6 @@
 package;
 
+import actions.AIAction;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -48,23 +49,19 @@ class Level1 extends FlxState {
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
 
-        // add the player character
+        // create the player character
         player = new Player();
-        add(player.hitArea);
-        add(player.collider);
-        add(player);
 
-        // add the enemy
-        enemy = new Enemy(700, 0);
-        add(enemy.hitArea);
-        add(enemy);
+        // create the enemy
+        var combatSequence:Array<AIAction> = [AIAction.ATTACK_ACTION, AIAction.ATTACK_ACTION, AIAction.ATTACK_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
+        enemy = new Enemy(700, 0, player);
         enemy.setPlayer(player);
+        enemy.setCombatAI(new SequentialCombatDecider(enemy, player, combatSequence));
         player.addEnemy(enemy);
 
         exitButton = new FlxButton(0, 0, "Exit", exit);
         exitButton.screenCenter(X);
         exitButton.y = 10;
-        add(exitButton);
 
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "health", 0, 100, true);
@@ -88,6 +85,15 @@ class Level1 extends FlxState {
 
         // set a background color
         bgColor = FlxColor.GRAY;
+
+        // construct the scene
+        add(enemy.hitArea);
+        add(enemy);
+        add(player.hitArea);
+        add(player);
+        add(player.effects);
+        add(enemy.effects);
+        add(exitButton);
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 

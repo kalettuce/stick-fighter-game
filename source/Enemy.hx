@@ -1,3 +1,4 @@
+import actions.ActionStatus;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxRandom;
@@ -11,11 +12,16 @@ class Enemy extends FlxSprite {
 
     private static final GRAVITY:Int = 1000;
 
+    private static final ACTION_INTERVAL:Float = 2;
+
     // to compute the collision
     public var collider:FlxSprite;
 
     // to detect attacks
     public var hitArea:FlxSprite;
+
+    // effects layer independent of the character sprites
+    public var effects:FlxSprite;
 
     // whether the character can interrupt the current animation and perform other actions right now
     public var stunned:Bool;
@@ -24,12 +30,18 @@ class Enemy extends FlxSprite {
     public var player:Player;
     private var playerHit:Bool;
 
-    // a random number generator for AI decisions
-    private var random:FlxRandom;
+    // true if "this" enemy is dead
+    private var dead:Bool;
 
-    public function new (x:Int = 0, y:Int = 0) {
+    /************************* Combat AI ****************************/
+    private var combatAI:CombatDecider;
+
+    // help compute the time to advance to next action
+    private var timeSinceLastAction:Float;
+    private var prevActionStatus:ActionStatus;
+
+    override public function new(x:Int = 0, y:Int = 0, player:Player) {
         super(x, y);
-        random = new FlxRandom();
 
         // rendered image
         loadGraphic("assets/images/sword_sprites_render.png", true, 300, 350);
@@ -42,6 +54,8 @@ class Enemy extends FlxSprite {
         animation.add("high_attack", [0, 30, 31, 32, 33, 34, 35, 0], 10, false);
         animation.add("hit", [40, 41, 42, 0], 10, false);
         animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 5, false);
+        animation.add("block", [18], 10);
+        animation.add("death", [24, 25, 26], 10, false);
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         animation.play("idle");
@@ -56,32 +70,52 @@ class Enemy extends FlxSprite {
         collider.active = false;
 
         // hit detection sprite
-        hitArea = new FlxSprite();
+        hitArea = new FlxSprite(x, y);
         hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 350);
-        hitArea.animation.add("idle", [0, 1, 2, 3, 4], 10);
-        hitArea.animation.add("jump", [11, 12, 13], 10, false);
-        hitArea.animation.add("float", [13], 10);
-        hitArea.animation.add("land", [15, 16], 10, false);
-        hitArea.animation.add("walk", [20, 21, 22, 23, 24, 25], 8);
+        hitArea.animation.add("idle", [0], 10);
         hitArea.animation.add("high_attack", [0, 0, 0, 0, 0, 34, 35, 0], 10, false);
-        hitArea.animation.add("hit", [40, 41, 42, 43, 44], 12, false);
-        hitArea.animation.add("parried", [40, 41, 42, 43, 44], 5, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.animation.play("idle");
 
+        // effects
+        effects = new FlxSprite(x, y);
+        effects.loadGraphic("assets/images/sword_effect.png", true, 300, 350);
+        effects.animation.add("idle", [0], 10);
+        effects.animation.add("hit_block", [1, 2, 3, 4, 5, 6, 7], 25, false);
+        effects.animation.finishCallback = function(name:String) {effects.animation.play("idle");};
+        effects.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
+        effects.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
+        effects.animation.play("idle");
+
         // other initializations
+        setFacing(FlxDirectionFlags.LEFT);
         stunned = false;
         playerHit = false;
         health = 100;
+        timeSinceLastAction = 0.0;
+        prevActionStatus = null;
+        dead = false;
+    }
+
+    public function isBlocking():Bool {
+        return animation.frameIndex == 18;
     }
 
     public function isParrying():Bool {
-        return true;
+        return animation.frameIndex == 5 || animation.frameIndex == 6;
+    }
+
+    public function isDead():Bool {
+        return dead;
     }
 
     public function setPlayer(player:Player) {
         this.player = player;
+    }
+
+    public function setCombatAI(cAI:CombatDecider) {
+        combatAI = cAI;
     }
 
     private function animationFinishCallback(name:String) {
@@ -89,31 +123,66 @@ class Enemy extends FlxSprite {
             case "jump":
                 animation.play("float");
             case "land":
-                animation.play("idle");
+                idle();
             case "high_attack":
-                stunned = false;
+                idle();
                 playerHit = false;
-                play("idle");
             case "hit":
-                stunned = false;
-                play("idle");
+                idle();
+            case "parry":
+                idle();
             case "parried":
-                stunned = false;
-                play("idle");
+                idle();
         }
     }
 
     public function play(name:String) {
         animation.play(name);
-        hitArea.animation.play(name);
+        if (name == "high_attack") {
+            hitArea.animation.play(name);
+        } else {
+            hitArea.animation.play("idle");
+        }
     }
 
+    /********************************************* Actions Functions *********************************************/
+    private function idle() {
+        play("idle");
+        stunned = false;
+    }
+
+    private function attack() {
+        play("high_attack");
+        stunned = true;
+    }
+
+    private function block() {
+        play("block");
+        stunned = false;
+    }
+
+    private function parry() {
+        play("parry");
+        stunned = true;
+    }
+
+    /********************************************* Passive Action Functions *********************************************/
     // should be called when "this" enemy is hit
-    public function hit() {
+    public function hit(damage:Float) {
         play("hit");
         stunned = true;
         playerHit = false;
-        hurt(20);
+        hurt(damage);
+    }
+
+    // should be called when "this" enemy is hit while blocking
+    public function hitBlock() {
+        effects.animation.play("hit_block");
+        if (facing == FlxDirectionFlags.LEFT) {
+            setPosition(x + 10, y);
+        } else {
+            setPosition(x - 10, y);
+        }
     }
 
     // synchronized positions across all sprites related to the enemy class with the collider
@@ -121,27 +190,49 @@ class Enemy extends FlxSprite {
         setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
     }
 
-    private function actions() {
-        if (stunned) return;
-
-        if (animation.name == "idle") {
-            if (random.bool(3)) {
-                play("high_attack");
-                stunned = true;
+    private function actions(elapsed:Float) {
+        timeSinceLastAction += elapsed;
+        if (timeSinceLastAction < ACTION_INTERVAL || stunned) {
+            return;
+        } else {
+            timeSinceLastAction = 0;
+            // execute a new action if we're ready
+            if (animation.name == "idle" || animation.frameIndex == 18) { // idle or blocking
+                var nextAction = combatAI.nextAction(prevActionStatus);
+                switch (nextAction) {
+                    case IDLE_ACTION:
+                        idle();
+                    case ATTACK_ACTION:
+                        attack();
+                    case BLOCK_ACTION:
+                        block();
+                    case PARRY_ACTION:
+                        parry();
+                }
+                prevActionStatus = FAILURE;
             }
         }
     }
+    
+    private function setFacing(direction:FlxDirectionFlags) {
+        facing = direction;
+        hitArea.facing = direction;
+        effects.facing = direction;
+    }
 
     private function hitCheck() {
-        if (playerHit) return;
+        if (playerHit || player.isDead()) return;
         if (animation.frameIndex == 34 || animation.frameIndex == 35) {
             if (FlxG.pixelPerfectOverlap(hitArea, player.collider)) {
                 if (player.isParrying()){
                     play("parried");
                     stunned = true;
+                } else if (player.isBlocking()) {
+                    playerHit = true;
+                    player.hitBlock();
                 } else {
                     playerHit = true;
-                    player.hit();
+                    player.hit(10);
                 }
             }
         }
@@ -150,14 +241,18 @@ class Enemy extends FlxSprite {
     override public function setPosition(x:Float = 0, y:Float = 0) {
         super.setPosition(x, y);
         hitArea.setPosition(x, y);
+        effects.setPosition(x, y);
         collider.setPosition(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
     }
 
+    override public function kill() {
+        animation.play("death");
+        stunned = true;
+        dead = true;
+    }
+
     override public function update(elapsed:Float) {
-        if (health <= 0) {
-            kill();
-        }
-        actions();
+        actions(elapsed);
         hitCheck();
         super.update(elapsed);
         syncPositions();
