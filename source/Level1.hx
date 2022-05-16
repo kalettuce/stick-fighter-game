@@ -23,7 +23,8 @@ class Level1 extends FlxState {
     var enemy:Enemy;
     var map:FlxTilemap;
     var exitButton:FlxButton;
-    var timerMax:Float = 8;
+    var healthTimerMax:Float = 8;
+    var staminaTimerMax:Float = 6;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -79,13 +80,11 @@ class Level1 extends FlxState {
         enemyHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "health", 0, 100, true);
         enemyHealthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
         enemyHealthBar.trackParent(175, 0);
-        add(enemyHealthBar);
 
         // create stamina bar
         enemyStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "stamina", 0, 100, true);
         enemyStaminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
         enemyStaminaBar.trackParent(175, 20);
-        add(enemyStaminaBar);
 
         // set a background color
         bgColor = FlxColor.GRAY;
@@ -106,21 +105,22 @@ class Level1 extends FlxState {
  	}
 
     private function showHealthBar(isPlayer:Bool, characterHealth:Float, healthBar: FlxBar) {
-        if (characterHealth != playerHealth) {
-            add(healthBar);
-            if (isPlayer) {
+        if (isPlayer) {
+            if (characterHealth != playerHealth) {
+                add(healthBar);
                 playerHealth = characterHealth;
             } else {
-                enemyHealth = characterHealth;
-            }
-        } else {
-            if (isPlayer) {
-                if (playerHealthTimer > timerMax) {
+                if (playerHealthTimer > healthTimerMax) {
                     remove(healthBar);
                     playerHealthTimer = 0;
                 }
+            }
+        } else {
+            if (characterHealth != enemyHealth) {
+                add(healthBar);
+                enemyHealth = characterHealth;
             } else {
-                if (enemyHealthTimer > timerMax) {
+                if (enemyHealthTimer > healthTimerMax) {
                     remove(healthBar);
                     enemyHealthTimer = 0;
                 }
@@ -134,13 +134,13 @@ class Level1 extends FlxState {
         } else if (characterStamina == 100) {
             if (isPlayer) {
                 playerStaminaTimer += elapsed;
-                if (playerStaminaTimer > timerMax) {
+                if (playerStaminaTimer > staminaTimerMax) {
                     remove(staminaBar);
                     playerStaminaTimer = 0;
                 }
             } else {
                 enemyStaminaTimer += elapsed;
-                if (enemyStaminaTimer > timerMax) {
+                if (enemyStaminaTimer > staminaTimerMax) {
                     remove(staminaBar);
                     enemyStaminaTimer = 0;
                 }
