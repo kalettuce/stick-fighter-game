@@ -24,13 +24,13 @@ class Level1 extends FlxState {
     var enemy:Enemy;
     var map:FlxTilemap;
     var exitButton:FlxButton;
-    var healthTimerMax:Float = 8;
-    var staminaTimerMax:Float = 6;
+    var timerMax:Float = 5;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
     var playerHealthBar:FlxBar;
 
+    var playerStamina:Float = 100;
     var playerStaminaTimer:Float = 0;
     var playerStaminaBar:FlxBar;
 
@@ -38,6 +38,7 @@ class Level1 extends FlxState {
     var enemyHealthTimer:Float = 0;
     var enemyHealthBar:FlxBar;
 
+    var enemyStamina:Float = 100;
     var enemyStaminaTimer:Float = 0;
     var enemyStaminaBar:FlxBar;
 
@@ -110,13 +111,15 @@ class Level1 extends FlxState {
         FlxG.switchState(new Level1());
  	}
 
-    private function showHealthBar(isPlayer:Bool, characterHealth:Float, healthBar: FlxBar) {
+    private function showHealthBar(isPlayer:Bool, characterHealth:Float, healthBar: FlxBar, elapsed: Float) {
         if (isPlayer) {
             if (characterHealth != playerHealth) {
                 add(healthBar);
                 playerHealth = characterHealth;
+                playerHealthTimer = 0;
             } else {
-                if (playerHealthTimer > healthTimerMax) {
+                playerHealthTimer += elapsed;
+                if (playerHealthTimer > timerMax) {
                     remove(healthBar);
                     playerHealthTimer = 0;
                 }
@@ -125,8 +128,10 @@ class Level1 extends FlxState {
             if (characterHealth != enemyHealth) {
                 add(healthBar);
                 enemyHealth = characterHealth;
+                enemyHealthTimer = 0;
             } else {
-                if (enemyHealthTimer > healthTimerMax) {
+                enemyHealthTimer += elapsed;
+                if (enemyHealthTimer > timerMax) {
                     remove(healthBar);
                     enemyHealthTimer = 0;
                 }
@@ -134,21 +139,27 @@ class Level1 extends FlxState {
         }
     }
 
-    private function showStaminaBar(isPlayer:Bool, characterStamina:Float, staminaBar: FlxBar, elapsed:Float) {
-        if (characterStamina < 1) {
-            add(staminaBar);
-        } else if (characterStamina == 100) {
-            if (isPlayer) {
+    private function showStaminaBar(isPlayer:Bool, characterStamina:Float, staminaBar: FlxBar, elapsed: Float) {
+        if (isPlayer) {
+            if (characterStamina != playerStamina) {
+                add(staminaBar);
+                playerStamina = characterStamina;
+                playerStaminaTimer = 0;
+            } else {
                 playerStaminaTimer += elapsed;
-                if (playerStaminaTimer > staminaTimerMax) {
+                if (playerStaminaTimer > timerMax) {
                     remove(staminaBar);
-                    playerStaminaTimer = 0;
                 }
+            }
+        } else {
+            if (characterStamina != enemyStamina) {
+                add(staminaBar);
+                enemyStamina = characterStamina;
+                enemyStaminaTimer = 0;
             } else {
                 enemyStaminaTimer += elapsed;
-                if (enemyStaminaTimer > staminaTimerMax) {
+                if (enemyStaminaTimer > timerMax) {
                     remove(staminaBar);
-                    enemyStaminaTimer = 0;
                 }
             }
         }
@@ -182,13 +193,11 @@ class Level1 extends FlxState {
         }*/
         super.update(elapsed);
 
-        playerHealthTimer += elapsed;
-        showHealthBar(true, player.health, playerHealthBar);
-        enemyHealthTimer += elapsed;
-        showHealthBar(false, enemy.health, enemyHealthBar);
+        showHealthBar(true, player.health, playerHealthBar, elapsed);
+        showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
-        // showStaminaBar(false, enemy.stamina, enemyStaminaBar);
+        // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
 
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
