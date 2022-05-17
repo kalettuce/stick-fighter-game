@@ -132,7 +132,7 @@ class Player extends FlxSprite {
         resetEnemiesHit();
         hurt(damage);
     }
-    
+
     public function hitBlock() {
         effects.animation.play("hit_block");
         if (facing == FlxDirectionFlags.LEFT) {

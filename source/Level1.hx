@@ -20,6 +20,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 
 class Level1 extends FlxState {
+    public static var unlocked:Bool = true;
     var player:Player;
     var enemy:Enemy;
     var map:FlxTilemap;
@@ -102,14 +103,14 @@ class Level1 extends FlxState {
     }
 
     function exit():Void
- 	{
-	    // log clicking "exit" button
-        //Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+     {
+        // log clicking "exit" button
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
 
         // log level end
-        //Main.LOGGER.logLevelEnd({won: false});
-        FlxG.switchState(new Level1());
- 	}
+        Main.LOGGER.logLevelEnd({won: false});
+        FlxG.switchState(new MenuState());
+     }
 
     private function showHealthBar(isPlayer:Bool, characterHealth:Float, healthBar: FlxBar, elapsed: Float) {
         if (isPlayer) {
@@ -198,6 +199,10 @@ class Level1 extends FlxState {
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
         // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+
+        if (enemy.health == 0) {
+            Level2.unlocked = true;
+        }
 
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);

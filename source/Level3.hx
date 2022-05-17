@@ -17,6 +17,7 @@ import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 
 class Level3 extends FlxState {
+    public static var unlocked:Bool = false;
     var player:Player;
 
     // for prototyping only
@@ -64,14 +65,14 @@ class Level3 extends FlxState {
     }
 
     function exit():Void
- 	{
-	    // log clicking "exit" button
+     {
+        // log clicking "exit" button
         Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
 
         // log level end
         Main.LOGGER.logLevelEnd({won: false});
         FlxG.switchState(new MenuState());
- 	}
+     }
 
     override public function update(elapsed:Float) {
         var atkPressed:Bool = FlxG.keys.pressed.K;
@@ -98,7 +99,7 @@ class Level3 extends FlxState {
                 player.hurt(2);
             }
         }
-        
+
         super.update(elapsed);
         FlxG.collide(player.collider, map);
     }

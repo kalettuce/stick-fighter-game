@@ -64,7 +64,7 @@ class Enemy extends FlxSprite {
         // collider
         collider = new FlxSprite(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
         collider.loadGraphic("assets/images/sword_sprites_collider.png");
-        
+
         collider.acceleration.y = GRAVITY;
         collider.maxVelocity.y = GRAVITY;
         collider.active = false;
@@ -213,7 +213,7 @@ class Enemy extends FlxSprite {
             }
         }
     }
-    
+
     private function setFacing(direction:FlxDirectionFlags) {
         facing = direction;
         hitArea.facing = direction;
