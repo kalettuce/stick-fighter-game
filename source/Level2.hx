@@ -18,7 +18,6 @@ import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 
 class Level2 extends FlxState {
-    public static var unlocked:Bool = false;
     var player:Player;
 
     // for prototyping only
@@ -67,7 +66,6 @@ class Level2 extends FlxState {
 
     function exit():Void
      {
-
         // log clicking "exit" button
         Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
 
@@ -101,6 +99,19 @@ class Level2 extends FlxState {
                 player.hurt(2);
             }
         }
+
+        /*
+        showHealthBar(true, player.health, playerHealthBar, elapsed);
+        showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
+
+        showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
+        showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+
+        if (enemy.health == 0) {
+            FlxG.save.data.unlockedThree = true;
+            FlxG.save.flush();
+        }
+        */
 
         super.update(elapsed);
         FlxG.collide(player.collider, map);

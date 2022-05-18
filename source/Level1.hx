@@ -20,7 +20,6 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 
 class Level1 extends FlxState {
-    public static var unlocked:Bool = true;
     var player:Player;
     var enemy:Enemy;
     var map:FlxTilemap;
@@ -201,7 +200,8 @@ class Level1 extends FlxState {
         // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
 
         if (enemy.health == 0) {
-            Level2.unlocked = true;
+            FlxG.save.data.unlockedTwo = true;
+            FlxG.save.flush();
         }
 
         FlxG.collide(player.collider, map);

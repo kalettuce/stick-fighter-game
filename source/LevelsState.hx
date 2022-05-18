@@ -17,7 +17,6 @@ class LevelsState extends FlxState
 
     override public function create():Void
     {
-
         level4 = new FlxButton(0, 0, "Level 4", selectLevel4);
         level4.screenCenter(XY);
         level4.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
@@ -62,85 +61,71 @@ class LevelsState extends FlxState
     }
 
     function selectLevel1():Void
-     {
+    {
         // Log start of Level 1
         Main.LOGGER.logLevelStart(1);
         FlxG.switchState(new Level1());
-     }
+    }
 
     function selectLevel2():Void
-     {
-        if (Level2.unlocked) {
+    {
+        if (FlxG.save.data.unlockedTwo) {
             // Log start of Level 2
             Main.LOGGER.logLevelStart(2);
             FlxG.switchState(new Level2());
         }
-     }
+    }
 
     function selectLevel3():Void
-     {
-        if (Level3.unlocked) {
+    {
+        if (FlxG.save.data.unlockedThree) {
             // Log start of Level 3
             Main.LOGGER.logLevelStart(3);
             FlxG.switchState(new Level3());
         }
-     }
+    }
 
     function selectLevel4():Void
-     {
-        if (Level4.unlocked) {
+    {
+        if (FlxG.save.data.unlockedFour) {
             // Log start of Level 4
             Main.LOGGER.logLevelStart(4);
             FlxG.switchState(new Level4());
         }
-     }
+    }
 
     function selectLevel5():Void
-     {
-        if (Level5.unlocked) {
+    {
+        if (FlxG.save.data.unlockedFive) {
             // Log start of Level 5
             Main.LOGGER.logLevelStart(5);
             FlxG.switchState(new Level5());
         }
-     }
+    }
 
     function selectLevel6():Void
-     {
-        if (Level6.unlocked) {
+    {
+        if (FlxG.save.data.unlockedSix) {
             // Log start of Level 6
             Main.LOGGER.logLevelStart(6);
             FlxG.switchState(new Level6());
         }
-     }
+    }
 
     function selectMainMenu():Void
-     {
+    {
         // Log clicking "Main Menu" button
         Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_MAIN_MENU);
         FlxG.switchState(new MenuState());
-     }
+    }
 
     override public function update(elapsed:Float):Void
     {
         super.update(elapsed);
-        if (Level2.unlocked) {
-            level2.loadGraphic("assets/images/buttons.png", true, 80, 20);
-        }
-
-        if (Level3.unlocked) {
-            level3.loadGraphic("assets/images/buttons.png", true, 80, 20);
-        }
-
-        if (Level4.unlocked) {
-            level4.loadGraphic("assets/images/buttons.png", true, 80, 20);
-        }
-
-        if (Level5.unlocked) {
-            level5.loadGraphic("assets/images/buttons.png", true, 80, 20);
-        }
-
-        if (Level6.unlocked) {
-            level6.loadGraphic("assets/images/buttons.png", true, 80, 20);
-        }
+        if (FlxG.save.data.unlockedTwo) level2.loadGraphic("assets/images/buttons.png", true, 80, 20);
+        if (FlxG.save.data.unlockedThree) level3.loadGraphic("assets/images/buttons.png", true, 80, 20);
+        if (FlxG.save.data.unlockedFour) level4.loadGraphic("assets/images/buttons.png", true, 80, 20);
+        if (FlxG.save.data.unlockedFive) level5.loadGraphic("assets/images/buttons.png", true, 80, 20);
+        if (FlxG.save.data.unlockedSix) level6.loadGraphic("assets/images/buttons.png", true, 80, 20);
     }
 }
