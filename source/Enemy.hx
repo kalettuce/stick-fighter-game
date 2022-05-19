@@ -192,7 +192,6 @@ class Enemy extends FlxSprite {
     private function move() {
         play("walk");
         stunned = false;
-        setFacing(combatAI.getDirection());
 
         if (facing == FlxDirectionFlags.LEFT) {
             collider.velocity.x = -MOVE_VELOCITY;
@@ -255,6 +254,7 @@ class Enemy extends FlxSprite {
                 case AIAction.MOVE_ACTION:
                     move();
             }
+            setFacing(combatAI.getDirection());
             prevActionStatus = ActionStatus.NEUTRAL;
         }
     }

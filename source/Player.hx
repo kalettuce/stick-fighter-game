@@ -2,8 +2,8 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.system.FlxSplash;
+import flixel.tile.FlxTilemap;
 import flixel.util.FlxCollision;
-import flixel.util.FlxDirection;
 import flixel.util.FlxDirectionFlags;
 import openfl.geom.Point;
 
@@ -89,6 +89,7 @@ class Player extends FlxSprite {
         effects.loadGraphic("assets/images/spear_effect.png", true, 450, 400);
         effects.animation.add("idle", [0], 10);
         effects.animation.add("hit_block", [1, 2, 3, 4, 5, 6, 7], 15, false);
+        effects.animation.callback = effectsAnimationFrameCallback;
         effects.animation.finishCallback = effectsAnimationFinishCallback;
         effects.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         effects.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
@@ -135,10 +136,11 @@ class Player extends FlxSprite {
 
     public function hitBlock() {
         effects.animation.play("hit_block");
+
         if (facing == FlxDirectionFlags.LEFT) {
-            setPosition(x + 10, y);
+            collider.velocity.x = 150;
         } else {
-            setPosition(x - 10, y);
+            collider.velocity.x = -150;
         }
     }
 
@@ -182,6 +184,13 @@ class Player extends FlxSprite {
         }
     }
 
+    private function effectsAnimationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
+        switch (name) {
+            case "hit_block": collider.velocity.x = 0;
+            default:
+        }
+    }
+
     private function effectsAnimationFinishCallback(name:String) {
        effects.animation.play("idle");
     }
@@ -197,6 +206,9 @@ class Player extends FlxSprite {
                 stunned = true; // might not be necessary but just in case
             }
         }
+
+        // sync position to collider
+        setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
 
         if (stunned) return;
 
@@ -243,7 +255,6 @@ class Player extends FlxSprite {
         } else {
             collider.velocity.x = 0;
         }
-        setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
     }
 
     private function setFacing(direction:FlxDirectionFlags) {
