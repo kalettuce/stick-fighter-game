@@ -254,8 +254,8 @@ class Enemy extends FlxSprite {
                     parry();
                 case AIAction.MOVE_ACTION:
                     move();
-                prevActionStatus = ActionStatus.NEUTRAL;
             }
+            prevActionStatus = ActionStatus.NEUTRAL;
         }
     }
 

@@ -20,14 +20,31 @@ class SequentialActionDecider extends ActionDecider {
     }
 
     override public function nextAction(prevStatus:ActionStatus):AIAction {
+        // progress in the sequence if the condition is met
+        if (prevStatus == conditionSequence[seqIndex]) {
+            seqIndex = (seqIndex + 1) % sequence.length;
+        }
+
         // move if not in range
         if (!inRange()) {
             return AIAction.MOVE_ACTION;
         }
 
-        // get the next action in sequence if the condition is met
-        if (prevStatus == conditionSequence[seqIndex]) {
-            seqIndex = (seqIndex + 1) % sequence.length;
+        // special case, if player is parried, punish with an attack
+        if (prevStatus == PARRY_HIT) {
+            trace("punishing");
+            return AIAction.ATTACK_ACTION;
+        }
+
+        switch (sequence[seqIndex]) {
+            case AIAction.PARRY_ACTION:
+                // TODO: make a function: attackImminent(), in Player
+                if (player.animation.frameIndex == 30) {
+                    return sequence[seqIndex];
+                } else {
+                    return AIAction.IDLE_ACTION;
+                }
+            default: return sequence[seqIndex];
         }
         return sequence[seqIndex];
     }
