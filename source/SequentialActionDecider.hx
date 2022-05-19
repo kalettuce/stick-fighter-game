@@ -24,7 +24,7 @@ class SequentialActionDecider extends ActionDecider {
         if (!inRange()) {
             return AIAction.MOVE_ACTION;
         }
-        
+
         // get the next action in sequence if the condition is met
         if (prevStatus == conditionSequence[seqIndex]) {
             seqIndex = (seqIndex + 1) % sequence.length;

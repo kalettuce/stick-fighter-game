@@ -214,7 +214,7 @@ class Player extends FlxSprite {
             }
 
             // log move "high attack"
-            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
 
         }
 
@@ -225,20 +225,20 @@ class Player extends FlxSprite {
             collider.velocity.x = 0;
 
             // Log invalid action when left & right key pressed together
-            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
         } else if (leftPressed) {
             setFacing(FlxDirectionFlags.LEFT);
             collider.velocity.x = -WALK_VELOCITY;
 
             // log move "left"
-            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
 
         } else if (rightPressed) {
             setFacing(FlxDirectionFlags.RIGHT);
             collider.velocity.x = WALK_VELOCITY;
 
             // log move "right"
-            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
 
         } else {
             collider.velocity.x = 0;
@@ -288,7 +288,7 @@ class Player extends FlxSprite {
             animation.play("jump", true);
 
             // log move "jump"
-            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
         }
     }
 
