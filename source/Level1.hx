@@ -1,6 +1,7 @@
 package;
 
 import actions.AIAction;
+import actions.ActionStatus;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -55,9 +56,11 @@ class Level1 extends FlxState {
 
         // create the enemy
         var combatSequence:Array<AIAction> = [AIAction.ATTACK_ACTION, AIAction.ATTACK_ACTION, AIAction.ATTACK_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
+        var statusSequence:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
         enemy = new Enemy(700, 0, player);
         enemy.setPlayer(player);
-        enemy.setCombatAI(new SequentialCombatDecider(enemy, player, combatSequence));
+        enemy.setCombatAI(new SequentialActionDecider(enemy, player, combatSequence, statusSequence));
+        //enemy.setCombatAI(new ActionDecider(enemy, player));
         player.addEnemy(enemy);
 
         exitButton = new FlxButton(0, 0, "Exit", exit);
@@ -104,10 +107,10 @@ class Level1 extends FlxState {
     function exit():Void
      {
         // log clicking "exit" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+        // Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
 
         // log level end
-        Main.LOGGER.logLevelEnd({won: false});
+        // Main.LOGGER.logLevelEnd({won: false});
         FlxG.switchState(new MenuState());
      }
 
@@ -200,14 +203,14 @@ class Level1 extends FlxState {
         // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
 
         if (enemy.health == 0) {
-            Main.LOGGER.logLevelEnd({won: true});
+            // Main.LOGGER.logLevelEnd({won: true});
             FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
             FlxG.switchState(new Level2());
         }
 
         if (player.health == 0) {
-            Main.LOGGER.logLevelEnd({won: false});
+            // Main.LOGGER.logLevelEnd({won: false});
             FlxG.switchState(new MenuState());
         }
 

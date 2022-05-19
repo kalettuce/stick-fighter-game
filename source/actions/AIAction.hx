@@ -5,4 +5,5 @@ enum AIAction {
     ATTACK_ACTION;
     BLOCK_ACTION;
     PARRY_ACTION;
+    MOVE_ACTION;
 }

@@ -8,10 +8,10 @@ import flixel.util.FlxDirectionFlags;
 import openfl.geom.Point;
 
 class Player extends FlxSprite {
-    // controls how large the player character should be relative to the screen size
-    private static final WALK_VELOCITY:Int = 150;
+    private static final WALK_VELOCITY:Int = 230;
     private static final JUMP_VELOCITY:Int = 700;
     private static final GRAVITY:Int = 1000;
+    private static final ATTACK_RANGE:Int = 219;
 
     // offset of the collider relative to the rendered sprite
     private static final COLLIDER_OFFSET_X = 205;
@@ -142,6 +142,16 @@ class Player extends FlxSprite {
         }
     }
 
+    // return the x coordinate of center point of the sprite
+    public function getCenter():Float {
+        return collider.x + (collider.width / 2);
+    }
+
+    // return the range of the sprite's attack
+    public function getRange():Int {
+        return ATTACK_RANGE;
+    }
+
     /********************************************* Animation Callbacks *********************************************/
     private function animationFinishCallback(name:String) {
         // Note that switch statements in Haxe does not "fall through"
@@ -204,7 +214,7 @@ class Player extends FlxSprite {
             }
 
             // log move "high attack"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
 
         }
 
@@ -215,20 +225,20 @@ class Player extends FlxSprite {
             collider.velocity.x = 0;
 
             // Log invalid action when left & right key pressed together
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
+            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
         } else if (leftPressed) {
             setFacing(FlxDirectionFlags.LEFT);
             collider.velocity.x = -WALK_VELOCITY;
 
             // log move "left"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
 
         } else if (rightPressed) {
             setFacing(FlxDirectionFlags.RIGHT);
             collider.velocity.x = WALK_VELOCITY;
 
             // log move "right"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
 
         } else {
             collider.velocity.x = 0;
@@ -247,6 +257,7 @@ class Player extends FlxSprite {
             for (i in 0...enemies.members.length) {
                 if (!enemiesHit[i] && !enemies.members[i].isDead() && FlxCollision.pixelPerfectCheck(hitArea, enemies.members[i], 1)) {
                     if (enemies.members[i].isParrying()) {
+                        enemies.members[i].hitParry();
                         animation.play("parried");
                         hitArea.animation.play("idle");
                         stunned = true;
@@ -277,7 +288,7 @@ class Player extends FlxSprite {
             animation.play("jump", true);
 
             // log move "jump"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
+            // Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
         }
     }
 
