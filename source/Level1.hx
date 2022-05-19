@@ -200,8 +200,15 @@ class Level1 extends FlxState {
         // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
 
         if (enemy.health == 0) {
+            Main.LOGGER.logLevelEnd({won: true});
             FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
+            FlxG.switchState(new Level2());
+        }
+
+        if (player.health == 0) {
+            Main.LOGGER.logLevelEnd({won: false});
+            FlxG.switchState(new MenuState());
         }
 
         FlxG.collide(player.collider, map);

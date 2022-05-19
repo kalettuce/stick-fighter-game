@@ -23,7 +23,7 @@ class Main extends Sprite {
         // Category 3: for release to public
         var categoryId:Int = 1;
         var useDev:Bool = true;
-        Main.LOGGER = new CapstoneLogger(gameId, gameName, gameKey, categoryId, useDev);
+        Main.LOGGER = new CapstoneLogger(gameId, gameName, gameKey, categoryId);
 
         // Retrieve the user (saved in local storage for later)
         var userId:String = Main.LOGGER.getSavedUserId();
