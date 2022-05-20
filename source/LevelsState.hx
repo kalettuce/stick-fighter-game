@@ -21,7 +21,7 @@ class LevelsState extends FlxState
     override public function create():Void
     {
         level4 = new FlxButton(0, 0, "Level 4", selectLevel4);
-        level4.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
+        if (!FlxG.save.data.unlockedFour) level4.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
         level4.scale.set(4, 4);
         level4.updateHitbox();
         level4.label.setFormat(null, 18, FlxColor.BLACK);
@@ -32,7 +32,7 @@ class LevelsState extends FlxState
         add(level4);
 
         level3 = new FlxButton(0, 0, "Level 3", selectLevel3);
-        level3.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
+        if (!FlxG.save.data.unlockedThree) level3.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
         level3.scale.set(4, 4);
         level3.updateHitbox();
         level3.label.setFormat(null, 18, FlxColor.BLACK);
@@ -44,7 +44,7 @@ class LevelsState extends FlxState
         add(level3);
 
         level2 = new FlxButton(0, 0, "Level 2", selectLevel2);
-        level2.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
+        if (!FlxG.save.data.unlockedTwo) level2.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
         level2.scale.set(4, 4);
         level2.updateHitbox();
         level2.label.setFormat(null, 18, FlxColor.BLACK);
@@ -66,9 +66,8 @@ class LevelsState extends FlxState
         level1.y = level2.y - level1.height - 15;
         add(level1);
 
-
         level5 = new FlxButton(0, 0, "Level 5", selectLevel5);
-        level5.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
+        if (!FlxG.save.data.unlockedFive) level5.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
         level5.scale.set(4, 4);
         level5.updateHitbox();
         level5.label.setFormat(null, 18, FlxColor.BLACK);
@@ -80,7 +79,7 @@ class LevelsState extends FlxState
         add(level5);
 
         level6 = new FlxButton(0, 0, "Level 6", selectLevel6);
-        level6.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
+        if (!FlxG.save.data.unlockedSix) level6.loadGraphic("assets/images/dark_buttons.png", true, 80, 20);
         level6.scale.set(4, 4);
         level6.updateHitbox();
         level6.label.setFormat(null, 18, FlxColor.BLACK);
@@ -167,64 +166,5 @@ class LevelsState extends FlxState
     override public function update(elapsed:Float):Void
     {
         super.update(elapsed);
-        if (FlxG.save.data.unlockedTwo) {
-            level2 = new FlxButton(0, 0, "Level 2", selectLevel2);
-            level2.scale.set(4, 4);
-            level2.updateHitbox();
-            level2.label.setFormat(null, 18, FlxColor.BLACK);
-            level2.label.fieldWidth = level2.width;
-            level2.label.alignment = "center";
-            level2.label.offset.y -= 25;
-            level2.screenCenter(X);
-            level2.y = level3.y - level2.height - 15;
-            add(level2);
-        }
-        if (FlxG.save.data.unlockedThree) {
-            level3 = new FlxButton(0, 0, "Level 3", selectLevel3);
-            level3.scale.set(4, 4);
-            level3.updateHitbox();
-            level3.label.setFormat(null, 18, FlxColor.BLACK);
-            level3.label.fieldWidth = level3.width;
-            level3.label.alignment = "center";
-            level3.label.offset.y -= 25;
-            level3.screenCenter(X);
-            level3.y = level4.y - level3.height - 15;
-            add(level3);
-        }
-        if (FlxG.save.data.unlockedFour) {
-            level4 = new FlxButton(0, 0, "Level 4", selectLevel4);
-            level4.scale.set(4, 4);
-            level4.updateHitbox();
-            level4.label.setFormat(null, 18, FlxColor.BLACK);
-            level4.label.fieldWidth = level4.width;
-            level4.label.alignment = "center";
-            level4.label.offset.y -= 25;
-            level4.screenCenter(XY);
-            add(level4);
-        }
-        if (FlxG.save.data.unlockedFive) {
-            level5 = new FlxButton(0, 0, "Level 5", selectLevel5);
-            level5.scale.set(4, 4);
-            level5.updateHitbox();
-            level5.label.setFormat(null, 18, FlxColor.BLACK);
-            level5.label.fieldWidth = level5.width;
-            level5.label.alignment = "center";
-            level5.label.offset.y -= 25;
-            level5.screenCenter(X);
-            level5.y = level4.y + level5.height + 15;
-            add(level5);
-        }
-        if (FlxG.save.data.unlockedSix) {
-            level6 = new FlxButton(0, 0, "Level 6", selectLevel6);
-            level6.scale.set(4, 4);
-            level6.updateHitbox();
-            level6.label.setFormat(null, 18, FlxColor.BLACK);
-            level6.label.fieldWidth = level6.width;
-            level6.label.alignment = "center";
-            level6.label.offset.y -= 25;
-            level6.screenCenter(X);
-            level6.y = level5.y + level6.height + 15;
-            add(level6);
-        }
     }
 }
