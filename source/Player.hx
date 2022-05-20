@@ -154,6 +154,44 @@ class Player extends FlxSprite {
         return ATTACK_RANGE;
     }
 
+    public function play(name:String) {
+        animation.play(name);
+        if (name == "high_attack") {
+            hitArea.animation.play(name);
+        } else {
+            hitArea.animation.play("idle");
+        }
+    }
+
+    /********************************************* Actions Functions *********************************************/
+    private function idle() {
+        play("idle");
+        stunned = false;
+    }
+
+    private function attack() {
+        play("high_attack");
+        hitArea.animation.play("high_attack");
+        stunned = true;
+        stamina -= 20;
+        // log move "high attack"
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+    }
+
+    private function block() {
+        play("block");
+        stunned = true;
+        // log move "high block"
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {direction: "high block"});
+    }
+
+    private function parry() {
+        play("parry");
+        stunned = true;
+        // log move "high parry"
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {direction: "high parry"});
+    }
+
     /********************************************* Animation Callbacks *********************************************/
     private function animationFinishCallback(name:String) {
         // Note that switch statements in Haxe does not "fall through"
@@ -199,11 +237,9 @@ class Player extends FlxSprite {
     private function actions() {
         if (stunned && animation.name == "block") {
             if (FlxG.keys.justReleased.K) {
-                animation.play("idle");
-                stunned = false;
+                idle();
             } else if (FlxG.keys.pressed.J) {
-                animation.play("parry");
-                stunned = true; // might not be necessary but just in case
+                parry(); // might not be necessary but just in case
             }
         }
 
@@ -216,18 +252,10 @@ class Player extends FlxSprite {
         // are pressed, attack is launched but not the movement
         if (animation.name == "idle" || animation.name == "walking" || animation.name == "land") {
             if (FlxG.keys.pressed.J && stamina >= 20) {
-                animation.play("high_attack");
-                hitArea.animation.play("high_attack");
-                stunned = true;
-                stamina -= 20;
+                attack();
             } else if (FlxG.keys.pressed.K) {
-                animation.play("block");
-                stunned = true;
+                block();
             }
-
-            // log move "high attack"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
-
         }
 
         // horizontal movements
