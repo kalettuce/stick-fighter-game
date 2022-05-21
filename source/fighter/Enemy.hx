@@ -1,8 +1,8 @@
 package fighter;
 
 import actions.AIAction;
-import actions.ActionDecider;
 import actions.ActionStatus;
+import ai.ActionDecider;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxRandom;
@@ -252,23 +252,15 @@ class Enemy extends FightUnit {
 
     private function hitCheck() {
         if (playerHit || player.isDead()) return;
-        trace("hit checking");
         if (animation.frameIndex == 34 || animation.frameIndex == 35) {
-            trace("at hit check frame");
-            trace("HA index: " + hitArea.animation.frameIndex);
-            trace("Anim index: " + animation.frameIndex);
             if (FlxG.pixelPerfectOverlap(hitArea, player.collider, 1)) {
-                trace("collision confirmed");
                 if (player.isParrying()){
-                    trace("s1");
                     parried();
                 } else if (player.isBlocking()) {
-                    trace("s2");
                     playerHit = true;
                     player.hitBlock();
                     hitBlocking();
                 } else {
-                    trace("s3");
                     playerHit = true;
                     player.lightHit(10);
                 }

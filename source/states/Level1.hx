@@ -2,7 +2,7 @@ package states;
 
 import actions.AIAction;
 import actions.ActionStatus;
-import actions.SequentialActionDecider;
+import ai.SequentialActionDecider;
 import fighter.Enemy;
 import fighter.Player;
 import flixel.FlxCamera;
