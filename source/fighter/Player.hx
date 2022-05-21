@@ -1,3 +1,5 @@
+package fighter;
+
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
@@ -9,9 +11,10 @@ import openfl.geom.Point;
 
 class Player extends FlxSprite {
     private static final WALK_VELOCITY:Int = 230;
-    private static final JUMP_VELOCITY:Int = 700;
+    private static final JUMP_VELOCITY:Int = 800;
     private static final GRAVITY:Int = 1000;
     private static final ATTACK_RANGE:Int = 219;
+    private static final STAMINA_RECOVERY_RATE = 16;
 
     // offset of the collider relative to the rendered sprite
     private static final COLLIDER_OFFSET_X = 205;
@@ -38,6 +41,8 @@ class Player extends FlxSprite {
     // true when the player is dead
     private var dead:Bool;
 
+    private var status:FighterStates;
+
     /**
      * Constructor of a player character
      * (x,y) is the coordinates to spawn the player in.
@@ -54,11 +59,11 @@ class Player extends FlxSprite {
         loadGraphic("assets/images/spear_sprites_render.png", true, 450, 400);
         animation.add("idle", [0, 1, 2, 3, 0], 10);
         animation.add("parry", [4, 5, 6, 7, 8, 9], 10, false);
-        animation.add("jump", [10, 11], 10, false);
+        animation.add("jump", [10], 10, false);
         animation.add("float", [11], 10);
         animation.add("land", [10], 10, false);
         animation.add("walk", [20, 21, 22, 23, 0], 10);
-        animation.add("high_attack", [0, 30, 31, 32, 0], 10, false);
+        animation.add("light", [0, 30, 31, 32, 0], 10, false);
         animation.add("hit", [40, 41, 42, 0], 10, false);
         animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 6, false);
         animation.add("block", [18], 10);
@@ -80,9 +85,10 @@ class Player extends FlxSprite {
         hitArea = new FlxSprite(x, y);
         hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 400);
         hitArea.animation.add("idle", [0], 10);
-        hitArea.animation.add("high_attack", [0, 30, 31, 32, 0], 10, false);
+        hitArea.animation.add("light", [0, 30, 31, 32, 0], 10, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
+        hitArea.alpha = 0.01;
 
         // load the effects layer
         effects = new FlxSprite(x, y);
@@ -104,6 +110,7 @@ class Player extends FlxSprite {
         health = 100;
         stamina = 100;
         dead = false;
+        status = FighterStates.IDLE;
     }
 
     /********************************************* Public Functions *********************************************/
@@ -124,12 +131,123 @@ class Player extends FlxSprite {
         return dead;
     }
 
-    public function hit(damage:Float) {
+    // return the x coordinate of center point of the sprite
+    public function getCenter():Float {
+        return collider.x + (collider.width / 2);
+    }
+
+    // return the range of the sprite's attack
+    public function getRange():Int {
+        return ATTACK_RANGE;
+    }
+
+    public function getStatus():FighterStates {
+        return status;
+    }
+    
+    /********************************************* Actions Functions *********************************************/
+    private function idle() {
+        // only idles if on the floor
+        // does not interrupt jumping or landing animations
+        if (collider.isTouching(FlxDirectionFlags.FLOOR) && status != FighterStates.JUMP && !(!animation.finished && animation.name == "land")) {
+            play("idle");
+            status = FighterStates.IDLE;
+        } else if (collider.velocity.y > 0) {
+            float();
+        }
+        collider.velocity.x = 0;
+        stunned = false;
+    }
+
+    private function walk() {
+        switch (status) {
+            // when on the ground, play "walk" and set velocity
+            case FighterStates.IDLE, FighterStates.WALK:
+                // does not interrupt a landing animation
+                if (animation.name != "land") {
+                    play("walk");
+                }
+                stunned = false;
+                status = FighterStates.WALK;
+                if (facing == FlxDirectionFlags.LEFT) {
+                    collider.velocity.x = -WALK_VELOCITY;
+                } else {
+                    collider.velocity.x = WALK_VELOCITY;
+                }
+            // when jumping, sets the velocity but does not switch the animation
+            case FighterStates.JUMP, FighterStates.AIR:
+                if (facing == FlxDirectionFlags.LEFT) {
+                    collider.velocity.x = -WALK_VELOCITY;
+                } else {
+                    collider.velocity.x = WALK_VELOCITY;
+                }
+            default:
+        }
+    }
+
+    private function light() {
+        play("light");
+        hitArea.animation.play("light");
+        stunned = true;
+        stamina -= 20;
+        status = FighterStates.LIGHT;
+        collider.velocity.x = 0;
+        // log move
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+    }
+
+    private function block() {
+        play("block");
+        stunned = true;
+        status = FighterStates.BLOCK;
+        collider.velocity.x = 0;
+        // log move "block"
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {direction: "high block"});
+    }
+
+    private function parry() {
+        play("parry");
+        stunned = true;
+        status = FighterStates.PARRY;
+        collider.velocity.x = 0;
+        // log move "parry"
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {direction: "high parry"});
+    }
+
+    // handles jumping, needs to be called before super.update()
+    private function jump() {
+        play("jump");
+        stunned = false;
+        status = FighterStates.JUMP;
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
+    }
+
+    // float in air
+    private function float() {
+        play("float");
+        status = FighterStates.AIR;
+        stunned = false;
+    }
+
+    private function parried() {
+        animation.play("parried");
+        hitArea.animation.play("idle");
+        if (status == FighterStates.LIGHT) {
+            status = FighterStates.LIGHTPARRIED;
+        } else {
+            status = FighterStates.HEAVYPARRIED;
+        }
+        stunned = true;
+    }
+
+    /***************************************** Passive Actions Functions ******************************************/
+    public function lightHit(damage:Float) {
         animation.play("hit");
         hitArea.animation.play("idle");
         stunned = true;
         collider.velocity.x = 0;
         collider.velocity.y = 0;
+        status = FighterStates.HITSTUNLIGHT;
         resetEnemiesHit();
         hurt(damage);
     }
@@ -144,81 +262,25 @@ class Player extends FlxSprite {
         }
     }
 
-    // return the x coordinate of center point of the sprite
-    public function getCenter():Float {
-        return collider.x + (collider.width / 2);
-    }
-
-    // return the range of the sprite's attack
-    public function getRange():Int {
-        return ATTACK_RANGE;
-    }
-
-    public function play(name:String) {
-        animation.play(name);
-        if (name == "high_attack") {
-            hitArea.animation.play(name);
-        } else {
-            hitArea.animation.play("idle");
-        }
-    }
-
-    /********************************************* Actions Functions *********************************************/
-    private function idle() {
-        play("idle");
-        stunned = false;
-    }
-
-    private function attack() {
-        play("high_attack");
-        hitArea.animation.play("high_attack");
-        stunned = true;
-        stamina -= 20;
-        // log move "high attack"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
-    }
-
-    private function block() {
-        play("block");
-        stunned = true;
-        // log move "high block"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {direction: "high block"});
-    }
-
-    private function parry() {
-        play("parry");
-        stunned = true;
-        // log move "high parry"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {direction: "high parry"});
-    }
 
     /********************************************* Animation Callbacks *********************************************/
     private function animationFinishCallback(name:String) {
         // Note that switch statements in Haxe does not "fall through"
         switch (name) {
             case "jump":
-                animation.play("float");
-            case "land":
-                animation.play("idle");
-            case "high_attack":
-                stunned = false;
+                collider.velocity.y = -JUMP_VELOCITY;
+                float();
+            case "light":
+                idle();
                 resetEnemiesHit();
-                hitArea.animation.play("idle");
-            case "hit":
-                stunned = false;
-                hitArea.animation.play("idle");
-            case "parry":
-                stunned = false;
-                hitArea.animation.play("idle");
-            case "parried":
-                stunned = false;
-                hitArea.animation.play("idle");
+            default: idle();
         }
     }
 
     private function animationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
-        if (collider.velocity.y == 0 && (name == "jump" || name == "float")) {
-            animation.play("land");
+        if (collider.isTouching(FlxDirectionFlags.FLOOR) && collider.velocity.y == 0 && status == FighterStates.AIR) {
+            play("land");
+            status = FighterStates.IDLE;
         }
     }
 
@@ -234,54 +296,61 @@ class Player extends FlxSprite {
     }
 
     /********************************************* update() helper functions *********************************************/
+    // plays the given animation for rendered sprite, and play the corresponding animation for other sprites.
+    private function play(name:String) {
+        animation.play(name);
+        if (name == "light") {
+            hitArea.animation.play(name);
+        } else {
+            hitArea.animation.play("idle");
+        }
+    }
+
+    // determines what action to execute based on user input
     private function actions() {
-        if (stunned && animation.name == "block") {
+        // handling the case when the player is blocking
+        if (stunned && status == FighterStates.BLOCK) {
             if (FlxG.keys.justReleased.K) {
                 idle();
             } else if (FlxG.keys.pressed.J) {
-                parry(); // might not be necessary but just in case
+                parry();
             }
+            return;
         }
 
-        // sync position to collider
-        setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
-
-        if (stunned) return;
-
-        // TODO: UX improvement - prioritize attack so that when both the movement keys and the attack key
-        // are pressed, attack is launched but not the movement
-        if (animation.name == "idle" || animation.name == "walking" || animation.name == "land") {
-            if (FlxG.keys.pressed.J && stamina >= 20) {
-                attack();
-            } else if (FlxG.keys.pressed.K) {
-                block();
-            }
+        // otherwisd, no action is permitted when stunned
+        if (stunned) {
+            collider.velocity.x = 0;
+            return;
         }
 
-        // horizontal movements
         var leftPressed:Bool = FlxG.keys.pressed.A;
         var rightPressed:Bool = FlxG.keys.pressed.D;
-        if ((leftPressed && rightPressed) || stunned) {
-            collider.velocity.x = 0;
+        // decides whether to initiate attack, block, or jump
+        if (status == FighterStates.IDLE || status == FighterStates.WALK) {
+            if (FlxG.keys.pressed.J && stamina >= 20) {
+                light();
+            } else if (FlxG.keys.pressed.K) {
+                block();
+            } else if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
+                jump();
+            }
+        }
 
-            // Log invalid action when left & right key pressed together
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "Invalid action"});
+        // do not execute movement actions if stunned from previous decisions
+        if (stunned) return;
+        if ((leftPressed && rightPressed) || (!leftPressed && !rightPressed)) {
+            idle();
         } else if (leftPressed) {
             setFacing(FlxDirectionFlags.LEFT);
-            collider.velocity.x = -WALK_VELOCITY;
-
-            // log move "left"
+            walk();
             Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
-
         } else if (rightPressed) {
             setFacing(FlxDirectionFlags.RIGHT);
-            collider.velocity.x = WALK_VELOCITY;
-
-            // log move "right"
+            walk();
             Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
-
         } else {
-            collider.velocity.x = 0;
+            idle();
         }
     }
 
@@ -294,12 +363,10 @@ class Player extends FlxSprite {
     private function hitCheck() {
         if (animation.frameIndex == 31) {
             for (i in 0...enemies.members.length) {
-                if (!enemiesHit[i] && !enemies.members[i].isDead() && FlxCollision.pixelPerfectCheck(hitArea, enemies.members[i], 1)) {
+                if (!enemiesHit[i] && !enemies.members[i].isDead() && FlxG.pixelPerfectOverlap(hitArea, enemies.members[i], 1)) {
                     if (enemies.members[i].isParrying()) {
                         enemies.members[i].hitParry();
-                        animation.play("parried");
-                        hitArea.animation.play("idle");
-                        stunned = true;
+                        parried();
                         resetEnemiesHit();
                     } else if (enemies.members[i].isBlocking()) {
                         enemies.members[i].hitBlock();
@@ -319,19 +386,7 @@ class Player extends FlxSprite {
         }
     }
 
-    // handles jumping, needs to be called before super.update()
-    private function jump() {
-        if (stunned) return;
-        if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
-            collider.velocity.y = -JUMP_VELOCITY * 1.2;
-            animation.play("jump", true);
-
-            // log move "jump"
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
-        }
-    }
-
-    /********************************************* Overriden Functions *********************************************/
+    /***************************************** Overriden Functions from FlxSprite *********************************************/
     override public function kill() {
         animation.play("death");
         stunned = true;
@@ -346,15 +401,24 @@ class Player extends FlxSprite {
     }
 
     override public function update(elapsed:Float) {
-        stamina = Math.min(stamina + elapsed * 13, 100);
-        jump();
+        // recovers stamina if not attacking
+        if (animation.name != "light" && animation.name != "heavy") {
+            stamina = Math.min(stamina + elapsed * STAMINA_RECOVERY_RATE, 100);
+        }
+
+        // sync position to collider
+        setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
+
+        // execute player input
         actions();
+
+        // check for any hit enemies
         hitCheck();
 
         // animation decision, only handles the case when player is on the ground
         // and not have a vertical velocity
         // TODO: we can possibly optimize these if conditions
-        if (collider.isTouching(FlxDirectionFlags.FLOOR)) {
+        /*if (collider.isTouching(FlxDirectionFlags.FLOOR)) {
             if (collider.velocity.y == 0 && animation.name != "float" && animation.name != "land" && !stunned) {
                 if (Math.abs(collider.velocity.x) > 0) {
                     animation.play("walk");
@@ -364,7 +428,7 @@ class Player extends FlxSprite {
             }
         } else if (animation.name == "walk" || animation.name == "idle") {
             animation.play("float");
-        }
+        }*/
 
         super.update(elapsed);
         collider.update(elapsed);

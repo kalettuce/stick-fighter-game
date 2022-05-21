@@ -1,3 +1,5 @@
+package fighter;
+
 import actions.AIAction;
 import actions.ActionStatus;
 import flixel.FlxG;
@@ -5,7 +7,6 @@ import flixel.FlxSprite;
 import flixel.math.FlxRandom;
 import flixel.util.FlxColor;
 import flixel.util.FlxDirectionFlags;
-
 
 class Enemy extends FlxSprite {
     private static final COLLIDER_OFFSET_X:Int = 127;
@@ -78,6 +79,7 @@ class Enemy extends FlxSprite {
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.animation.play("idle");
+        hitArea.alpha = 0.01;
 
         // effects
         effects = new FlxSprite(x, y);
@@ -268,7 +270,7 @@ class Enemy extends FlxSprite {
     private function hitCheck() {
         if (playerHit || player.isDead()) return;
         if (animation.frameIndex == 34 || animation.frameIndex == 35) {
-            if (FlxG.pixelPerfectOverlap(hitArea, player.collider)) {
+            if (FlxG.pixelPerfectOverlap(hitArea, player.collider, 1)) {
                 if (player.isParrying()){
                     parried();
                 } else if (player.isBlocking()) {
@@ -277,7 +279,7 @@ class Enemy extends FlxSprite {
                     hitBlocking();
                 } else {
                     playerHit = true;
-                    player.hit(10);
+                    player.lightHit(10);
                 }
             }
         }

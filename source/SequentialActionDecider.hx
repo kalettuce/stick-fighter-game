@@ -1,5 +1,7 @@
 import actions.AIAction;
 import actions.ActionStatus;
+import fighter.Enemy;
+import fighter.Player;
 import flixel.input.actions.FlxActionManager.ActionSetJson;
 
 class SequentialActionDecider extends ActionDecider {
@@ -32,7 +34,6 @@ class SequentialActionDecider extends ActionDecider {
 
         // special case, if player is parried, punish with an attack
         if (prevStatus == PARRY_HIT) {
-            trace("punishing");
             return AIAction.ATTACK_ACTION;
         }
 

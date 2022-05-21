@@ -1,6 +1,8 @@
 
 import actions.AIAction;
 import actions.ActionStatus;
+import fighter.Enemy;
+import fighter.Player;
 import flixel.util.FlxDirectionFlags;
 import haxe.xml.Check.Attrib;
 
