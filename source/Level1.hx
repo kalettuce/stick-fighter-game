@@ -63,8 +63,14 @@ class Level1 extends FlxState {
         player.addEnemy(enemy);
 
         exitButton = new FlxButton(0, 0, "Exit", exit);
+        exitButton.scale.set(3, 3);
+        exitButton.updateHitbox();
+        exitButton.label.setFormat(null, 18, FlxColor.BLACK);
+        exitButton.label.fieldWidth = exitButton.width;
+        exitButton.label.alignment = "center";
+        exitButton.label.offset.y -= 15;
         exitButton.screenCenter(X);
-        exitButton.y = 10;
+        exitButton.y = 40;
 
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "health", 0, 100, true);

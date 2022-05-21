@@ -16,13 +16,25 @@ class MenuState extends FlxState
     {
         // Play Button
         playButton = new FlxButton(0, 0, "Play", clickPlay);
+        playButton.scale.set(4, 4);
+        playButton.updateHitbox();
+        playButton.label.setFormat(null, 18, FlxColor.BLACK);
+        playButton.label.fieldWidth = playButton.width;
+        playButton.label.alignment = "center";
+        playButton.label.offset.y -= 25;
         playButton.screenCenter(X);
-        playButton.y = (FlxG.height / 2) - 20;
+        playButton.y = (FlxG.height / 2) - 40;
         add(playButton);
 
         levelsButton = new FlxButton(0, 0, "Select Level", selectLevel);
+        levelsButton.scale.set(4, 4);
+        levelsButton.updateHitbox();
+        levelsButton.label.setFormat(null, 18, FlxColor.BLACK);
+        levelsButton.label.fieldWidth = levelsButton.width;
+        levelsButton.label.alignment = "center";
+        levelsButton.label.offset.y -= 25;
         levelsButton.screenCenter(X);
-        levelsButton.y = (FlxG.height / 2) + 20;
+        levelsButton.y = (FlxG.height / 2) + 40;
         add(levelsButton);
 
         bgColor = FlxColor.BLACK;
