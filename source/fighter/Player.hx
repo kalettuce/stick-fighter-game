@@ -9,7 +9,7 @@ import flixel.util.FlxCollision;
 import flixel.util.FlxDirectionFlags;
 import openfl.geom.Point;
 
-class Player extends FlxSprite {
+class Player extends FightUnit {
     private static final WALK_VELOCITY:Int = 230;
     private static final JUMP_VELOCITY:Int = 800;
     private static final GRAVITY:Int = 1000;
@@ -20,28 +20,10 @@ class Player extends FlxSprite {
     private static final COLLIDER_OFFSET_X = 205;
     private static final COLLIDER_OFFSET_Y = 152;
 
-    // the object to compute collision with, should only cover the body of the
-    // player character
-    public var collider:FlxSprite;
-
-    // when attacking, this sprite is used to check if an attack could hit an enemy
-    // by checking its pixel-perfect collision results with the enemy
-    public var hitArea:FlxSprite;
-    // the effects is used to store effects layer independent of the character sprite
-    public var effects:FlxSprite;
-
     public var stamina:Float;
 
     public var enemies:FlxTypedGroup<Enemy>;
     private var enemiesHit:Array<Bool>;
-
-    // when stunned, the character stops accept input
-    private var stunned:Bool;
-
-    // true when the player is dead
-    private var dead:Bool;
-
-    private var status:FighterStates;
 
     /**
      * Constructor of a player character
@@ -113,36 +95,18 @@ class Player extends FlxSprite {
         status = FighterStates.IDLE;
     }
 
-    /********************************************* Public Functions *********************************************/
+    /********************************************* Public Queries *********************************************/
     public function addEnemy(enemy:Enemy) {
         enemies.add(enemy);
         enemiesHit.push(false);
     }
 
-    public function isParrying():Bool {
+    override public function isParrying():Bool {
         return animation.frameIndex == 5 || animation.frameIndex == 6;
     }
 
-    public function isBlocking():Bool {
-        return animation.frameIndex == 18;
-    }
-
-    public function isDead():Bool {
-        return dead;
-    }
-
-    // return the x coordinate of center point of the sprite
-    public function getCenter():Float {
-        return collider.x + (collider.width / 2);
-    }
-
-    // return the range of the sprite's attack
-    public function getRange():Int {
+    override public function getRange():Int {
         return ATTACK_RANGE;
-    }
-
-    public function getStatus():FighterStates {
-        return status;
     }
     
     /********************************************* Actions Functions *********************************************/
@@ -186,11 +150,10 @@ class Player extends FlxSprite {
     }
 
     private function light() {
+        status = FighterStates.LIGHT;
         play("light");
-        hitArea.animation.play("light");
         stunned = true;
         stamina -= 20;
-        status = FighterStates.LIGHT;
         collider.velocity.x = 0;
         // log move
         Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
@@ -296,15 +259,6 @@ class Player extends FlxSprite {
     }
 
     /********************************************* update() helper functions *********************************************/
-    // plays the given animation for rendered sprite, and play the corresponding animation for other sprites.
-    private function play(name:String) {
-        animation.play(name);
-        if (name == "light") {
-            hitArea.animation.play(name);
-        } else {
-            hitArea.animation.play("idle");
-        }
-    }
 
     // determines what action to execute based on user input
     private function actions() {
@@ -354,12 +308,6 @@ class Player extends FlxSprite {
         }
     }
 
-    private function setFacing(direction:FlxDirectionFlags) {
-        facing = direction;
-        hitArea.facing = direction;
-        effects.facing = direction;
-    }
-
     private function hitCheck() {
         if (animation.frameIndex == 31) {
             for (i in 0...enemies.members.length) {
@@ -387,17 +335,22 @@ class Player extends FlxSprite {
     }
 
     /***************************************** Overriden Functions from FlxSprite *********************************************/
+    
+    // sets the collider to the given location and the other layers to their
+    // matching location as well
+    override public function setPosition(x:Float = 0, y:Float = 0) {
+        final originalX:Float = x - COLLIDER_OFFSET_X;
+        final originalY:Float = y - COLLIDER_OFFSET_Y;
+        super.setPosition(originalX, originalY);
+        hitArea.setPosition(originalX, originalY);
+        effects.setPosition(originalX, originalY);
+        collider.setPosition(x, y);
+    }
+    
     override public function kill() {
         animation.play("death");
         stunned = true;
         dead = true;
-    }
-
-    override public function setPosition(x:Float = 0, y:Float = 0) {
-        super.setPosition(x, y);
-        hitArea.setPosition(x, y);
-        collider.setPosition(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
-        effects.setPosition(x, y);
     }
 
     override public function update(elapsed:Float) {
@@ -407,28 +360,13 @@ class Player extends FlxSprite {
         }
 
         // sync position to collider
-        setPosition(collider.x-COLLIDER_OFFSET_X, collider.y-COLLIDER_OFFSET_Y);
+        setPosition(collider.x, collider.y);
 
         // execute player input
         actions();
 
         // check for any hit enemies
         hitCheck();
-
-        // animation decision, only handles the case when player is on the ground
-        // and not have a vertical velocity
-        // TODO: we can possibly optimize these if conditions
-        /*if (collider.isTouching(FlxDirectionFlags.FLOOR)) {
-            if (collider.velocity.y == 0 && animation.name != "float" && animation.name != "land" && !stunned) {
-                if (Math.abs(collider.velocity.x) > 0) {
-                    animation.play("walk");
-                } else {
-                    animation.play("idle");
-                }
-            }
-        } else if (animation.name == "walk" || animation.name == "idle") {
-            animation.play("float");
-        }*/
 
         super.update(elapsed);
         collider.update(elapsed);
