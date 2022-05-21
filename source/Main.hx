@@ -1,8 +1,7 @@
-package;
-
 import cse481d.logging.CapstoneLogger;
 import flixel.FlxGame;
 import openfl.display.Sprite;
+import states.Level1;
 
 class Main extends Sprite {
 
@@ -37,7 +36,7 @@ class Main extends Sprite {
 
     private function onSessionReady(sessionRecieved:Bool):Void
     {
-        addChild(new FlxGame(0, 0, MenuState, 1, 60, 60, true));
+        addChild(new FlxGame(0, 0, Level1, 1, 60, 60, true));
     }
 
 }

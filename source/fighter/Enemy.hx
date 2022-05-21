@@ -1,6 +1,7 @@
 package fighter;
 
 import actions.AIAction;
+import actions.ActionDecider;
 import actions.ActionStatus;
 import flixel.FlxG;
 import flixel.FlxSprite;

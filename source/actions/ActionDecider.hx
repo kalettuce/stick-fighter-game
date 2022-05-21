@@ -1,3 +1,4 @@
+package actions;
 
 import actions.AIAction;
 import actions.ActionStatus;

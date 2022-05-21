@@ -1,4 +1,4 @@
-package;
+package states;
 
 // Update imports
 import flixel.FlxG;

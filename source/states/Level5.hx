@@ -1,4 +1,4 @@
-package;
+package states;
 
 import fighter.Enemy;
 import fighter.Player;
@@ -18,7 +18,7 @@ import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 
-class Level3 extends FlxState {
+class Level5 extends FlxState {
     public static var unlocked:Bool = false;
     var player:Player;
 
@@ -33,7 +33,7 @@ class Level3 extends FlxState {
 
         // add the terrain
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level3_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        map.loadMapFromCSV("assets/levels/level5_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
         map.screenCenter();
         add(map);
 
