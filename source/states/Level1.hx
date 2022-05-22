@@ -66,34 +66,34 @@ class Level1 extends FlxState {
         //enemy.setCombatAI(new ActionDecider(enemy, player));
         player.addEnemy(enemy);
 
-        exitButton = new FlxButton(0, 0, "Exit", exit);
-        exitButton.scale.set(3, 3);
+        exitButton = new FlxButton(0, 0, "Return to Menu", exit);
+        exitButton.scale.set(2, 2);
         exitButton.updateHitbox();
-        exitButton.label.setFormat(null, 18, FlxColor.BLACK);
+        exitButton.label.setFormat(null, 13, FlxColor.BLACK);
         exitButton.label.fieldWidth = exitButton.width;
         exitButton.label.alignment = "center";
-        exitButton.label.offset.y -= 15;
-        exitButton.screenCenter(X);
+        exitButton.label.offset.y -= 8;
+        exitButton.x = 1030;
         exitButton.y = 40;
 
         // create health bar
-        playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "health", 0, 100, true);
-        playerHealthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
+        playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
+        playerHealthBar.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
         playerHealthBar.trackParent(175, 0);
 
         // create stamina bar
-        playerStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, player, "stamina", 0, 100, true);
-        playerStaminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
+        playerStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "stamina", 0, 100, true);
+        playerStaminaBar.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         playerStaminaBar.trackParent(175, 20);
 
         // create health bar
-        enemyHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "health", 0, 100, true);
-        enemyHealthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
+        enemyHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy, "health", 0, 100, true);
+        enemyHealthBar.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
         enemyHealthBar.trackParent(175, 0);
 
         // create stamina bar
-        enemyStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, enemy, "stamina", 0, 100, true);
-        enemyStaminaBar.createFilledBar(FlxColor.BLUE, FlxColor.YELLOW, true);
+        enemyStaminaBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy, "stamina", 0, 100, true);
+        enemyStaminaBar.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar.trackParent(175, 20);
 
         // set a background color

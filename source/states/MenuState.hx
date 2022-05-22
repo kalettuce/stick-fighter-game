@@ -23,7 +23,7 @@ class MenuState extends FlxState
         playButton.label.alignment = "center";
         playButton.label.offset.y -= 25;
         playButton.screenCenter(X);
-        playButton.y = (FlxG.height / 2) - 40;
+        playButton.y = (FlxG.height / 2) - 50;
         add(playButton);
 
         levelsButton = new FlxButton(0, 0, "Select Level", selectLevel);
@@ -34,7 +34,7 @@ class MenuState extends FlxState
         levelsButton.label.alignment = "center";
         levelsButton.label.offset.y -= 25;
         levelsButton.screenCenter(X);
-        levelsButton.y = (FlxG.height / 2) + 40;
+        levelsButton.y = (FlxG.height / 2) + 50;
         add(levelsButton);
 
         bgColor = FlxColor.BLACK;
