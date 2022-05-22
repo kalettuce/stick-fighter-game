@@ -15,8 +15,12 @@ class Player extends FightUnit {
     private static final MAX_JUMP_VELOCITY:Int = 800;
     private static final MIN_JUMP_VELOCITY:Int = 400;
     private static final GRAVITY:Int = 1000;
+    private static final DRAG_Y:Int = 300;
     private static final ATTACK_RANGE:Int = 219;
-    private static final STAMINA_RECOVERY_RATE = 16;
+    private static final STAMINA_RECOVERY_RATE:Int = 16;
+    private static final LIGHT_STAMINA_USAGE:Int = 10;
+    private static final HEAVY_STAMINA_USAGE:Int = 20;
+    private static final CANCEL_STAMINA_USAGE:Int = 10;
 
     // offset of the collider relative to the rendered sprite
     private static final COLLIDER_OFFSET_X = 205;
@@ -50,6 +54,7 @@ class Player extends FightUnit {
         animation.add("land", [10], 10, false);
         animation.add("walk", [20, 21, 22, 23, 0], 10);
         animation.add("light", [0, 30, 31, 32, 0], 10, false);
+        animation.add("heavy", [0, 19, 27, 27, 27, 28, 29, 29, 29, 0], 10, false);
         animation.add("hit", [40, 41, 42, 0], 10, false);
         animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 6, false);
         animation.add("block", [18], 10);
@@ -65,6 +70,7 @@ class Player extends FightUnit {
 
         collider.acceleration.y = GRAVITY;
         collider.maxVelocity.y = GRAVITY;
+        collider.drag.y = DRAG_Y;
         collider.active = false; // prevents collider.update() from being automatically called
 
         // load the hit area
@@ -72,6 +78,7 @@ class Player extends FightUnit {
         hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 400);
         hitArea.animation.add("idle", [0], 10);
         hitArea.animation.add("light", [0, 30, 31, 32, 0], 10, false);
+        hitArea.animation.add("heavy", [0, 19, 27, 27, 27, 28, 29, 0, 0, 0], 10, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.alpha = 0.01;
@@ -164,10 +171,19 @@ class Player extends FightUnit {
         status = FighterStates.LIGHT;
         play("light");
         stunned = true;
-        stamina -= 20;
+        stamina -= LIGHT_STAMINA_USAGE;
         collider.velocity.x = 0;
         // log move
         Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+    }
+
+    private function heavy() {
+        status = FighterStates.HEAVY;
+        play("heavy");
+        stunned = true;
+        stamina -= HEAVY_STAMINA_USAGE;
+        collider.velocity.x = 0;
+        // TODO: log attack
     }
 
     private function block() {
@@ -250,7 +266,7 @@ class Player extends FightUnit {
                 }
                 cumulativeJumpVelocity = 0;
                 float();
-            case "light":
+            case "light", "heavy":
                 idle();
                 resetEnemiesHit();
             default: idle();
@@ -304,8 +320,10 @@ class Player extends FightUnit {
         var rightPressed:Bool = FlxG.keys.pressed.D;
         // decides whether to initiate attack, block, or jump
         if (status == FighterStates.IDLE || status == FighterStates.WALK) {
-            if (FlxG.keys.pressed.J && stamina >= 20) {
+            if (FlxG.keys.pressed.J && stamina >= 10) {
                 light();
+            } else if (FlxG.keys.pressed.I) {
+                heavy();
             } else if (FlxG.keys.pressed.K) {
                 block();
             } else if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
@@ -336,7 +354,7 @@ class Player extends FightUnit {
     }
 
     private function hitCheck() {
-        if (animation.frameIndex == 31) {
+        if (hitArea.animation.frameIndex == 31 || hitArea.animation.frameIndex == 28 || hitArea.animation.frameIndex == 29) {
             for (i in 0...enemies.members.length) {
                 if (!enemiesHit[i] && !enemies.members[i].isDead() && FlxG.pixelPerfectOverlap(hitArea, enemies.members[i], 1)) {
                     if (enemies.members[i].isParrying()) {
@@ -382,7 +400,7 @@ class Player extends FightUnit {
 
     override public function update(elapsed:Float) {
         // recovers stamina if not attacking
-        if (animation.name != "light" && animation.name != "heavy") {
+        if (status != FighterStates.LIGHT && status != FighterStates.HEAVY) {
             stamina = Math.min(stamina + elapsed * STAMINA_RECOVERY_RATE, 100);
         }
 
