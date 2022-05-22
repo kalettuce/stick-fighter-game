@@ -71,7 +71,6 @@ class FightUnit extends FlxSprite {
     public function setPlatforms(platforms:Array<TilePlatform>) {
         terrainPlatforms = platforms;
         updatePlatformIndex();
-        trace(platforms);
     }
 
     public function getPlatform():TilePlatform {

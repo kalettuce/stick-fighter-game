@@ -119,7 +119,6 @@ class Enemy extends FightUnit {
             play("land");
             status = FighterStates.IDLE;
             updatePlatformIndex();
-            trace("enemy pindex: " + platformIndex);
         }
     }
 
