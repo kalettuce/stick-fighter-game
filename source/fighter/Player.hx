@@ -246,7 +246,6 @@ class Player extends FightUnit {
                 if (cumulativeJumpVelocity > MAX_JUMP_VELOCITY) {
                     collider.velocity.y = -MAX_JUMP_VELOCITY;
                 } else {
-                    trace("jumping at velocity: " + cumulativeJumpVelocity);
                     collider.velocity.y = -cumulativeJumpVelocity;
                 }
                 cumulativeJumpVelocity = 0;
