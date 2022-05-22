@@ -51,6 +51,7 @@ class Enemy extends FightUnit {
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         animation.play("idle");
+        animation.callback = animationFrameCallback;
         animation.finishCallback = animationFinishCallback;
 
         // collider
@@ -111,6 +112,16 @@ class Enemy extends FightUnit {
         combatAI = cAI;
     }
 
+    private function animationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
+        if ((status == FighterStates.IDLE || status == FighterStates.WALK) && collider.velocity.y > 0) {
+            float();
+        } else if (collider.isTouching(FlxDirectionFlags.FLOOR) && collider.velocity.y == 0 && status == FighterStates.AIR) {
+            play("land");
+            status = FighterStates.IDLE;
+            updatePlatformIndex();
+            trace("enemy pindex: " + platformIndex);
+        }
+    }
 
     private function animationFinishCallback(name:String) {
         switch (name) {
@@ -140,10 +151,23 @@ class Enemy extends FightUnit {
 
     /********************************************* Actions Functions *********************************************/
     private function idle() {
-        play("idle");
+        // only idles if on the floor
+        // does not interrupt jumping or landing animations
+        if (collider.isTouching(FlxDirectionFlags.FLOOR) && status != FighterStates.JUMP && !(!animation.finished && animation.name == "land")) {
+            play("idle");
+            status = FighterStates.IDLE;
+        } else if (collider.velocity.y > 0) {
+            float();
+        }
         collider.velocity.x = 0;
         stunned = false;
-        status = FighterStates.IDLE;
+    }
+
+    // float in air
+    private function float() {
+        play("float");
+        status = FighterStates.AIR;
+        stunned = false;
     }
 
     private function light() {
@@ -180,7 +204,9 @@ class Enemy extends FightUnit {
     }
 
     private function move() {
-        play("walk");
+        if (animation.name != "land") {
+            play("walk");
+        }
         stunned = false;
 
         if (facing == FlxDirectionFlags.LEFT) {
@@ -194,8 +220,11 @@ class Enemy extends FightUnit {
     /********************************************* Passive Action Functions *********************************************/
     // should be called when "this" enemy is hit
     public function hit(damage:Float) {
+        status = FighterStates.HITSTUNLIGHT;
         play("hit");
-        prevActionStatus = ActionStatus.INTERRUPTED;
+        if (prevActionStatus == ActionStatus.NEUTRAL) {
+            prevActionStatus = ActionStatus.INTERRUPTED;
+        }
         collider.velocity.x = 0;
         stunned = true;
         playerHit = false;
@@ -286,10 +315,6 @@ class Enemy extends FightUnit {
     }
 
     override public function update(elapsed:Float) {
-        if (FlxG.keys.justPressed.U) {
-            combatAI.print();
-        }
-        
         // recovers stamina if not attacking
         if (animation.name != "light" && animation.name != "heavy") {
             stamina = Math.min(stamina + elapsed * STAMINA_RECOVERY_RATE, 100);

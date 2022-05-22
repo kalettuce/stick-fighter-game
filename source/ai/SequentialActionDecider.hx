@@ -29,8 +29,10 @@ class SequentialActionDecider extends ActionDecider {
             seqIndex = (seqIndex + 1) % sequence.length;
         }
 
+        patrolDecision();
+
         // move if not in range
-        if (!inRange()) {
+        if (patrolling || !inRange()) {
             return AIAction.MOVE_ACTION;
         }
 

@@ -11,7 +11,9 @@ import openfl.geom.Point;
 
 class Player extends FightUnit {
     private static final WALK_VELOCITY:Int = 230;
-    private static final JUMP_VELOCITY:Int = 800;
+    private static final JUMP_CUMULATIVE_STEP:Int = 4200;
+    private static final MAX_JUMP_VELOCITY:Int = 800;
+    private static final MIN_JUMP_VELOCITY:Int = 400;
     private static final GRAVITY:Int = 1000;
     private static final ATTACK_RANGE:Int = 219;
     private static final STAMINA_RECOVERY_RATE = 16;
@@ -24,6 +26,8 @@ class Player extends FightUnit {
 
     public var enemies:FlxTypedGroup<Enemy>;
     private var enemiesHit:Array<Bool>;
+
+    private var cumulativeJumpVelocity:Int;
 
     /**
      * Constructor of a player character
@@ -83,8 +87,7 @@ class Player extends FightUnit {
         effects.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
 
         // start in idle
-        animation.play("idle");
-        hitArea.animation.play("idle");
+        idle();
         effects.animation.play("idle");
 
         // other initializations
@@ -93,6 +96,7 @@ class Player extends FightUnit {
         stamina = 100;
         dead = false;
         status = FighterStates.IDLE;
+        cumulativeJumpVelocity = 0;
     }
 
     /********************************************* Public Queries *********************************************/
@@ -127,10 +131,17 @@ class Player extends FightUnit {
         switch (status) {
             // when on the ground, play "walk" and set velocity
             case FighterStates.IDLE, FighterStates.WALK:
+                // float if falling
+                if (collider.velocity.y > 0) {
+                    float();
+                    return;
+                }
+
                 // does not interrupt a landing animation
                 if (animation.name != "land") {
                     play("walk");
                 }
+
                 stunned = false;
                 status = FighterStates.WALK;
                 if (facing == FlxDirectionFlags.LEFT) {
@@ -188,6 +199,7 @@ class Player extends FightUnit {
     // float in air
     private function float() {
         play("float");
+        platformIndex = 0;
         status = FighterStates.AIR;
         stunned = false;
     }
@@ -231,7 +243,13 @@ class Player extends FightUnit {
         // Note that switch statements in Haxe does not "fall through"
         switch (name) {
             case "jump":
-                collider.velocity.y = -JUMP_VELOCITY;
+                if (cumulativeJumpVelocity > MAX_JUMP_VELOCITY) {
+                    collider.velocity.y = -MAX_JUMP_VELOCITY;
+                } else {
+                    trace("jumping at velocity: " + cumulativeJumpVelocity);
+                    collider.velocity.y = -cumulativeJumpVelocity;
+                }
+                cumulativeJumpVelocity = 0;
                 float();
             case "light":
                 idle();
@@ -241,9 +259,12 @@ class Player extends FightUnit {
     }
 
     private function animationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
-        if (collider.isTouching(FlxDirectionFlags.FLOOR) && collider.velocity.y == 0 && status == FighterStates.AIR) {
+        // TODO: minor bug, the code seems to be able to enter this branch even when (status == IDLE)
+        if ((status == FighterStates.AIR) && (collider.velocity.y == 0) && collider.isTouching(FlxDirectionFlags.FLOOR)) {
             play("land");
+            //trace("landing with status " + status);
             status = FighterStates.IDLE;
+            updatePlatformIndex();
         }
     }
 
@@ -261,10 +282,12 @@ class Player extends FightUnit {
     /********************************************* update() helper functions *********************************************/
 
     // determines what action to execute based on user input
-    private function actions() {
+    private function actions(elapsed:Float) {
         // handling the case when the player is blocking
         if (stunned && status == FighterStates.BLOCK) {
-            if (FlxG.keys.justReleased.K) {
+            if (collider.velocity.y > 0) {
+                float();
+            } else if (FlxG.keys.justReleased.K) {
                 idle();
             } else if (FlxG.keys.pressed.J) {
                 parry();
@@ -287,7 +310,12 @@ class Player extends FightUnit {
             } else if (FlxG.keys.pressed.K) {
                 block();
             } else if (FlxG.keys.justPressed.SPACE && collider.isTouching(FlxDirectionFlags.FLOOR)) {
+                cumulativeJumpVelocity = MIN_JUMP_VELOCITY;
                 jump();
+            }
+        } else if (status == FighterStates.JUMP) {
+            if (FlxG.keys.pressed.SPACE) {
+                cumulativeJumpVelocity += Std.int(JUMP_CUMULATIVE_STEP * elapsed);
             }
         }
 
@@ -363,7 +391,7 @@ class Player extends FightUnit {
         setPosition(collider.x, collider.y);
 
         // execute player input
-        actions();
+        actions(elapsed);
 
         // check for any hit enemies
         hitCheck();
