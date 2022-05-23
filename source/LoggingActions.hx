@@ -13,6 +13,7 @@ class LoggingActions
     public static var ENEMY_ATTACK:Int = 7;
     public static var PLAYER_BLOCK:Int = 8;
     public static var PLAYER_PARRY:Int = 9;
+    public static var PARRY_SUCCESS:Int = 10;
 
 
     public function new()
