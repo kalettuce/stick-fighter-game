@@ -276,13 +276,50 @@ class Level2 extends FlxState {
         super.update(elapsed);
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
-        showHealthBar(false, enemy2.health, enemyHealthBar2, elapsed);
-        showHealthBar(false, enemy3.health, enemyHealthBar3, elapsed);
+        if (enemy2.health != enemyHealth2) {
+            add(enemyHealthBar2);
+            enemyHealth2 = enemy2.health;
+            enemyHealthTimer2 = 0;
+        } else {
+            enemyHealthTimer2 += elapsed;
+            if (enemyHealthTimer2 > timerMax) {
+                remove(enemyHealthBar2);
+                enemyHealthTimer2 = 0;
+            }
+        }
+        if (enemy3.health != enemyHealth3) {
+            add(enemyHealthBar3);
+            enemyHealth3 = enemy3.health;
+            enemyHealthTimer3 = 0;
+        } else {
+            enemyHealthTimer3 += elapsed;
+            if (enemyHealthTimer3 > timerMax) {
+                remove(enemyHealthBar3);
+                enemyHealthTimer3 = 0;
+            }
+        }
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
-        showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
-        showStaminaBar(false, enemy2.stamina, enemyStaminaBar2, elapsed);
-        showStaminaBar(false, enemy3.stamina, enemyStaminaBar3, elapsed);
+        if (enemy2.stamina != enemyStamina2) {
+                add(enemyStaminaBar2);
+                enemyStamina2 = enemy2.stamina;
+                enemyStaminaTimer2 = 0;
+        } else {
+            enemyStaminaTimer2 += elapsed;
+            if (enemyStaminaTimer2 > timerMax) {
+                remove(enemyStaminaBar2);
+            }
+        }
+        if (enemy3.stamina != enemyStamina3) {
+                add(enemyStaminaBar3);
+                enemyStamina3 = enemy3.stamina;
+                enemyStaminaTimer3 = 0;
+        } else {
+            enemyStaminaTimer3 += elapsed;
+            if (enemyStaminaTimer3 > timerMax) {
+                remove(enemyStaminaBar3);
+            }
+        }
 
         remove(killCountText);
         killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
