@@ -20,12 +20,21 @@ class RandomActionDecider extends ActionDecider {
     private var neutralWeights:Array<Float>;
     private var attackedWeights:Array<Float>;
 
+    // to help maintain a pose so that there isn't too many sudden movements
+    private var prevPlayerStatus:FighterStates;
+    private var prevAction:AIAction;
+    private var prevDuration:Float;
+
+
     override public function new (s:Enemy, p:Player) {
         super(s, p);
         pendingAttackedAction = null;
         pendingNeutralAction = null;
         neutralWeights = null;
         attackedWeights = null;
+        prevPlayerStatus = null;
+        prevAction = null;
+        prevDuration = 0;
     }
 
     public function setNeutralWeights(weights:Array<Float>) {
@@ -57,7 +66,19 @@ class RandomActionDecider extends ActionDecider {
         }
     }
 
-    override public function nextAction(prevStatus:ActionStatus):AIAction {
+    // set the current action to last the given duration
+    private function setDuration(duration:Float) {
+        prevPlayerStatus = player.getStatus();
+        prevDuration = duration;
+        switch (prevPlayerStatus) {
+            case FighterStates.LIGHT, FighterStates.HEAVY:
+                prevAction = pendingAttackedAction;
+            default:
+                prevAction = pendingNeutralAction;
+        }
+    }
+
+    override public function nextAction(prevStatus:ActionStatus, elapsed:Float):AIAction {
         patrolDecision();
 
         // move if not in range or patrolling
@@ -68,19 +89,28 @@ class RandomActionDecider extends ActionDecider {
         // special case, if player is parried, punish with an attack
         if (prevStatus == ActionStatus.PARRY_HIT) {
             if (player.getStatus() == FighterStates.LIGHTPARRIED) {
-                return AIAction.HEAVY_ACTION;
+                return self.stamina > Enemy.HEAVY_STAMINA_USAGE ? AIAction.HEAVY_ACTION : AIAction.IDLE_ACTION;
             } else {
-                return AIAction.LIGHT_ACTION;
+                return self.stamina > Enemy.LIGHT_STAMINA_USAGE ? AIAction.LIGHT_ACTION : AIAction.IDLE_ACTION;
             }
+        }
+
+        final playerStatus:FighterStates = player.getStatus();
+        if (playerStatus != prevPlayerStatus || prevDuration < 0) {
+            prevPlayerStatus = null;
+            prevAction = null;
+            prevDuration = 0;
+        } else {
+            prevDuration -= elapsed;
+            return prevAction;
         }
 
         if (pendingAttackedAction == null || pendingNeutralAction == null) {
             getNextActions();
         }
         
-        final playerStatus:FighterStates = player.getStatus();
         switch (playerStatus) {
-            case FighterStates.LIGHT, FighterStates.HEAVY:
+            case FighterStates.LIGHT, FighterStates.HEAVY: // player is attacking
                 if (pendingAttackedAction == AIAction.PARRY_ACTION) {
                     if (random.bool(5) || player.attackImminent()) {
                         pendingAttackedAction = null;
@@ -89,14 +119,30 @@ class RandomActionDecider extends ActionDecider {
                         return AIAction.IDLE_ACTION;
                     }
                 } else {
-                    final temp = pendingAttackedAction;
+                    setDuration(1);
                     pendingAttackedAction = null;
-                    return temp;
+                    return prevAction;
                 }
-            default:
-                final temp = pendingNeutralAction;
-                pendingNeutralAction = null;
-                return temp;
+            default: // player is not attacking
+                if (pendingNeutralAction == AIAction.LIGHT_ACTION) {
+                    if (self.stamina > Enemy.LIGHT_STAMINA_USAGE) {
+                        pendingNeutralAction = null;
+                        return AIAction.LIGHT_ACTION;
+                    } else {
+                        return AIAction.IDLE_ACTION;
+                    }
+                } else if (pendingNeutralAction == AIAction.HEAVY_ACTION) {
+                    if (self.stamina > Enemy.HEAVY_STAMINA_USAGE) {
+                        pendingNeutralAction = null;
+                        return AIAction.HEAVY_ACTION;
+                    } else {
+                        return AIAction.IDLE_ACTION;
+                    }
+                } else {
+                    setDuration(1);
+                    pendingNeutralAction = null;
+                    return prevAction;
+                }
         }
     }
 }

@@ -21,7 +21,7 @@ class ActionDecider {
         player = p;
     }
 
-    public function nextAction(prevStatus:ActionStatus):AIAction {
+    public function nextAction(prevStatus:ActionStatus, elapsed:Float):AIAction {
         // move until player is in range 
         if (!inRange()) {
             return AIAction.MOVE_ACTION;
@@ -39,7 +39,7 @@ class ActionDecider {
         if (selfIndex == -1) return;
 
         // set patrolling
-        if (selfIndex != playerIndex) {
+        if (selfIndex != playerIndex || player.isDead()) {
             patrolling = true;
         } else {
             patrolling = false;

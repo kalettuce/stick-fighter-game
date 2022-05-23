@@ -263,8 +263,8 @@ class Level1 extends FlxState {
             enemy.invincible = false;
 
             final newAI:RandomActionDecider = new RandomActionDecider(enemy, player);
-            newAI.setAttackedWeights([70, 25, 5]);
-            newAI.setNeutralWeights([85, 10, 5]);
+            newAI.setAttackedWeights([30, 60, 10]);
+            newAI.setNeutralWeights([70, 25, 5]);
             enemy.setCombatAI(newAI);
         }
         showHealthBar(true, player.health, playerHealthBar, elapsed);

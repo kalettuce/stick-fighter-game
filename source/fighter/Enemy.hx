@@ -46,8 +46,8 @@ class Enemy extends FightUnit {
         animation.add("float", [11], 10);
         animation.add("land", [10, 0], 10, false);
         animation.add("walk", [20, 21, 22, 23, 0], 10);
-        animation.add("light", [30, 31, 32, 33, 34, 35], 11, false);
-        animation.add("heavy", [43, 44, 45, 46, 47, 48, 49], 7, false);
+        animation.add("light", [30, 31, 32, 33, 34, 35, 0], 10, false);
+        animation.add("heavy", [43, 44, 45, 46, 47, 48, 49], 5, false);
         animation.add("light-hit", [40, 41, 42, 0], 10, false);
         animation.add("heavy-hit", [40, 41, 41, 42, 42, 0], 10, false);
         animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 5, false);
@@ -71,8 +71,8 @@ class Enemy extends FightUnit {
         hitArea = new FlxSprite(x, y);
         hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 350);
         hitArea.animation.add("idle", [0], 10);
-        hitArea.animation.add("light", [0, 0, 0, 0, 34, 35], 11, false);
-        hitArea.animation.add("heavy", [0, 0, 0, 0, 47, 48, 0], 7, false);
+        hitArea.animation.add("light", [0, 0, 0, 0, 34, 35, 0], 10, false);
+        hitArea.animation.add("heavy", [0, 0, 0, 0, 47, 48, 0], 5, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.animation.play("idle");
@@ -293,7 +293,7 @@ class Enemy extends FightUnit {
             return;
         } else {
             // execute a new action if we're ready
-            var nextAction = combatAI.nextAction(prevActionStatus);
+            var nextAction = combatAI.nextAction(prevActionStatus, elapsed);
             switch (nextAction) {
                 case AIAction.IDLE_ACTION:
                     idle();

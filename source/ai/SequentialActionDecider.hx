@@ -29,7 +29,7 @@ class SequentialActionDecider extends ActionDecider {
         return seqIndex;
     }
 
-    override public function nextAction(prevStatus:ActionStatus):AIAction {
+    override public function nextAction(prevStatus:ActionStatus, elapsed:Float):AIAction {
         // progress in the sequence if the condition is met
         if (prevStatus == conditionSequence[seqIndex]) {
             seqIndex = (seqIndex + 1) % sequence.length;
