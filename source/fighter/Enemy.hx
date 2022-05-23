@@ -220,6 +220,7 @@ class Enemy extends FightUnit {
         } else {
             status = FighterStates.HEAVYPARRIED;
         }
+        Main.LOGGER.logLevelAction(LoggingActions.PARRY_SUCCESS, {direction: "parry success"});
     }
 
     private function move() {
@@ -331,7 +332,7 @@ class Enemy extends FightUnit {
                     } else {
                         player.heavyHit(20);
                     }
-                    
+
                 }
             }
         }

@@ -130,7 +130,7 @@ class Player extends FightUnit {
     override public function getRange():Int {
         return ATTACK_RANGE;
     }
-    
+
     /********************************************* Actions Functions *********************************************/
     private function idle() {
         // only idles if on the floor
@@ -236,7 +236,7 @@ class Player extends FightUnit {
         status = FighterStates.BLOCK;
         collider.velocity.x = 0;
         // log move "block"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {direction: "high block"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {direction: "block"});
     }
 
     private function parry() {
@@ -245,7 +245,7 @@ class Player extends FightUnit {
         status = FighterStates.PARRY;
         collider.velocity.x = 0;
         // log move "parry"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {direction: "high parry"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {direction: "parry"});
     }
 
     // handles jumping, needs to be called before super.update()
@@ -398,7 +398,7 @@ class Player extends FightUnit {
             }
         }
 
-        final shiftPressed:Bool = FlxG.keys.pressed.SHIFT; 
+        final shiftPressed:Bool = FlxG.keys.pressed.SHIFT;
         // do not execute movement actions if stunned from previous decisions
         if (stunned) return;
         if ((leftPressed && rightPressed) || (!leftPressed && !rightPressed)) {
@@ -460,7 +460,7 @@ class Player extends FightUnit {
     }
 
     /***************************************** Overriden Functions from FlxSprite *********************************************/
-    
+
     // sets the collider to the given location and the other layers to their
     // matching location as well
     override public function setPosition(x:Float = 0, y:Float = 0) {
@@ -471,7 +471,7 @@ class Player extends FightUnit {
         effects.setPosition(originalX, originalY);
         collider.setPosition(x, y);
     }
-    
+
     override public function kill() {
         animation.play("death");
         stunned = true;
