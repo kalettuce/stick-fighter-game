@@ -31,6 +31,7 @@ class Level1 extends FlxState {
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
+    var killCountText:FlxButton;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -77,8 +78,8 @@ class Level1 extends FlxState {
         exitButton.label.fieldWidth = exitButton.width;
         exitButton.label.alignment = "center";
         exitButton.label.offset.y -= 8;
-        exitButton.x = 1030;
-        exitButton.y = 40;
+        exitButton.x = 1090;
+        exitButton.y = 20;
 
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
@@ -102,6 +103,10 @@ class Level1 extends FlxState {
 
         // set a background color
         bgColor = FlxColor.GRAY;
+
+        // initialize kill count
+        FlxG.save.data.killCount = 0;
+        FlxG.save.flush();
 
         // construct the scene
         add(enemy.hitArea);
@@ -182,38 +187,21 @@ class Level1 extends FlxState {
     }
 
     override public function update(elapsed:Float) {
-        /*
-        var atkPressed:Bool = FlxG.keys.pressed.K;
-        if (atkPressed) {
-            if (player.health < -1)
-            {
-
-                // PLACEHOLDER!!
-
-                // For the time being until logic is fully implemented
-                // Log player losing all health and losing the game
-                //Main.LOGGER.logLevelEnd({won: false});
-
-                player.health = 100;
-                player.revive();
-            }
-            else {
-
-                // PLACEHOLDER!!
-
-                // For the time being until logic is fully implemented
-                // log "simulated" enemy hit
-                //Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK, {direction: "high attack"});
-                player.hurt(2);
-            }
-        }*/
         super.update(elapsed);
 
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
-        // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+        showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+
+        remove(killCountText);
+        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
+        killCountText.loadGraphic("assets/images/transparent.png", true, 125, 20);
+        killCountText.label.setFormat(null, 16, FlxColor.BLACK);
+        killCountText.x = 20;
+        killCountText.y = 20;
+        add(killCountText);
 
         if (enemy.health == 0) {
             Main.LOGGER.logLevelEnd({won: true});

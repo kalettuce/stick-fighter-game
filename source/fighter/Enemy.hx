@@ -98,7 +98,7 @@ class Enemy extends FightUnit {
     override public function isParrying():Bool {
         return animation.frameIndex == 5 || animation.frameIndex == 6;
     }
-    
+
     // return the range of the sprite's attack
     override public function getRange():Int {
         return ATTACK_RANGE;
@@ -311,6 +311,8 @@ class Enemy extends FightUnit {
         animation.play("death");
         stunned = true;
         dead = true;
+        FlxG.save.data.killCount += 1;
+        FlxG.save.flush();
     }
 
     override public function update(elapsed:Float) {
