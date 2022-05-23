@@ -332,14 +332,12 @@ class Level1 extends FlxState {
             FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
 
-            // Wait 5 seconds to play "death" animation
             popupComplete();
         }
 
         if (player.isDead() && player.animation.finished) {
             Main.LOGGER.logLevelEnd({won: false});
 
-            // Wait 5 seconds to play "death" animation
             level_lost();
         }
 

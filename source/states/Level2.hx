@@ -332,20 +332,20 @@ class Level2 extends FlxState {
         killCountText.y = 20;
         add(killCountText);
 
-        if (enemy.health == 0 && enemy2.health == 0 && enemy3.health == 0) {
+        if (enemy.isDead() && enemy.animation.finished &&
+            enemy2.isDead() && enemy2.animation.finished &&
+            enemy3.isDead() && enemy3.animation.finished) {
             Main.LOGGER.logLevelEnd({won: true});
             FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();
 
-            // Wait 5 seconds to play "death" animation
-            haxe.Timer.delay(popupComplete, 500);
+            popupComplete();
         }
 
-        if (player.health == 0) {
+        if (player.isDead() && player.animation.finished) {
             Main.LOGGER.logLevelEnd({won: false});
 
-            // Wait 5 seconds to play "death" animation
-            haxe.Timer.delay(level_lost, 500);
+            level_lost();
         }
 
         FlxG.collide(player.collider, map);
