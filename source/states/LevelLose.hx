@@ -14,7 +14,6 @@ class LevelLose extends FlxSubState{
     public function new(curLevel:Class<FlxState>) {
         super(0x61000000);
         restart = curLevel;
-
     }
 
     override public function create() {
@@ -24,19 +23,23 @@ class LevelLose extends FlxSubState{
 
         boundingBox.makeGraphic(460, 197, 0xff428BBF);
         boundingBox.screenCenter(XY);
+        boundingBox.scrollFactor.set(0, 0);
         add(boundingBox);
         
 
         final lose_text = new FlxText(0, boundingBox.y + 45, 0, "YOU DIED!!!", 36);
         lose_text.screenCenter(X);
+        lose_text.scrollFactor.set(0, 0);
         add(lose_text);
 
         final restart_text = new FlxText(0, boundingBox.y + 105, "Press SPACE to restart level", 18);
         restart_text.screenCenter(X);
+        restart_text.scrollFactor.set(0, 0);
         add(restart_text);
 
         final return_text = new FlxText(0, boundingBox.y + 155, "Press ESCAPE to return to main menu", 18);
         return_text.screenCenter(X);
+        return_text.scrollFactor.set(0, 0);
         add(return_text);
         
     }

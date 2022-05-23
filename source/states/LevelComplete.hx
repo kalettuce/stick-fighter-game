@@ -23,15 +23,18 @@ class LevelComplete extends FlxSubState{
         final boundingBox = new FlxSprite();
         boundingBox.makeGraphic(460, 197, 0xff428BBF);
         boundingBox.screenCenter(XY);
+        boundingBox.scrollFactor.set(0, 0);
         add(boundingBox);
         
         // Add text
-        final level_1_text = new FlxText(0, boundingBox.y + 45, 0, "LEVEL COMPLETE!!!", 36);
-        level_1_text.screenCenter(X);
-        add(level_1_text);
+        final level_complete_text = new FlxText(0, boundingBox.y + 45, 0, "LEVEL COMPLETE!!!", 36);
+        level_complete_text.screenCenter(X);
+        level_complete_text.scrollFactor.set(0, 0);
+        add(level_complete_text);
 
         final supCompleteText = new FlxText(0, boundingBox.y + 135, "Press SPACE to continue", 18);
         supCompleteText.screenCenter(X);
+        supCompleteText.scrollFactor.set(0, 0);
         add(supCompleteText);
     }
 

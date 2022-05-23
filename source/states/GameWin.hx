@@ -21,15 +21,18 @@ class GameWin extends FlxSubState{
 
         boundingBox.makeGraphic(460, 197, 0xff428BBF);
         boundingBox.screenCenter(XY);
+        boundingBox.scrollFactor.set(0, 0);
         add(boundingBox);
         
 
-        final level_1_text = new FlxText(0, boundingBox.y + 45, 0, "YOU WON THE GAME!!!", 36);
-        level_1_text.screenCenter(X);
-        add(level_1_text);
+        final level_won = new FlxText(0, boundingBox.y + 45, 0, "YOU WON THE GAME!!!", 36);
+        level_won.screenCenter(X);
+        level_won.scrollFactor.set(0, 0);
+        add(level_won);
 
         final supCompleteText = new FlxText(0, boundingBox.y + 135, "Press SPACE to return to main menu", 18);
         supCompleteText.screenCenter(X);
+        supCompleteText.scrollFactor.set(0, 0);
         add(supCompleteText);
     }
 
