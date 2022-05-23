@@ -207,6 +207,7 @@ class Enemy extends FightUnit {
         collider.velocity.x = 0;
         stunned = true;
         status = FighterStates.PARRY;
+        prevActionStatus = ActionStatus.PARRY_MISS;
     }
 
     private function parried() {
@@ -294,6 +295,7 @@ class Enemy extends FightUnit {
         } else {
             // execute a new action if we're ready
             var nextAction = combatAI.nextAction(prevActionStatus, elapsed);
+            prevActionStatus = ActionStatus.NEUTRAL;
             switch (nextAction) {
                 case AIAction.IDLE_ACTION:
                     idle();
@@ -309,7 +311,6 @@ class Enemy extends FightUnit {
                     move();
             }
             setFacing(combatAI.getDirection());
-            prevActionStatus = ActionStatus.NEUTRAL;
         }
     }
 

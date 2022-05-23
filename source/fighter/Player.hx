@@ -33,6 +33,8 @@ class Player extends FightUnit {
     private var enemiesHit:Array<Bool>;
 
     private var cumulativeJumpVelocity:Int;
+    private var readyCancel:Bool;
+    private var cancelling:Bool; // true if we're cancelling the current heavy attack
 
     /**
      * Constructor of a player character
@@ -44,6 +46,8 @@ class Player extends FightUnit {
         enemies = new FlxTypedGroup<Enemy>();
         enemiesHit = new Array<Bool>();
         stunned = false;
+        cancelling = false;
+        readyCancel = false;
 
         // load the sprites for animation
         // load the rendered animation
@@ -217,6 +221,8 @@ class Player extends FightUnit {
     private function heavy() {
         status = FighterStates.HEAVY;
         play("heavy");
+        cancelling = false;
+        readyCancel = false;
         stunned = true;
         stamina -= HEAVY_STAMINA_USAGE;
         collider.velocity.x = 0;
@@ -358,6 +364,10 @@ class Player extends FightUnit {
                 parry();
             }
             return;
+        } else if (stunned && status == FighterStates.HEAVY) {
+            if (FlxG.keys.pressed.E) {
+                cancelling = true;
+            }
         }
 
         // otherwisd, no action is permitted when stunned
@@ -472,6 +482,14 @@ class Player extends FightUnit {
         // recovers stamina if not attacking
         if (status != FighterStates.LIGHT && status != FighterStates.HEAVY) {
             stamina = Math.min(stamina + elapsed * STAMINA_RECOVERY_RATE, 100);
+        }
+
+        if (attackImminent() && status == FighterStates.HEAVY && cancelling) {
+            if (readyCancel) {
+                idle();
+            } else {
+                readyCancel = true;
+            }
         }
 
         // sync position to collider
