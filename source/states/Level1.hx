@@ -3,6 +3,8 @@ package states;
 import actions.AIAction;
 import actions.ActionStatus;
 import ai.SequentialActionDecider;
+import ai.TerrainSolver;
+import ai.TilePlatform;
 import fighter.Enemy;
 import fighter.Player;
 import flixel.FlxCamera;
@@ -53,13 +55,15 @@ class Level1 extends FlxState {
     override public function create() {
         // add the terrain
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        map.loadMapFromCSV("assets/levels/level3_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level3_terrain.csv", 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
 
         // create the player character
         player = new Player();
+        player.setPlatforms(platforms);
 
         // create the enemy
         var combatSequence:Array<AIAction> = [AIAction.ATTACK_ACTION, AIAction.ATTACK_ACTION, AIAction.ATTACK_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
@@ -67,7 +71,7 @@ class Level1 extends FlxState {
         enemy = new Enemy(700, 0, player);
         enemy.setPlayer(player);
         enemy.setCombatAI(new SequentialActionDecider(enemy, player, combatSequence, statusSequence));
-        //enemy.setCombatAI(new ActionDecider(enemy, player));
+        enemy.setPlatforms(platforms);
         player.addEnemy(enemy);
 
         exitButton = new FlxButton(0, 0, "Return to Menu", exit);

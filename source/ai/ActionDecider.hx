@@ -12,6 +12,10 @@ class ActionDecider {
     private var self:Enemy;
     private var player:Player;
 
+    // true if the enemy is not on the same platform as the player
+    // so the enemy simply patrols the platform
+    private var patrolling:Bool;
+
     public function new (s:Enemy, p:Player) {
         self = s;
         player = p;
@@ -26,7 +30,38 @@ class ActionDecider {
         }
     }
 
+    private function patrolDecision() {
+        final selfIndex = self.getPlatformIndex();
+        final playerIndex = player.getPlatformIndex();
+
+        // note: should not be entering this branch because the AI
+        // doesn't ask for action when mid-air
+        if (selfIndex == -1) return;
+
+        // set patrolling
+        if (selfIndex != playerIndex) {
+            patrolling = true;
+        } else {
+            patrolling = false;
+        }
+    }
+
     public function getDirection():FlxDirectionFlags {
+
+        // patrolling platform
+        if (patrolling) {
+            final platform:TilePlatform = self.getPlatform();
+            // turn around if on edge of platform
+            if (self.facing == FlxDirectionFlags.LEFT && self.collider.x <= platform.xMin) {
+                return FlxDirectionFlags.RIGHT;
+            } else if (self.facing == FlxDirectionFlags.RIGHT && (self.collider.x + self.collider.width) >= platform.xMax) {
+                return FlxDirectionFlags.LEFT;
+            } else {
+                return self.facing;
+            }
+        }
+
+        // chasing player
         if (self.getCenter() > player.getCenter()) {
             return FlxDirectionFlags.LEFT;
         } else {

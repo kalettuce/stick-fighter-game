@@ -1,4 +1,6 @@
 package fighter;
+
+import ai.TilePlatform;
 import flixel.FlxSprite;
 import flixel.util.FlxDirectionFlags;
 
@@ -18,6 +20,9 @@ class FightUnit extends FlxSprite {
     private var dead:Bool;
     private var status:FighterStates;
 
+    private var terrainPlatforms:Array<TilePlatform>;
+    private var platformIndex:Int;
+
     // constructor, spawns the unit at the given coordinates.
     // Needs to be overriden to initialize all layers
     public function new(x:Int = 0, y:Int = 0) {
@@ -25,6 +30,8 @@ class FightUnit extends FlxSprite {
         stunned = false;
         dead = false;
         status = FighterStates.IDLE;
+        terrainPlatforms = [];
+        platformIndex = -1;
     }
 
     /* --------------------- Queries ------------------- */
@@ -59,6 +66,37 @@ class FightUnit extends FlxSprite {
 
     public function getStatus():FighterStates {
         return status;
+    }
+
+    public function setPlatforms(platforms:Array<TilePlatform>) {
+        terrainPlatforms = platforms;
+        updatePlatformIndex();
+    }
+
+    public function getPlatform():TilePlatform {
+        return terrainPlatforms[platformIndex];
+    }
+
+    public function getPlatformIndex():Int {
+        return platformIndex;
+    }
+
+    public function updatePlatformIndex() {
+        // for each platform, check if the collider is on it
+        for (i in 0...terrainPlatforms.length) {
+            final platform:TilePlatform = terrainPlatforms[i];
+            final xleft:Int = Std.int(collider.x);
+            final xright:Int = Std.int(collider.x + collider.width);
+            
+            // the character is on the platform if the collider is at the height
+            // of the platform the x-span of the collider overlaps with the platform
+            if ((Std.int(collider.y + collider.height) == platform.yPos) &&
+                ((xleft >= platform.xMin && xleft <= platform.xMax) || (xright >= platform.xMin && xright <= platform.xMax))) {
+                platformIndex = i;
+                return;
+            }
+        }
+        platformIndex = -1;
     }
 
     /* -------------------- Internal helper functions ---------------- */
