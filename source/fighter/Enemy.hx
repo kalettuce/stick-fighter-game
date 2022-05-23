@@ -217,10 +217,12 @@ class Enemy extends FightUnit {
         stunned = true;
         if (status == FighterStates.LIGHT) {
             status = FighterStates.LIGHTPARRIED;
+            Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "ENEMY light attack PARRIED"});
         } else {
             status = FighterStates.HEAVYPARRIED;
+            Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "ENEMY heavy attack PARRIED"});
         }
-        Main.LOGGER.logLevelAction(LoggingActions.PARRY_SUCCESS, {direction: "parry success"});
+        
     }
 
     private function move() {
@@ -240,6 +242,7 @@ class Enemy extends FightUnit {
     /********************************************* Passive Action Functions *********************************************/
     // should be called when "this" enemy is hit
     public function lightHit(damage:Float) {
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER light attack HIT"});
         status = FighterStates.HITSTUNLIGHT;
         play("light-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
@@ -253,6 +256,7 @@ class Enemy extends FightUnit {
     }
 
     public function heavyHit(damage:Float) {
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER heavy attack HIT"});
         status = FighterStates.HITSTUNHEAVY;
         play("heavy-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
@@ -267,6 +271,8 @@ class Enemy extends FightUnit {
 
     // should be called when "this" enemy is hit while blocking
     public function hitBlock() {
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_BLOCKED, {event: "PLAYER heavy attack BLOCKED"});
+
         effects.animation.play("hit-block", true);
         prevActionStatus = ActionStatus.BLOCK_HIT;
         if (facing == FlxDirectionFlags.LEFT) {
@@ -332,7 +338,6 @@ class Enemy extends FightUnit {
                     } else {
                         player.heavyHit(20);
                     }
-
                 }
             }
         }
@@ -355,6 +360,7 @@ class Enemy extends FightUnit {
         dead = true;
         FlxG.save.data.killCount += 1;
         FlxG.save.flush();
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_KILLED, {event: "enemy killed"});
     }
 
     override public function update(elapsed:Float) {

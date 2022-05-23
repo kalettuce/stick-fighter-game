@@ -236,7 +236,7 @@ class Player extends FightUnit {
         status = FighterStates.BLOCK;
         collider.velocity.x = 0;
         // log move "block"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {direction: "block"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {action: "block"});
     }
 
     private function parry() {
@@ -245,7 +245,7 @@ class Player extends FightUnit {
         status = FighterStates.PARRY;
         collider.velocity.x = 0;
         // log move "parry"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {direction: "parry"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {action: "parry"});
     }
 
     // handles jumping, needs to be called before super.update()
@@ -253,7 +253,7 @@ class Player extends FightUnit {
         play("jump");
         stunned = false;
         status = FighterStates.JUMP;
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "jump"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {action: "jump"});
     }
 
     // float in air
@@ -265,18 +265,22 @@ class Player extends FightUnit {
     }
 
     private function parried() {
+        
         animation.play("parried");
         hitArea.animation.play("idle");
         if (status == FighterStates.LIGHT) {
             status = FighterStates.LIGHTPARRIED;
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER light attack PARRIED"});
         } else {
             status = FighterStates.HEAVYPARRIED;
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER heavy attack PARRIED"});
         }
         stunned = true;
     }
 
     /***************************************** Passive Actions Functions ******************************************/
     public function lightHit(damage:Float) {
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY light attack HIT"});
         animation.play("light-hit");
         hitArea.animation.play("idle");
         stunned = true;
@@ -288,6 +292,7 @@ class Player extends FightUnit {
     }
 
     public function heavyHit(damage:Float) {
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY heavy attack HIT"});
         animation.play("heavy-hit");
         hitArea.animation.play("idle");
         stunned = true;
@@ -299,6 +304,7 @@ class Player extends FightUnit {
     }
 
     public function hitBlock() {
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY attack BLOCKED"});
         effects.animation.play("hit-block", true);
 
         if (facing == FlxDirectionFlags.LEFT) {
