@@ -62,7 +62,10 @@ class Level1 extends FlxState {
     var nextLevel:Class<FlxState>;
     var curLevel:Class<FlxState>;
 
+    var paused:Bool;
+
     override public function create() {
+        paused = false;
         // add the terrain
         map = new FlxTilemap();
         map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
@@ -224,8 +227,36 @@ class Level1 extends FlxState {
         }
     }
 
+    private function pause() {
+        paused = true;
+        player.active = false;
+        player.effects.active = false;
+        player.hitArea.active = false;
+        enemy.active = false;
+        enemy.effects.active = false;
+        enemy.hitArea.active = false;
+    }
+    
+    private function unpause() {
+        paused = false;
+        player.active = true;
+        player.effects.active = true;
+        player.hitArea.active = true;
+        enemy.active = true;
+        enemy.effects.active = true;
+        enemy.hitArea.active = true;
+    }
+
     override public function update(elapsed:Float) {
+        if (FlxG.keys.justPressed.P) {
+            if (paused) {
+                unpause();
+            } else {
+                pause();
+            }
+        }
         super.update(elapsed);
+
         if (player.invincible && cast(enemyAI, SequentialActionDecider).finished()) {
             player.invincible = false;
             enemy.invincible = false;
