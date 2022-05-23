@@ -19,12 +19,14 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
+import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
+import motion.Actuate;
 
 class Level1 extends FlxState {
     var player:Player;
@@ -34,6 +36,9 @@ class Level1 extends FlxState {
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
+    var levelScreen:FlxSprite;
+    var tween:FlxTween;
+
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -124,7 +129,7 @@ class Level1 extends FlxState {
         add(enemy.effects);
         add(exitButton);
 
-        FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
+        
 
         // Initialize nextLevel and curLevel variable
         nextLevel = Level2;
@@ -134,6 +139,16 @@ class Level1 extends FlxState {
         FlxG.save.data.killCount = 0;
         FlxG.save.flush();
 
+
+        levelScreen = new FlxSprite();
+        levelScreen.loadGraphic("assets/images/Level1.png");
+        levelScreen.screenCenter(XY);
+        add(levelScreen);
+
+        FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
+
+        Actuate.tween (levelScreen, 7, { alpha: 0 }); // fade out
+        
         super.create();
     }
 
