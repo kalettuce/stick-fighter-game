@@ -147,7 +147,7 @@ class Level1 extends FlxState {
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
-        Actuate.tween (levelScreen, 7, { alpha: 0 }); // fade out
+        haxe.Timer.delay(splash_screen_delay, 2000);
         
         super.create();
     }
@@ -255,6 +255,10 @@ class Level1 extends FlxState {
 
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
+    }
+
+    private function splash_screen_delay() {
+        Actuate.tween(levelScreen, 7, { alpha: 0 }); // fade out
     }
 
     // Call LevelComplete substate
