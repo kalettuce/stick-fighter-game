@@ -159,9 +159,9 @@ class Player extends FightUnit {
                 }
             case FighterStates.JUMP, FighterStates.AIR:
                 if (facing == FlxDirectionFlags.LEFT) {
-                    collider.velocity.x = -RUN_VELOCITY;
+                    collider.velocity.x = -WALK_VELOCITY;
                 } else {
-                    collider.velocity.x = RUN_VELOCITY;
+                    collider.velocity.x = WALK_VELOCITY;
                 }
             default:
         }

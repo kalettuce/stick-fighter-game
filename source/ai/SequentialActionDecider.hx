@@ -10,23 +10,32 @@ class SequentialActionDecider extends ActionDecider {
     private var seqIndex:Int;
     public var sequence:Array<AIAction>;
     public var conditionSequence:Array<ActionStatus>;
+    private var seqFinished:Bool;
 
     override public function new (s:Enemy, p:Player, seq:Array<AIAction>, condSeq:Array<ActionStatus>) {
         super(s, p);
         sequence = seq;
         seqIndex = 0;
+        seqFinished = false;
         conditionSequence = condSeq;
     }
 
     // returns true if this combat decider has finished its sequence
     public function finished():Bool {
-        return seqIndex >= 0;
+        return seqFinished;
+    }
+
+    public function getSeqIndex():Int {
+        return seqIndex;
     }
 
     override public function nextAction(prevStatus:ActionStatus):AIAction {
         // progress in the sequence if the condition is met
         if (prevStatus == conditionSequence[seqIndex]) {
             seqIndex = (seqIndex + 1) % sequence.length;
+            if (seqIndex == 0) {
+                seqFinished = true;
+            }
         }
 
         patrolDecision();

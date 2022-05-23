@@ -12,6 +12,7 @@ class FightUnit extends FlxSprite {
     public var collider:FlxSprite; // to compute collision
     public var hitArea:FlxSprite; // to compute hitbox collision
     public var effects:FlxSprite; // to show other visual effects
+    public var invincible:Bool; // when true, this character takes no damage
 
     // whether the character is in an un-interruptable animation
     private var stunned:Bool;
@@ -32,6 +33,7 @@ class FightUnit extends FlxSprite {
         status = FighterStates.IDLE;
         terrainPlatforms = [];
         platformIndex = -1;
+        invincible = false;
     }
 
     /* --------------------- Queries ------------------- */
@@ -97,6 +99,13 @@ class FightUnit extends FlxSprite {
             }
         }
         platformIndex = -1;
+    }
+
+    /* ------------------- Overriden functions from FlxSprite ------------------- */
+    override public function hurt(damage:Float) {
+        if (!invincible) {
+            super.hurt(damage);
+        }
     }
 
     /* -------------------- Internal helper functions ---------------- */
