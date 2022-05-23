@@ -80,8 +80,8 @@ class Player extends FightUnit {
         hitArea = new FlxSprite(x, y);
         hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 400);
         hitArea.animation.add("idle", [0], 10);
-        hitArea.animation.add("light", [0, 30, 31, 32, 0], 10, false);
-        hitArea.animation.add("heavy", [0, 19, 27, 27, 27, 28, 29, 0, 0, 0], 10, false);
+        hitArea.animation.add("light", [1, 0, 31, 0, 0], 10, false);
+        hitArea.animation.add("heavy", [0, 0, 0, 1, 0, 28, 29, 0, 0, 0], 10, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.alpha = 0.01;
@@ -113,6 +113,10 @@ class Player extends FightUnit {
     public function addEnemy(enemy:Enemy) {
         enemies.add(enemy);
         enemiesHit.push(false);
+    }
+
+    public function attackImminent():Bool {
+        return hitArea.animation.frameIndex == 1;
     }
 
     override public function isParrying():Bool {

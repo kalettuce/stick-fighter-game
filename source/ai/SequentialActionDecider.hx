@@ -56,8 +56,7 @@ class SequentialActionDecider extends ActionDecider {
 
         switch (sequence[seqIndex]) {
             case AIAction.PARRY_ACTION:
-                // TODO: make a function: attackImminent(), in Player
-                if (player.animation.frameIndex == 30) {
+                if (player.attackImminent() && player.facing != self.facing) {
                     return sequence[seqIndex];
                 } else {
                     return AIAction.IDLE_ACTION;
