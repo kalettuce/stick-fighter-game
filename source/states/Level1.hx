@@ -38,7 +38,8 @@ class Level1 extends FlxState {
     var killCountText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
-
+    var promptText:FlxText;
+    var promptTimer:Float = 0;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -117,6 +118,13 @@ class Level1 extends FlxState {
         enemyStaminaBar.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar.trackParent(175, 20);
 
+        promptText = new FlxText();
+        promptText.text = "Welcome to Stick Fighter!";
+        promptText.color = FlxColor.BLACK;
+        promptText.size = 20;
+        promptText.screenCenter(FlxAxes.X);
+        promptText.y = 425;
+
         // set a background color
         bgColor = FlxColor.GRAY;
 
@@ -128,8 +136,7 @@ class Level1 extends FlxState {
         add(player.effects);
         add(enemy.effects);
         add(exitButton);
-
-        
+        add(promptText);
 
         // Initialize nextLevel and curLevel variable
         nextLevel = Level2;
@@ -236,6 +243,20 @@ class Level1 extends FlxState {
         killCountText.x = 20;
         killCountText.y = 20;
         add(killCountText);
+
+        promptTimer += elapsed;
+        if (promptTimer >= 3 && !cast(enemyAI, SequentialActionDecider).finished()) {
+            if (SequentialActionDecider.seqIndex == 0 || SequentialActionDecider.seqIndex == 1) {
+                promptText.text = "Press K to block the enemy's attack";
+            } else if (SequentialActionDecider.seqIndex == 2) {
+                promptText.text = "Hold K and press J to parry the enemy's attack";
+            } else if (SequentialActionDecider.seqIndex == 3 || SequentialActionDecider.seqIndex == 4) {
+                promptText.text = "Press J to attack the enemy";
+            } else if (SequentialActionDecider.seqIndex == 5) {
+                promptText.text = "Now finish the enemy off!";
+            }
+            promptText.screenCenter(FlxAxes.X);
+        }
 
         if (enemy.health == 0) {
             Main.LOGGER.logLevelEnd({won: true});
