@@ -20,12 +20,14 @@ class LevelStart extends FlxSubState{
         final boundingBox = new FlxSprite();
         boundingBox.makeGraphic(460, 197, 0xff428BBF);
         boundingBox.screenCenter(XY);
+        boundingBox.scrollFactor.set(0, 0);
         add(boundingBox);
         
         // Add text
-        final level_1_text = new FlxText(0, boundingBox.y + 45, 0, "LEVEL START!!!", 36);
-        level_1_text.screenCenter(X);
-        add(level_1_text);
+        final level_start_text = new FlxText(0, boundingBox.y + 45, 0, "LEVEL START!!!", 36);
+        level_start_text.screenCenter(X);
+        level_start_text.scrollFactor.set(0, 0);
+        add(level_start_text);
 
     }
 }

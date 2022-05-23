@@ -12,11 +12,13 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
+import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
+import motion.Actuate;
 
 class Level3 extends FlxState {
     public static var unlocked:Bool = false;
@@ -31,6 +33,11 @@ class Level3 extends FlxState {
     // Declare nextLevel and curLevel variables
     var nextLevel:Class<FlxState>;
     var curLevel:Class<FlxState>;
+
+    var timerMax:Float = 5;
+    var killCountText:FlxButton;
+    var levelScreen:FlxSprite;
+    var tween:FlxTween;
 
     override public function create() {
         super.create();
@@ -70,6 +77,10 @@ class Level3 extends FlxState {
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
         nextLevel = Level4;
+         
+        haxe.Timer.delay(splash_screen_delay, 2000);
+
+       
     }
 
     function exit():Void
@@ -110,6 +121,10 @@ class Level3 extends FlxState {
 
         super.update(elapsed);
         FlxG.collide(player.collider, map);
+    }
+
+    private function splash_screen_delay() {
+        Actuate.tween(levelScreen, 7, { alpha: 0 }); // fade out
     }
 
     // Call LevelComplete substate

@@ -161,6 +161,7 @@ class Level1 extends FlxState {
         levelScreen = new FlxSprite();
         levelScreen.loadGraphic("assets/images/Level1.png");
         levelScreen.screenCenter(XY);
+        levelScreen.scrollFactor.set(0, 0);
         add(levelScreen);
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);

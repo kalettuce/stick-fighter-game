@@ -196,12 +196,13 @@ class Level2 extends FlxState {
         nextLevel = Level3;
         curLevel = Level2;
 
-        /*
+        
         levelScreen = new FlxSprite();
         levelScreen.loadGraphic("assets/images/Level2.png");
         levelScreen.screenCenter(XY);
+        levelScreen.scrollFactor.set(0, 0);
         add(levelScreen);
-        */
+        
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
@@ -333,8 +334,8 @@ class Level2 extends FlxState {
 
         if (enemy.health == 0 && enemy2.health == 0 && enemy3.health == 0) {
             Main.LOGGER.logLevelEnd({won: true});
-            // FlxG.save.data.unlockedThree = true;
-            // FlxG.save.flush();
+            FlxG.save.data.unlockedThree = true;
+            FlxG.save.flush();
 
             // Wait 5 seconds to play "death" animation
             haxe.Timer.delay(popupComplete, 500);
@@ -359,15 +360,13 @@ class Level2 extends FlxState {
 
     // Call LevelComplete substate
     private function popupComplete() {
-        // final levelComplete = new LevelComplete(nextLevel);
-        // openSubState(levelComplete);
-        FlxG.switchState(new MenuState());
+        final levelComplete = new LevelComplete(nextLevel);
+        openSubState(levelComplete);
     }
 
     // Call LevelLose substate
     private function level_lost() {
-        // final lost = new LevelLose(curLevel);
-        // openSubState(lost);
-        FlxG.switchState(new MenuState());
+        final lost = new LevelLose(curLevel);
+        openSubState(lost);
     }
 }
