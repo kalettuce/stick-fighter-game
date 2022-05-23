@@ -28,6 +28,10 @@ class Level3 extends FlxState {
     var healthBar:FlxBar;
     var staminaBar:FlxBar;
 
+    // Declare nextLevel and curLevel variables
+    var nextLevel:Class<FlxState>;
+    var curLevel:Class<FlxState>;
+
     override public function create() {
         super.create();
 
@@ -64,6 +68,8 @@ class Level3 extends FlxState {
 
         // make a collision boundary based on camera boundary
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
+
+        nextLevel = Level4;
     }
 
     function exit():Void
@@ -104,5 +110,17 @@ class Level3 extends FlxState {
 
         super.update(elapsed);
         FlxG.collide(player.collider, map);
+    }
+
+    // Call LevelComplete substate
+    private function popupComplete() {
+        final levelComplete = new LevelComplete(nextLevel);
+        openSubState(levelComplete);
+    }
+
+    // Call LevelLose substate
+    private function level_lost() {
+        final lost = new LevelLose(curLevel);
+        openSubState(lost);
     }
 }

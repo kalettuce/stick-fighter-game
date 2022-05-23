@@ -46,6 +46,10 @@ class Level1 extends FlxState {
     var enemyStaminaTimer:Float = 0;
     var enemyStaminaBar:FlxBar;
 
+    // Declare nextLevel and curLevel variables
+    var nextLevel:Class<FlxState>;
+    var curLevel:Class<FlxState>;
+
     override public function create() {
         // add the terrain
         map = new FlxTilemap();
@@ -110,8 +114,13 @@ class Level1 extends FlxState {
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
+        // Initialize nextLevel and curLevel variable
+        nextLevel = Level2;
+        curLevel = Level1; 
+
+
         super.create();
-    }
+    } 
 
     function exit():Void
      {
@@ -178,31 +187,7 @@ class Level1 extends FlxState {
     }
 
     override public function update(elapsed:Float) {
-        /*
-        var atkPressed:Bool = FlxG.keys.pressed.K;
-        if (atkPressed) {
-            if (player.health < -1)
-            {
-
-                // PLACEHOLDER!!
-
-                // For the time being until logic is fully implemented
-                // Log player losing all health and losing the game
-                //Main.LOGGER.logLevelEnd({won: false});
-
-                player.health = 100;
-                player.revive();
-            }
-            else {
-
-                // PLACEHOLDER!!
-
-                // For the time being until logic is fully implemented
-                // log "simulated" enemy hit
-                //Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK, {direction: "high attack"});
-                player.hurt(2);
-            }
-        }*/
+        
         super.update(elapsed);
 
         showHealthBar(true, player.health, playerHealthBar, elapsed);
@@ -215,15 +200,31 @@ class Level1 extends FlxState {
             Main.LOGGER.logLevelEnd({won: true});
             FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
-            FlxG.switchState(new Level2());
+
+            // Wait 5 seconds to play "death" animation
+            haxe.Timer.delay(popupComplete, 500);
         }
 
         if (player.health == 0) {
             Main.LOGGER.logLevelEnd({won: false});
-            FlxG.switchState(new MenuState());
+            
+            // Wait 5 seconds to play "death" animation
+            haxe.Timer.delay(level_lost, 500);
         }
-
+        
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
+    }
+
+    // Call LevelComplete substate
+    private function popupComplete() {
+        final levelComplete = new LevelComplete(nextLevel);
+        openSubState(levelComplete);
+    }
+
+    // Call LevelLose substate
+    private function level_lost() {
+        final lost = new LevelLose(curLevel);
+        openSubState(lost);
     }
 }

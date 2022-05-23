@@ -28,6 +28,10 @@ class Level6 extends FlxState {
     var healthBar:FlxBar;
     var staminaBar:FlxBar;
 
+    // Declare nextLevel and curLevel variables
+    var nextLevel:Class<FlxState>;
+    var curLevel:Class<FlxState>;
+
     override public function create() {
         super.create();
 
@@ -104,5 +108,23 @@ class Level6 extends FlxState {
 
         super.update(elapsed);
         FlxG.collide(player.collider, map);
+    }
+
+    // Call LevelComplete substate
+    private function popupComplete() {
+        final levelComplete = new LevelComplete(nextLevel);
+        openSubState(levelComplete);
+    }
+
+    // Call LevelLose substate
+    private function level_lost() {
+        final lost = new LevelLose(curLevel);
+        openSubState(lost);
+    }
+
+    // Call gameWin substate
+    private function gameWin() {
+        final win = new GameWin();
+        openSubState(win);
     }
 }

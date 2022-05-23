@@ -28,6 +28,10 @@ class Level2 extends FlxState {
     var healthBar:FlxBar;
     var staminaBar:FlxBar;
 
+    // Declare nextLevel and curLevel variables
+    var nextLevel:Class<FlxState>;
+    var curLevel:Class<FlxState>;
+
     override public function create() {
         super.create();
 
@@ -64,6 +68,9 @@ class Level2 extends FlxState {
 
         // make a collision boundary based on camera boundary
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
+
+        nextLevel = Level3;
+
     }
 
     function exit():Void
@@ -102,20 +109,40 @@ class Level2 extends FlxState {
             }
         }
 
+
+
+        /// Placeholder for switching state based on win/lose /// 
+
+        
         /*
-        showHealthBar(true, player.health, playerHealthBar, elapsed);
-        showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
-
-        showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
-        showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
-
         if (enemy.health == 0) {
-            FlxG.save.data.unlockedThree = true;
+            Main.LOGGER.logLevelEnd({won: true});
+            FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
+
+            haxe.Timer.delay(popupComplete, 500);
         }
-        */
+
+        if (player.health == 0) {
+            Main.LOGGER.logLevelEnd({won: false});
+            FlxG.switchState(new MenuState());
+        } */
 
         super.update(elapsed);
         FlxG.collide(player.collider, map);
+
+        
+    }
+
+    // Call LevelComplete substate
+    private function popupComplete() {
+        final levelComplete = new LevelComplete(nextLevel);
+        openSubState(levelComplete);
+    }
+
+    // Call LevelLose substate
+    private function level_lost() {
+        final lost = new LevelLose(curLevel);
+        openSubState(lost);
     }
 }
