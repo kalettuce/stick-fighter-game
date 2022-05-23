@@ -52,9 +52,11 @@ class ActionDecider {
         if (patrolling) {
             final platform:TilePlatform = self.getPlatform();
             // turn around if on edge of platform
-            if (self.facing == FlxDirectionFlags.LEFT && self.collider.x <= platform.xMin) {
+            if (self.facing == FlxDirectionFlags.LEFT &&
+                (self.collider.x <= platform.xMin || self.collider.isTouching(FlxDirectionFlags.LEFT))) {
                 return FlxDirectionFlags.RIGHT;
-            } else if (self.facing == FlxDirectionFlags.RIGHT && (self.collider.x + self.collider.width) >= platform.xMax) {
+            } else if (self.facing == FlxDirectionFlags.RIGHT &&
+                ((self.collider.x + self.collider.width) >= platform.xMax || self.collider.isTouching(FlxDirectionFlags.RIGHT))) {
                 return FlxDirectionFlags.LEFT;
             } else {
                 return self.facing;
