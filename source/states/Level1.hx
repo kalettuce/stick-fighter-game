@@ -143,9 +143,10 @@ class Level1 extends FlxState {
         curLevel = Level1;
 
         // Initialize kill count
-        FlxG.save.data.killCount = 0;
-        FlxG.save.flush();
-
+        if (!FlxG.save.data.killCount) {
+            FlxG.save.data.killCount = 0;
+            FlxG.save.flush();
+        }
 
         levelScreen = new FlxSprite();
         levelScreen.loadGraphic("assets/images/Level1.png");
@@ -155,7 +156,7 @@ class Level1 extends FlxState {
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
         haxe.Timer.delay(splash_screen_delay, 2000);
-        
+
         super.create();
     }
 
