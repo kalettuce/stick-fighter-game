@@ -36,7 +36,7 @@ class Enemy extends FightUnit {
     private var prevActionStatus:ActionStatus;
 
     override public function new(x:Int = 0, y:Int = 0, player:Player) {
-        super(x, y);
+        super(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
 
         // rendered image
         loadGraphic("assets/images/sword_sprites_render.png", true, 300, 350);
@@ -60,7 +60,7 @@ class Enemy extends FightUnit {
         animation.finishCallback = animationFinishCallback;
 
         // collider
-        collider = new FlxSprite(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
+        collider = new FlxSprite(x, y);
         collider.loadGraphic("assets/images/sword_sprites_collider.png");
 
         collider.acceleration.y = GRAVITY;
@@ -68,7 +68,7 @@ class Enemy extends FightUnit {
         collider.active = false;
 
         // hit detection sprite
-        hitArea = new FlxSprite(x, y);
+        hitArea = new FlxSprite(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
         hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 350);
         hitArea.animation.add("idle", [0], 10);
         hitArea.animation.add("light", [0, 0, 0, 0, 34, 35, 0], 10, false);
@@ -79,7 +79,7 @@ class Enemy extends FightUnit {
         hitArea.alpha = 0.01;
 
         // effects
-        effects = new FlxSprite(x, y);
+        effects = new FlxSprite(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
         effects.loadGraphic("assets/images/sword_effect.png", true, 300, 350);
         effects.animation.add("idle", [0], 10);
         effects.animation.add("hit-block", [1, 2, 3, 4, 5, 6, 7], 25, false);

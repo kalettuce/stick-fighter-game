@@ -7,7 +7,7 @@ import fighter.FighterStates;
 import fighter.Player;
 
 class SequentialActionDecider extends ActionDecider {
-    public static var seqIndex:Int;
+    public var seqIndex:Int;
     public var sequence:Array<AIAction>;
     public var conditionSequence:Array<ActionStatus>;
     private var seqFinished:Bool;

@@ -3,6 +3,7 @@ package states;
 import actions.AIAction;
 import actions.ActionStatus;
 import ai.ActionDecider;
+import ai.RandomActionDecider;
 import ai.SequentialActionDecider;
 import ai.TerrainSolver;
 import ai.TilePlatform;
@@ -32,11 +33,11 @@ import motion.Actuate;
 class Level2 extends FlxState {
     var player:Player;
     var enemy:Enemy;
-    var enemyAI:ActionDecider;
+    var enemyAI:RandomActionDecider;
     var enemy2:Enemy;
-    var enemyAI2:ActionDecider;
+    var enemyAI2:RandomActionDecider;
     var enemy3:Enemy;
-    var enemyAI3:ActionDecider;
+    var enemyAI3:RandomActionDecider;
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
@@ -90,34 +91,34 @@ class Level2 extends FlxState {
         add(map);
 
         // create the player character
-        player = new Player();
+        player = new Player(300, 100);
         player.setPlatforms(platforms);
 
-        // create the enemy
-        var combatSequence:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
-        var statusSequence:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
-        enemy = new Enemy(1500, 0, player);
-        enemyAI = new SequentialActionDecider(enemy, player, combatSequence, statusSequence);
+        // create enemy#1
+        enemy = new Enemy(1627, 200, player);
+        enemyAI = new RandomActionDecider(enemy, player);
+        enemyAI.setAttackedWeights([30, 60, 10]);
+        enemyAI.setNeutralWeights([70, 25, 5]);
         enemy.setPlayer(player);
         enemy.setCombatAI(enemyAI);
         enemy.setPlatforms(platforms);
         player.addEnemy(enemy);
 
-        // create the enemy
-        var combatSequence2:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
-        var statusSequence2:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
-        enemy2 = new Enemy(500, 0, player);
-        enemyAI2 = new SequentialActionDecider(enemy2, player, combatSequence2, statusSequence2);
+        // create enemy#2
+        enemy2 = new Enemy(600, 200, player);
+        enemyAI2 = new RandomActionDecider(enemy2, player);
+        enemyAI2.setAttackedWeights([30, 60, 10]);
+        enemyAI2.setNeutralWeights([70, 25, 5]);
         enemy2.setPlayer(player);
         enemy2.setCombatAI(enemyAI2);
         enemy2.setPlatforms(platforms);
         player.addEnemy(enemy2);
 
         // create the enemy
-        var combatSequence3:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
-        var statusSequence3:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
-        enemy3 = new Enemy(850, 0, player);
-        enemyAI3 = new SequentialActionDecider(enemy3, player, combatSequence3, statusSequence3);
+        enemy3 = new Enemy(950, 700, player);
+        enemyAI3 = new RandomActionDecider(enemy3, player);
+        enemyAI3.setAttackedWeights([30, 60, 10]);
+        enemyAI3.setNeutralWeights([70, 25, 5]);
         enemy3.setPlayer(player);
         enemy3.setCombatAI(enemyAI3);
         enemy3.setPlatforms(platforms);

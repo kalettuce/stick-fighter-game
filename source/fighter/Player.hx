@@ -42,7 +42,7 @@ class Player extends FightUnit {
      * Defaults to spawning at (0,0)
      */
     public function new(x:Int = 0, y:Int = 0) {
-        super(x, y);
+        super(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
         enemies = new FlxTypedGroup<Enemy>();
         enemiesHit = new Array<Bool>();
         stunned = false;
@@ -72,7 +72,7 @@ class Player extends FightUnit {
         setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
 
         // load the collider
-        collider = new FlxSprite(x+COLLIDER_OFFSET_X, y+COLLIDER_OFFSET_Y);
+        collider = new FlxSprite(x, y);
         collider.loadGraphic("assets/images/spear_sprites_collider.png", false);
 
         collider.acceleration.y = GRAVITY;
@@ -81,7 +81,7 @@ class Player extends FightUnit {
         collider.active = false; // prevents collider.update() from being automatically called
 
         // load the hit area
-        hitArea = new FlxSprite(x, y);
+        hitArea = new FlxSprite(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
         hitArea.loadGraphic("assets/images/spear_hit_area.png", true, 450, 400);
         hitArea.animation.add("idle", [0], 10);
         hitArea.animation.add("light", [1, 0, 31, 0, 0], 10, false);
@@ -91,7 +91,7 @@ class Player extends FightUnit {
         hitArea.alpha = 0.01;
 
         // load the effects layer
-        effects = new FlxSprite(x, y);
+        effects = new FlxSprite(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
         effects.loadGraphic("assets/images/spear_effect.png", true, 450, 400);
         effects.animation.add("idle", [0], 10);
         effects.animation.add("hit-block", [1, 2, 3, 4, 5, 6, 7], 15, false);
@@ -358,7 +358,7 @@ class Player extends FightUnit {
         if (stunned && status == FighterStates.BLOCK) {
             if (collider.velocity.y > 0) {
                 float();
-            } else if (FlxG.keys.justReleased.K) {
+            } else if (!FlxG.keys.pressed.K) {
                 idle();
             } else if (FlxG.keys.pressed.J) {
                 parry();

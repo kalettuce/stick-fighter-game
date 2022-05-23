@@ -39,6 +39,9 @@ class Level1 extends FlxState {
     var killCountText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
+
+    // to prompt according to the sequence
+    var prevSeqIndex:Int;
     var promptText:FlxText;
     var promptTimer:Float = 0;
 
@@ -75,15 +78,15 @@ class Level1 extends FlxState {
         add(map);
 
         // create the player character
-        player = new Player();
+        player = new Player(400, 100);
         player.setPlatforms(platforms);
 
         // create the enemy
         var combatSequence:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.HEAVY_ACTION, AIAction.HEAVY_ACTION,
-                                              AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION];
+                                              AIAction.BLOCK_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.PARRY_ACTION];
         var statusSequence:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.PARRIED, ActionStatus.PARRIED,
-                                                  ActionStatus.INTERRUPTED, ActionStatus.PARRY_MISS];
-        enemy = new Enemy(700, 0, player);
+                                                  ActionStatus.INTERRUPTED, ActionStatus.INTERRUPTED, ActionStatus.PARRY_MISS, ActionStatus.PARRY_MISS];
+        enemy = new Enemy(1100, 100, player);
         enemyAI = new SequentialActionDecider(enemy, player, combatSequence, statusSequence);
         enemy.setPlayer(player);
         enemy.setCombatAI(enemyAI);
@@ -124,12 +127,13 @@ class Level1 extends FlxState {
         enemyStaminaBar.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar.trackParent(175, 20);
 
+        prevSeqIndex = -1;
         promptText = new FlxText();
         promptText.text = "Welcome to Stick Fighter!";
         promptText.color = FlxColor.BLACK;
         promptText.size = 20;
         promptText.screenCenter(FlxAxes.X);
-        promptText.y = 425;
+        promptText.y = 200;
 
         // set a background color
         bgColor = FlxColor.GRAY;
@@ -251,11 +255,11 @@ class Level1 extends FlxState {
     }
 
     override public function update(elapsed:Float) {
-        if (FlxG.keys.justPressed.P) {
-            if (paused) {
-                unpause();
-            } else {
-                pause();
+        if (paused && FlxG.keys.justPressed.P) {
+            unpause();
+            promptText.color = FlxColor.BLACK;
+            if (!player.invincible) {
+                remove(promptText);
             }
         }
         super.update(elapsed);
@@ -264,11 +268,16 @@ class Level1 extends FlxState {
             player.invincible = false;
             enemy.invincible = false;
 
+            promptText.text = "Now face the enemy with what you learned!";
+            promptText.color = FlxColor.RED;
+            pause();
+
             final newAI:RandomActionDecider = new RandomActionDecider(enemy, player);
             newAI.setAttackedWeights([30, 60, 10]);
             newAI.setNeutralWeights([70, 25, 5]);
             enemy.setCombatAI(newAI);
         }
+
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
@@ -284,16 +293,36 @@ class Level1 extends FlxState {
         add(killCountText);
 
         promptTimer += elapsed;
-        if (promptTimer >= 3 && player.invincible) {
-            if (SequentialActionDecider.seqIndex == 0 || SequentialActionDecider.seqIndex == 1) {
-                promptText.text = "Press K to block the enemy's attack";
-            } else if (SequentialActionDecider.seqIndex == 2) {
-                promptText.text = "Hold K and press J to parry the enemy's attack";
-            } else if (SequentialActionDecider.seqIndex == 3 || SequentialActionDecider.seqIndex == 4) {
-                promptText.text = "Press J to attack the enemy";
-            } else if (SequentialActionDecider.seqIndex == 5) {
-                promptText.text = "Now finish the enemy off!";
+        if (promptTimer >= 2 && player.invincible) {
+            final curSeqIndex = cast(enemyAI, SequentialActionDecider).getSeqIndex();
+            switch (curSeqIndex) {
+                case 0:
+                    promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (1/3)\nhint: press [P] to unpause the game";
+                case 1:
+                    promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (2/3)";
+                case 2:
+                    promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (3/3)";
+                case 3:
+                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [J] while blocking to parry (1/3)";
+                case 4:
+                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [J] while blocking to parry (2/3)";
+                case 5:
+                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [J] while blocking to parry (3/3)";
+                case 6:
+                    promptText.text = "The enemy is trying to recover stamina\nPress [I] to break through the block with your own heavy attack (1/2)";
+                case 7:
+                    promptText.text = "The enemy is trying to recover stamina\nPress [I] to break through the block with your own heavy attack (2/2)";
+                case 8:
+                    promptText.text = "The enemy learned your moves and is ready to parry you!\nInitiate a heavy attack, and press [E] to cancel to bait the parry (1/2)";
+                case 9:
+                    promptText.text = "The enemy learned your moves and is ready to parry you!\nInitiate a heavy attack, and press [E] to cancel to bait the parry (2/2)";
             }
+
+            if (prevSeqIndex != curSeqIndex && (curSeqIndex == 0 || curSeqIndex == 3 || curSeqIndex == 6 || curSeqIndex == 8)) {
+                pause();
+                promptText.color = FlxColor.RED;
+            }
+            prevSeqIndex = curSeqIndex;
             promptText.screenCenter(FlxAxes.X);
         }
 
