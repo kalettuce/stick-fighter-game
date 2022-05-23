@@ -2,6 +2,7 @@ package states;
 
 import actions.AIAction;
 import actions.ActionStatus;
+import ai.ActionDecider;
 import ai.SequentialActionDecider;
 import ai.TerrainSolver;
 import ai.TilePlatform;
@@ -28,6 +29,7 @@ import flixel.util.FlxSpriteUtil;
 class Level1 extends FlxState {
     var player:Player;
     var enemy:Enemy;
+    var enemyAI:ActionDecider;
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
@@ -56,8 +58,8 @@ class Level1 extends FlxState {
     override public function create() {
         // add the terrain
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level3_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
-        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level3_terrain.csv", 64, 64);
+        map.loadMapFromCSV("assets/levels/level1_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level1_terrain.csv", 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
@@ -70,10 +72,15 @@ class Level1 extends FlxState {
         var combatSequence:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
         var statusSequence:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
         enemy = new Enemy(700, 0, player);
+        enemyAI = new SequentialActionDecider(enemy, player, combatSequence, statusSequence);
         enemy.setPlayer(player);
-        enemy.setCombatAI(new SequentialActionDecider(enemy, player, combatSequence, statusSequence));
+        enemy.setCombatAI(enemyAI);
         enemy.setPlatforms(platforms);
         player.addEnemy(enemy);
+
+        // both characters should be invincible until the sequence tutorial is finished
+        player.invincible = true;
+        enemy.invincible = true;
 
         exitButton = new FlxButton(0, 0, "Return to Menu", exit);
         exitButton.scale.set(2, 2);
@@ -196,7 +203,11 @@ class Level1 extends FlxState {
 
     override public function update(elapsed:Float) {
         super.update(elapsed);
-
+        if (player.invincible && cast(enemyAI, SequentialActionDecider).finished()) {
+            player.invincible = false;
+            enemy.invincible = false;
+            // TODO: switch to a normal AI?
+        }
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
