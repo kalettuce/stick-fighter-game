@@ -334,9 +334,9 @@ class Enemy extends FightUnit {
                 } else {
                     playerHit = true;
                     if (status == FighterStates.LIGHT) {
-                        player.lightHit(10);
+                        player.lightHit(5);
                     } else {
-                        player.heavyHit(20);
+                        player.heavyHit(10);
                     }
                 }
             }
