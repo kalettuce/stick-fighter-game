@@ -147,9 +147,10 @@ class Level1 extends FlxState {
         curLevel = Level1;
 
         // Initialize kill count
-        FlxG.save.data.killCount = 0;
-        FlxG.save.flush();
-
+        if (!FlxG.save.data.killCount) {
+            FlxG.save.data.killCount = 0;
+            FlxG.save.flush();
+        }
 
         levelScreen = new FlxSprite();
         levelScreen.loadGraphic("assets/images/Level1.png");
@@ -159,7 +160,7 @@ class Level1 extends FlxState {
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
         haxe.Timer.delay(splash_screen_delay, 2000);
-        
+
         super.create();
     }
 
@@ -260,7 +261,7 @@ class Level1 extends FlxState {
         if (player.invincible && cast(enemyAI, SequentialActionDecider).finished()) {
             player.invincible = false;
             enemy.invincible = false;
-            
+
             final newAI:RandomActionDecider = new RandomActionDecider(enemy, player);
             newAI.setAttackedWeights([70, 25, 5]);
             newAI.setNeutralWeights([85, 10, 5]);
@@ -274,7 +275,7 @@ class Level1 extends FlxState {
 
         remove(killCountText);
         killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
-        killCountText.loadGraphic("assets/images/transparent.png", true, 125, 20);
+        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
         killCountText.label.setFormat(null, 16, FlxColor.BLACK);
         killCountText.x = 20;
         killCountText.y = 20;
