@@ -31,6 +31,7 @@ class Level1 extends FlxState {
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
+    var killCountText:FlxButton;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -81,8 +82,8 @@ class Level1 extends FlxState {
         exitButton.label.fieldWidth = exitButton.width;
         exitButton.label.alignment = "center";
         exitButton.label.offset.y -= 8;
-        exitButton.x = 1030;
-        exitButton.y = 40;
+        exitButton.x = 1090;
+        exitButton.y = 20;
 
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
@@ -120,11 +121,14 @@ class Level1 extends FlxState {
 
         // Initialize nextLevel and curLevel variable
         nextLevel = Level2;
-        curLevel = Level1; 
+        curLevel = Level1;
 
+        // Initialize kill count
+        FlxG.save.data.killCount = 0;
+        FlxG.save.flush();
 
         super.create();
-    } 
+    }
 
     function exit():Void
      {
@@ -191,14 +195,21 @@ class Level1 extends FlxState {
     }
 
     override public function update(elapsed:Float) {
-        
         super.update(elapsed);
 
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
-        // showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+        showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+
+        remove(killCountText);
+        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
+        killCountText.loadGraphic("assets/images/transparent.png", true, 125, 20);
+        killCountText.label.setFormat(null, 16, FlxColor.BLACK);
+        killCountText.x = 20;
+        killCountText.y = 20;
+        add(killCountText);
 
         if (enemy.health == 0) {
             Main.LOGGER.logLevelEnd({won: true});
@@ -211,11 +222,11 @@ class Level1 extends FlxState {
 
         if (player.health == 0) {
             Main.LOGGER.logLevelEnd({won: false});
-            
+
             // Wait 5 seconds to play "death" animation
             haxe.Timer.delay(level_lost, 500);
         }
-        
+
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
     }
