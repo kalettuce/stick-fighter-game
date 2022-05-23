@@ -3,6 +3,7 @@ package states;
 import actions.AIAction;
 import actions.ActionStatus;
 import ai.ActionDecider;
+import ai.RandomActionDecider;
 import ai.SequentialActionDecider;
 import ai.TerrainSolver;
 import ai.TilePlatform;
@@ -228,7 +229,11 @@ class Level1 extends FlxState {
         if (player.invincible && cast(enemyAI, SequentialActionDecider).finished()) {
             player.invincible = false;
             enemy.invincible = false;
-            // TODO: switch to a normal AI?
+            
+            final newAI:RandomActionDecider = new RandomActionDecider(enemy, player);
+            newAI.setAttackedWeights([70, 25, 5]);
+            newAI.setNeutralWeights([85, 10, 5]);
+            enemy.setCombatAI(newAI);
         }
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
@@ -245,7 +250,7 @@ class Level1 extends FlxState {
         add(killCountText);
 
         promptTimer += elapsed;
-        if (promptTimer >= 3 && !cast(enemyAI, SequentialActionDecider).finished()) {
+        if (promptTimer >= 3 && player.invincible) {
             if (SequentialActionDecider.seqIndex == 0 || SequentialActionDecider.seqIndex == 1) {
                 promptText.text = "Press K to block the enemy's attack";
             } else if (SequentialActionDecider.seqIndex == 2) {
