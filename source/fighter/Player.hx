@@ -11,6 +11,7 @@ import openfl.geom.Point;
 
 class Player extends FightUnit {
     private static final WALK_VELOCITY:Int = 230;
+    private static final RUN_VELOCITY:Int = 400;
     private static final JUMP_CUMULATIVE_STEP:Int = 4200;
     private static final MAX_JUMP_VELOCITY:Int = 800;
     private static final MIN_JUMP_VELOCITY:Int = 400;
@@ -53,9 +54,11 @@ class Player extends FightUnit {
         animation.add("float", [11], 10);
         animation.add("land", [10], 10, false);
         animation.add("walk", [20, 21, 22, 23, 0], 10);
+        animation.add("run", [33, 34, 35, 36, 37], 10);
         animation.add("light", [0, 30, 31, 32, 0], 10, false);
         animation.add("heavy", [0, 19, 27, 27, 27, 28, 29, 29, 29, 0], 10, false);
-        animation.add("hit", [40, 41, 42, 0], 10, false);
+        animation.add("light-hit", [40, 41, 42, 0], 12, false);
+        animation.add("heavy-hit", [40, 41, 41, 42, 42, 0], 10, false);
         animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 6, false);
         animation.add("block", [18], 10);
         animation.add("death", [24, 25, 26], 10, false);
@@ -87,7 +90,7 @@ class Player extends FightUnit {
         effects = new FlxSprite(x, y);
         effects.loadGraphic("assets/images/spear_effect.png", true, 450, 400);
         effects.animation.add("idle", [0], 10);
-        effects.animation.add("hit_block", [1, 2, 3, 4, 5, 6, 7], 15, false);
+        effects.animation.add("hit-block", [1, 2, 3, 4, 5, 6, 7], 15, false);
         effects.animation.callback = effectsAnimationFrameCallback;
         effects.animation.finishCallback = effectsAnimationFinishCallback;
         effects.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
@@ -134,10 +137,40 @@ class Player extends FightUnit {
         stunned = false;
     }
 
+    private function run() {
+        switch (status) {
+            case FighterStates.IDLE, FighterStates.WALK, FighterStates.RUN:
+                // float if falling
+                if (collider.velocity.y > 0) {
+                    float();
+                    return;
+                }
+
+                // do not interrupt landing
+                if (animation.name != "land") {
+                    play("run");
+                }
+                stunned = false;
+                status = FighterStates.WALK;
+                if (facing == FlxDirectionFlags.LEFT) {
+                    collider.velocity.x = -RUN_VELOCITY;
+                } else {
+                    collider.velocity.x = RUN_VELOCITY;
+                }
+            case FighterStates.JUMP, FighterStates.AIR:
+                if (facing == FlxDirectionFlags.LEFT) {
+                    collider.velocity.x = -RUN_VELOCITY;
+                } else {
+                    collider.velocity.x = RUN_VELOCITY;
+                }
+            default:
+        }
+    }
+
     private function walk() {
         switch (status) {
             // when on the ground, play "walk" and set velocity
-            case FighterStates.IDLE, FighterStates.WALK:
+            case FighterStates.IDLE, FighterStates.WALK, FighterStates.RUN:
                 // float if falling
                 if (collider.velocity.y > 0) {
                     float();
@@ -173,8 +206,8 @@ class Player extends FightUnit {
         stunned = true;
         stamina -= LIGHT_STAMINA_USAGE;
         collider.velocity.x = 0;
-        // log move
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {direction: "high attack"});
+        // log light attack
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {type: "light attack"});
     }
 
     private function heavy() {
@@ -183,7 +216,8 @@ class Player extends FightUnit {
         stunned = true;
         stamina -= HEAVY_STAMINA_USAGE;
         collider.velocity.x = 0;
-        // TODO: log attack
+        // log heavy attack
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {type: "heavy attack"});
     }
 
     private function block() {
@@ -233,7 +267,7 @@ class Player extends FightUnit {
 
     /***************************************** Passive Actions Functions ******************************************/
     public function lightHit(damage:Float) {
-        animation.play("hit");
+        animation.play("light-hit");
         hitArea.animation.play("idle");
         stunned = true;
         collider.velocity.x = 0;
@@ -243,8 +277,19 @@ class Player extends FightUnit {
         hurt(damage);
     }
 
+    public function heavyHit(damage:Float) {
+        animation.play("heavy-hit");
+        hitArea.animation.play("idle");
+        stunned = true;
+        collider.velocity.x = 0;
+        collider.velocity.y = 0;
+        status = FighterStates.HITSTUNHEAVY;
+        resetEnemiesHit();
+        hurt(damage);
+    }
+
     public function hitBlock() {
-        effects.animation.play("hit_block");
+        effects.animation.play("hit-block", true);
 
         if (facing == FlxDirectionFlags.LEFT) {
             collider.velocity.x = 150;
@@ -269,6 +314,7 @@ class Player extends FightUnit {
             case "light", "heavy":
                 idle();
                 resetEnemiesHit();
+            case "death": // stay dead
             default: idle();
         }
     }
@@ -285,7 +331,7 @@ class Player extends FightUnit {
 
     private function effectsAnimationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
         switch (name) {
-            case "hit_block": collider.velocity.x = 0;
+            case "hit-block": collider.velocity.x = 0;
             default:
         }
     }
@@ -316,8 +362,10 @@ class Player extends FightUnit {
             return;
         }
 
-        var leftPressed:Bool = FlxG.keys.pressed.A;
-        var rightPressed:Bool = FlxG.keys.pressed.D;
+        final leftPressed:Bool = FlxG.keys.pressed.A;
+        final rightPressed:Bool = FlxG.keys.pressed.D;
+        final leftJustPressed:Bool = FlxG.keys.justPressed.A;
+        final rightJustPressed:Bool = FlxG.keys.justPressed.D;
         // decides whether to initiate attack, block, or jump
         if (status == FighterStates.IDLE || status == FighterStates.WALK) {
             if (FlxG.keys.pressed.J && stamina >= 10) {
@@ -336,18 +384,32 @@ class Player extends FightUnit {
             }
         }
 
+        final shiftPressed:Bool = FlxG.keys.pressed.SHIFT; 
         // do not execute movement actions if stunned from previous decisions
         if (stunned) return;
         if ((leftPressed && rightPressed) || (!leftPressed && !rightPressed)) {
             idle();
         } else if (leftPressed) {
             setFacing(FlxDirectionFlags.LEFT);
-            walk();
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+            if (shiftPressed) {
+                run();
+            } else {
+                walk();
+            }
+            // log only on justPress
+            if (leftJustPressed) {
+                Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+            }
         } else if (rightPressed) {
             setFacing(FlxDirectionFlags.RIGHT);
-            walk();
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+            if (shiftPressed) {
+                run();
+            } else {
+                walk();
+            }
+            if (rightJustPressed) {
+                Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+            }
         } else {
             idle();
         }
@@ -361,11 +423,15 @@ class Player extends FightUnit {
                         enemies.members[i].hitParry();
                         parried();
                         resetEnemiesHit();
-                    } else if (enemies.members[i].isBlocking()) {
+                    } else if (enemies.members[i].isBlocking() && status == FighterStates.LIGHT && enemies.members[i].facing != facing) {
                         enemies.members[i].hitBlock();
                         enemiesHit[i] = true;
                     } else {
-                        enemies.members[i].hit(20);
+                        if (status == FighterStates.LIGHT) {
+                            enemies.members[i].lightHit(20);
+                        } else {
+                            enemies.members[i].heavyHit(30);
+                        }
                         enemiesHit[i] = true;
                     }
                 }
@@ -406,12 +472,12 @@ class Player extends FightUnit {
 
         // sync position to collider
         setPosition(collider.x, collider.y);
-
-        // execute player input
-        actions(elapsed);
-
-        // check for any hit enemies
-        hitCheck();
+        if (!dead) {
+            // execute player input
+            actions(elapsed);
+            // check for any hit enemies
+            hitCheck();
+        }
 
         super.update(elapsed);
         collider.update(elapsed);

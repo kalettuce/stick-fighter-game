@@ -107,6 +107,8 @@ class FightUnit extends FlxSprite {
         animation.play(name);
         if (status == FighterStates.LIGHT || status == FighterStates.HEAVY) {
             hitArea.animation.play(name);
+        } else {
+            hitArea.animation.play("idle");
         }
     }
 

@@ -3,8 +3,8 @@ package ai;
 import actions.AIAction;
 import actions.ActionStatus;
 import fighter.Enemy;
+import fighter.FighterStates;
 import fighter.Player;
-import flixel.input.actions.FlxActionManager.ActionSetJson;
 
 class SequentialActionDecider extends ActionDecider {
     private var seqIndex:Int;
@@ -38,7 +38,11 @@ class SequentialActionDecider extends ActionDecider {
 
         // special case, if player is parried, punish with an attack
         if (prevStatus == PARRY_HIT) {
-            return AIAction.ATTACK_ACTION;
+            if (player.getStatus() == FighterStates.LIGHTPARRIED) {
+                return AIAction.HEAVY_ACTION;
+            } else {
+                return AIAction.LIGHT_ACTION;
+            }
         }
 
         switch (sequence[seqIndex]) {
@@ -46,6 +50,18 @@ class SequentialActionDecider extends ActionDecider {
                 // TODO: make a function: attackImminent(), in Player
                 if (player.animation.frameIndex == 30) {
                     return sequence[seqIndex];
+                } else {
+                    return AIAction.IDLE_ACTION;
+                }
+            case AIAction.LIGHT_ACTION:
+                if (self.stamina >= Enemy.LIGHT_STAMINA_USAGE) {
+                    return AIAction.LIGHT_ACTION;
+                } else {
+                    return AIAction.IDLE_ACTION;
+                }
+            case AIAction.HEAVY_ACTION:
+                if (self.stamina >= Enemy.HEAVY_STAMINA_USAGE) {
+                    return AIAction.HEAVY_ACTION;
                 } else {
                     return AIAction.IDLE_ACTION;
                 }

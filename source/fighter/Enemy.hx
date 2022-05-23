@@ -15,6 +15,9 @@ class Enemy extends FightUnit {
     private static final MOVE_VELOCITY:Int = 200;
     private static final ACTION_INTERVAL:Float = 2;
     private static final STAMINA_RECOVERY_RATE:Int = 16;
+    public static final LIGHT_STAMINA_USAGE:Int = 10;
+    public static final HEAVY_STAMINA_USAGE:Int = 20;
+    public static final CANCEL_STAMINA_USAGE:Int = 10;
 
     private static final COLLIDER_OFFSET_X:Int = 127;
     private static final COLLIDER_OFFSET_Y:Int = 104;
@@ -43,8 +46,10 @@ class Enemy extends FightUnit {
         animation.add("float", [11], 10);
         animation.add("land", [10, 0], 10, false);
         animation.add("walk", [20, 21, 22, 23, 0], 10);
-        animation.add("light", [0, 30, 31, 32, 33, 34, 35, 0], 10, false);
-        animation.add("hit", [40, 41, 42, 0], 10, false);
+        animation.add("light", [30, 31, 32, 33, 34, 35], 11, false);
+        animation.add("heavy", [43, 44, 45, 46, 47, 48, 49], 7, false);
+        animation.add("light-hit", [40, 41, 42, 0], 10, false);
+        animation.add("heavy-hit", [40, 41, 41, 42, 42, 0], 10, false);
         animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 5, false);
         animation.add("block", [18], 10);
         animation.add("death", [24, 25, 26], 10, false);
@@ -66,7 +71,8 @@ class Enemy extends FightUnit {
         hitArea = new FlxSprite(x, y);
         hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 350);
         hitArea.animation.add("idle", [0], 10);
-        hitArea.animation.add("light", [0, 0, 0, 0, 0, 34, 35, 0], 10, false);
+        hitArea.animation.add("light", [0, 0, 0, 0, 34, 35], 11, false);
+        hitArea.animation.add("heavy", [0, 0, 0, 0, 47, 48, 0], 7, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.animation.play("idle");
@@ -76,7 +82,7 @@ class Enemy extends FightUnit {
         effects = new FlxSprite(x, y);
         effects.loadGraphic("assets/images/sword_effect.png", true, 300, 350);
         effects.animation.add("idle", [0], 10);
-        effects.animation.add("hit_block", [1, 2, 3, 4, 5, 6, 7], 25, false);
+        effects.animation.add("hit-block", [1, 2, 3, 4, 5, 6, 7], 25, false);
         effects.animation.callback = effectsAnimationFrameCallback;
         effects.animation.finishCallback = effectsAnimationFinishCallback;
         effects.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
@@ -128,10 +134,12 @@ class Enemy extends FightUnit {
                 animation.play("float");
                 stunned = true;
                 status = FighterStates.AIR;
-            case "light":
+            case "light", "heavy":
                 idle();
                 playerHit = false;
                 status = FighterStates.IDLE;
+            case "death":
+                dead = true;
             default:
                 idle();
                 status = FighterStates.IDLE;
@@ -139,7 +147,7 @@ class Enemy extends FightUnit {
     }
     private function effectsAnimationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
         switch (name) {
-            case "hit_block": collider.velocity.x = 0;
+            case "hit-block": collider.velocity.x = 0;
             default:
         }
     }
@@ -173,6 +181,17 @@ class Enemy extends FightUnit {
         status = FighterStates.LIGHT;
         play("light");
         collider.velocity.x = 0;
+        collider.velocity.y = 0;
+        stamina -= LIGHT_STAMINA_USAGE;
+        stunned = true;
+    }
+
+    private function heavy() {
+        status = FighterStates.HEAVY;
+        play("heavy");
+        collider.velocity.x = 0;
+        collider.velocity.y = 0;
+        stamina -= HEAVY_STAMINA_USAGE;
         stunned = true;
     }
 
@@ -218,13 +237,27 @@ class Enemy extends FightUnit {
 
     /********************************************* Passive Action Functions *********************************************/
     // should be called when "this" enemy is hit
-    public function hit(damage:Float) {
+    public function lightHit(damage:Float) {
         status = FighterStates.HITSTUNLIGHT;
-        play("hit");
+        play("light-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
             prevActionStatus = ActionStatus.INTERRUPTED;
         }
         collider.velocity.x = 0;
+        collider.velocity.y = 0;
+        stunned = true;
+        playerHit = false;
+        hurt(damage);
+    }
+
+    public function heavyHit(damage:Float) {
+        status = FighterStates.HITSTUNHEAVY;
+        play("heavy-hit");
+        if (prevActionStatus == ActionStatus.NEUTRAL) {
+            prevActionStatus = ActionStatus.INTERRUPTED;
+        }
+        collider.velocity.x = 0;
+        collider.velocity.y = 0;
         stunned = true;
         playerHit = false;
         hurt(damage);
@@ -232,7 +265,7 @@ class Enemy extends FightUnit {
 
     // should be called when "this" enemy is hit while blocking
     public function hitBlock() {
-        effects.animation.play("hit_block");
+        effects.animation.play("hit-block", true);
         prevActionStatus = ActionStatus.BLOCK_HIT;
         if (facing == FlxDirectionFlags.LEFT) {
             collider.velocity.x = 150;
@@ -264,8 +297,10 @@ class Enemy extends FightUnit {
             switch (nextAction) {
                 case AIAction.IDLE_ACTION:
                     idle();
-                case AIAction.ATTACK_ACTION:
+                case AIAction.LIGHT_ACTION:
                     light();
+                case AIAction.HEAVY_ACTION:
+                    heavy();
                 case AIAction.BLOCK_ACTION:
                     block();
                 case AIAction.PARRY_ACTION:
@@ -280,17 +315,22 @@ class Enemy extends FightUnit {
 
     private function hitCheck() {
         if (playerHit || player.isDead()) return;
-        if (animation.frameIndex == 34 || animation.frameIndex == 35) {
+        if (hitArea.animation.frameIndex != 0) {
             if (FlxG.pixelPerfectOverlap(hitArea, player.collider, 1)) {
                 if (player.isParrying()){
                     parried();
-                } else if (player.isBlocking()) {
+                } else if (player.isBlocking() && status == FighterStates.LIGHT && player.facing != facing) {
                     playerHit = true;
                     player.hitBlock();
                     hitBlocking();
                 } else {
                     playerHit = true;
-                    player.lightHit(10);
+                    if (status == FighterStates.LIGHT) {
+                        player.lightHit(10);
+                    } else {
+                        player.heavyHit(20);
+                    }
+                    
                 }
             }
         }
@@ -321,8 +361,10 @@ class Enemy extends FightUnit {
             stamina = Math.min(stamina + elapsed * STAMINA_RECOVERY_RATE, 100);
         }
         setPosition(collider.x, collider.y);
-        actions(elapsed);
-        hitCheck();
+        if (!dead) {
+            actions(elapsed);
+            hitCheck();
+        }
         super.update(elapsed);
         collider.update(elapsed);
     }
