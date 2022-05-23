@@ -239,7 +239,7 @@ class Level1 extends FlxState {
 
         remove(killCountText);
         killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
-        killCountText.loadGraphic("assets/images/transparent.png", true, 125, 20);
+        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
         killCountText.label.setFormat(null, 16, FlxColor.BLACK);
         killCountText.x = 20;
         killCountText.y = 20;

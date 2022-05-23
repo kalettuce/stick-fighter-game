@@ -32,6 +32,10 @@ class Level2 extends FlxState {
     var player:Player;
     var enemy:Enemy;
     var enemyAI:ActionDecider;
+    var enemy2:Enemy;
+    var enemyAI2:ActionDecider;
+    var enemy3:Enemy;
+    var enemyAI3:ActionDecider;
     var map:FlxTilemap;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
@@ -55,6 +59,22 @@ class Level2 extends FlxState {
     var enemyStaminaTimer:Float = 0;
     var enemyStaminaBar:FlxBar;
 
+    var enemyHealth2:Float = 100;
+    var enemyHealthTimer2:Float = 0;
+    var enemyHealthBar2:FlxBar;
+
+    var enemyStamina2:Float = 100;
+    var enemyStaminaTimer2:Float = 0;
+    var enemyStaminaBar2:FlxBar;
+
+    var enemyHealth3:Float = 100;
+    var enemyHealthTimer3:Float = 0;
+    var enemyHealthBar3:FlxBar;
+
+    var enemyStamina3:Float = 100;
+    var enemyStaminaTimer3:Float = 0;
+    var enemyStaminaBar3:FlxBar;
+
     // Declare nextLevel and curLevel variables
     var nextLevel:Class<FlxState>;
     var curLevel:Class<FlxState>;
@@ -62,8 +82,8 @@ class Level2 extends FlxState {
     override public function create() {
         // add the terrain
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level2_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
-        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level2_terrain.csv", 64, 64);
+        map.loadMapFromCSV("assets/levels/level3_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
+        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level3_terrain.csv", 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
@@ -75,12 +95,32 @@ class Level2 extends FlxState {
         // create the enemy
         var combatSequence:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
         var statusSequence:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
-        enemy = new Enemy(850, 0, player);
+        enemy = new Enemy(1500, 0, player);
         enemyAI = new SequentialActionDecider(enemy, player, combatSequence, statusSequence);
         enemy.setPlayer(player);
         enemy.setCombatAI(enemyAI);
         enemy.setPlatforms(platforms);
         player.addEnemy(enemy);
+
+        // create the enemy
+        var combatSequence2:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
+        var statusSequence2:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
+        enemy2 = new Enemy(500, 0, player);
+        enemyAI2 = new SequentialActionDecider(enemy2, player, combatSequence2, statusSequence2);
+        enemy2.setPlayer(player);
+        enemy2.setCombatAI(enemyAI2);
+        enemy2.setPlatforms(platforms);
+        player.addEnemy(enemy2);
+
+        // create the enemy
+        var combatSequence3:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.BLOCK_ACTION, AIAction.PARRY_ACTION, AIAction.IDLE_ACTION];
+        var statusSequence3:Array<ActionStatus> = [ActionStatus.BLOCKED, ActionStatus.BLOCKED, ActionStatus.PARRIED, ActionStatus.BLOCK_HIT, ActionStatus.PARRY_HIT, ActionStatus.INTERRUPTED];
+        enemy3 = new Enemy(850, 0, player);
+        enemyAI3 = new SequentialActionDecider(enemy3, player, combatSequence3, statusSequence3);
+        enemy3.setPlayer(player);
+        enemy3.setCombatAI(enemyAI3);
+        enemy3.setPlatforms(platforms);
+        player.addEnemy(enemy3);
 
         exitButton = new FlxButton(0, 0, "Return to Menu", exit);
         exitButton.scale.set(2, 2);
@@ -112,12 +152,38 @@ class Level2 extends FlxState {
         enemyStaminaBar.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar.trackParent(175, 20);
 
+        // create health bar
+        enemyHealthBar2 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy2, "health", 0, 100, true);
+        enemyHealthBar2.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
+        enemyHealthBar2.trackParent(175, 0);
+
+        // create stamina bar
+        enemyStaminaBar2 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy2, "stamina", 0, 100, true);
+        enemyStaminaBar2.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
+        enemyStaminaBar2.trackParent(175, 20);
+
+        // create health bar
+        enemyHealthBar3 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy3, "health", 0, 100, true);
+        enemyHealthBar3.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
+        enemyHealthBar3.trackParent(175, 0);
+
+        // create stamina bar
+        enemyStaminaBar3 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy3, "stamina", 0, 100, true);
+        enemyStaminaBar3.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
+        enemyStaminaBar3.trackParent(175, 20);
+
         // set a background color
         bgColor = FlxColor.GRAY;
 
         // construct the scene
         add(enemy.hitArea);
         add(enemy);
+        add(enemy2.hitArea);
+        add(enemy2);
+        add(enemy2.effects);
+        add(enemy3.hitArea);
+        add(enemy3);
+        add(enemy3.effects);
         add(player.hitArea);
         add(player);
         add(player.effects);
@@ -210,19 +276,23 @@ class Level2 extends FlxState {
         super.update(elapsed);
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
+        showHealthBar(false, enemy2.health, enemyHealthBar2, elapsed);
+        showHealthBar(false, enemy3.health, enemyHealthBar3, elapsed);
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
         showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
+        showStaminaBar(false, enemy2.stamina, enemyStaminaBar2, elapsed);
+        showStaminaBar(false, enemy3.stamina, enemyStaminaBar3, elapsed);
 
         remove(killCountText);
         killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
-        killCountText.loadGraphic("assets/images/transparent.png", true, 125, 20);
+        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
         killCountText.label.setFormat(null, 16, FlxColor.BLACK);
         killCountText.x = 20;
         killCountText.y = 20;
         add(killCountText);
 
-        if (enemy.health == 0) {
+        if (enemy.health == 0 && enemy2.health == 0 && enemy3.health == 0) {
             Main.LOGGER.logLevelEnd({won: true});
             // FlxG.save.data.unlockedThree = true;
             // FlxG.save.flush();
@@ -240,6 +310,8 @@ class Level2 extends FlxState {
 
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
+        FlxG.collide(enemy2.collider, map);
+        FlxG.collide(enemy3.collider, map);
     }
 
     private function splash_screen_delay() {
@@ -255,7 +327,8 @@ class Level2 extends FlxState {
 
     // Call LevelLose substate
     private function level_lost() {
-        final lost = new LevelLose(curLevel);
-        openSubState(lost);
+        // final lost = new LevelLose(curLevel);
+        // openSubState(lost);
+        FlxG.switchState(new MenuState());
     }
 }
