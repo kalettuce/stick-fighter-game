@@ -120,6 +120,12 @@ class Level1 extends FlxState {
         exitButton.x = 1090;
         exitButton.y = 20;
 
+        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
+        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
+        killCountText.label.setFormat(null, 16, FlxColor.BLACK);
+        killCountText.x = 20;
+        killCountText.y = 20;
+
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
         playerHealthBar.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
@@ -159,6 +165,7 @@ class Level1 extends FlxState {
         add(player.effects);
         add(enemy.effects);
         add(exitButton);
+        add(killCountText);
         add(promptText);
 
         // Initialize nextLevel and curLevel variable
@@ -292,19 +299,12 @@ class Level1 extends FlxState {
             enemy.setCombatAI(newAI);
         }
 
+        killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount.toString();
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
         showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
-
-        remove(killCountText);
-        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
-        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
-        killCountText.label.setFormat(null, 16, FlxColor.BLACK);
-        killCountText.x = 20;
-        killCountText.y = 20;
-        add(killCountText);
 
         promptTimer += elapsed;
         if (promptTimer >= 2 && player.invincible) {
