@@ -18,6 +18,7 @@ import flixel.group.FlxGroup;
 import flixel.input.actions.FlxAction.FlxActionAnalog;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
+import flixel.math.FlxRandom;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
@@ -39,6 +40,7 @@ class Level1 extends FlxState {
     var killCountText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
+    var rand:FlxRandom;
 
     // to prompt according to the sequence
     var prevSeqIndex:Int;
@@ -68,6 +70,17 @@ class Level1 extends FlxState {
     var paused:Bool;
 
     override public function create() {
+        // pick version A or B
+        if (!FlxG.save.data.version) {
+            rand = new FlxRandom();
+            if (rand.bool()) {
+                FlxG.save.data.version = "A";
+            } else {
+                FlxG.save.data.version = "B";
+            }
+            FlxG.save.flush();
+        }
+
         paused = false;
         // add the terrain
         map = new FlxTilemap();
@@ -244,7 +257,7 @@ class Level1 extends FlxState {
         enemy.effects.active = false;
         enemy.hitArea.active = false;
     }
-    
+
     private function unpause() {
         paused = false;
         player.active = true;

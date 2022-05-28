@@ -39,11 +39,13 @@ class Level2 extends FlxState {
     var enemy3:Enemy;
     var enemyAI3:RandomActionDecider;
     var map:FlxTilemap;
+    var doors:FlxTilemap;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
+    var mapPath:String;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -83,9 +85,17 @@ class Level2 extends FlxState {
 
     override public function create() {
         // add the terrain
+        if (FlxG.save.data.version == "B") {
+            mapPath = "assets/levels/level2_terrain.csv";
+            doors = new FlxTilemap();
+            doors.loadMapFromCSV("assets/levels/level2_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
+            add(doors);
+        } else {
+            mapPath = "assets/levels/level3_terrain.csv";
+        }
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level3_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
-        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level3_terrain.csv", 64, 64);
+        map.loadMapFromCSV(mapPath, "assets/images/sf_level_tiles.png", 64, 64);
+        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain(mapPath, 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
@@ -196,13 +206,11 @@ class Level2 extends FlxState {
         nextLevel = Level3;
         curLevel = Level2;
 
-        
         levelScreen = new FlxSprite();
         levelScreen.loadGraphic("assets/images/Level2.png");
         levelScreen.screenCenter(XY);
         levelScreen.scrollFactor.set(0, 0);
         add(levelScreen);
-        
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
@@ -331,6 +339,10 @@ class Level2 extends FlxState {
         killCountText.x = 20;
         killCountText.y = 20;
         add(killCountText);
+
+        if (enemy2.isDead() && FlxG.save.data.version == "B") {
+            remove(doors);
+        }
 
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
