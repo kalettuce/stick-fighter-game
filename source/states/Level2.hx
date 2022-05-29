@@ -86,13 +86,13 @@ class Level2 extends FlxState {
 
     override public function create() {
         // add the terrain
-        if (FlxG.save.data.version == "B") {
-            mapPath = "assets/levels/level2_terrain.csv";
-            doors = new FlxTilemap();
-            doors.loadMapFromCSV("assets/levels/level2_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
-            add(doors);
+        if (FlxG.save.data.version == "A") {
+            mapPath = "assets/levels/level2A_terrain.csv";
         } else {
-            mapPath = "assets/levels/level3_terrain.csv";
+            mapPath = "assets/levels/level2B_terrain.csv";
+            doors = new FlxTilemap();
+            doors.loadMapFromCSV("assets/levels/level2B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
+            add(doors);
         }
         map = new FlxTilemap();
         map.loadMapFromCSV(mapPath, "assets/images/sf_level_tiles.png", 64, 64);
@@ -350,7 +350,7 @@ class Level2 extends FlxState {
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished) {
             Main.LOGGER.logLevelEnd({won: true});
-            FlxG.save.data.unlockedThree = true;
+            FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
 
             popupComplete();
