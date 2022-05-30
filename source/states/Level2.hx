@@ -348,9 +348,16 @@ class Level2 extends FlxState {
 
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
-            enemy3.isDead() && enemy3.animation.finished) {
+            enemy3.isDead() && enemy3.animation.finished &&
+            FlxG.save.data.version == "B") {
             Main.LOGGER.logLevelEnd({won: true});
-            FlxG.save.data.unlockedTwo = true;
+            FlxG.save.data.unlockedThree = true;
+            FlxG.save.flush();
+
+            popupComplete();
+        } else if (enemy2.isDead() && enemy2.animation.finished && FlxG.save.data.version == "A") {
+            Main.LOGGER.logLevelEnd({won: true});
+            FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();
 
             popupComplete();
