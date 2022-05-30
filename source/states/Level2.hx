@@ -39,11 +39,14 @@ class Level2 extends FlxState {
     var enemy3:Enemy;
     var enemyAI3:RandomActionDecider;
     var map:FlxTilemap;
+    var doors:FlxTilemap;
+    var doorsRemoved:Bool = false;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
+    var mapPath:String;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -83,9 +86,17 @@ class Level2 extends FlxState {
 
     override public function create() {
         // add the terrain
+        if (FlxG.save.data.version == "A") {
+            mapPath = "assets/levels/level2A_terrain.csv";
+        } else {
+            mapPath = "assets/levels/level2B_terrain.csv";
+            doors = new FlxTilemap();
+            doors.loadMapFromCSV("assets/doors/level2B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
+            add(doors);
+        }
         map = new FlxTilemap();
-        map.loadMapFromCSV("assets/levels/level3_terrain.csv", "assets/images/sf_level_tiles.png", 64, 64);
-        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level3_terrain.csv", 64, 64);
+        map.loadMapFromCSV(mapPath, "assets/images/sf_level_tiles.png", 64, 64);
+        final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain(mapPath, 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
         add(map);
@@ -133,6 +144,12 @@ class Level2 extends FlxState {
         exitButton.label.offset.y -= 8;
         exitButton.x = 1090;
         exitButton.y = 20;
+
+        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
+        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
+        killCountText.label.setFormat(null, 16, FlxColor.BLACK);
+        killCountText.x = 20;
+        killCountText.y = 20;
 
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
@@ -191,18 +208,17 @@ class Level2 extends FlxState {
         add(player.effects);
         add(enemy.effects);
         add(exitButton);
+        add(killCountText);
 
         // Initialize nextLevel and curLevel variable
         nextLevel = Level3;
         curLevel = Level2;
 
-        
         levelScreen = new FlxSprite();
         levelScreen.loadGraphic("assets/images/Level2.png");
         levelScreen.screenCenter(XY);
         levelScreen.scrollFactor.set(0, 0);
         add(levelScreen);
-        
 
         FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 
@@ -277,6 +293,7 @@ class Level2 extends FlxState {
 
     override public function update(elapsed:Float) {
         super.update(elapsed);
+        killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount.toString();
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
         if (enemy2.health != enemyHealth2) {
@@ -324,17 +341,21 @@ class Level2 extends FlxState {
             }
         }
 
-        remove(killCountText);
-        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
-        killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
-        killCountText.label.setFormat(null, 16, FlxColor.BLACK);
-        killCountText.x = 20;
-        killCountText.y = 20;
-        add(killCountText);
+        if (enemy2.isDead() && FlxG.save.data.version == "B" && !doorsRemoved) {
+            remove(doors);
+            doorsRemoved = true;
+        }
 
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
-            enemy3.isDead() && enemy3.animation.finished) {
+            enemy3.isDead() && enemy3.animation.finished &&
+            FlxG.save.data.version == "B") {
+            Main.LOGGER.logLevelEnd({won: true});
+            FlxG.save.data.unlockedThree = true;
+            FlxG.save.flush();
+
+            popupComplete();
+        } else if (enemy2.isDead() && enemy2.animation.finished && FlxG.save.data.version == "A") {
             Main.LOGGER.logLevelEnd({won: true});
             FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();
@@ -352,6 +373,13 @@ class Level2 extends FlxState {
         FlxG.collide(enemy.collider, map);
         FlxG.collide(enemy2.collider, map);
         FlxG.collide(enemy3.collider, map);
+
+        if (FlxG.save.data.version == "B" && !doorsRemoved) {
+            FlxG.collide(player.collider, doors);
+            FlxG.collide(enemy.collider, doors);
+            FlxG.collide(enemy2.collider, doors);
+            FlxG.collide(enemy3.collider, doors);
+        }
     }
 
     private function splash_screen_delay() {
