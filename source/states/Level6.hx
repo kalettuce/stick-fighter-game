@@ -91,7 +91,7 @@ class Level6 extends FlxState {
         } else {
             mapPath = "assets/levels/level6B_terrain.csv";
             doors = new FlxTilemap();
-            doors.loadMapFromCSV("assets/levels/level6B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
+            doors.loadMapFromCSV("assets/doors/level6B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
             add(doors);
         }
         map = new FlxTilemap();
@@ -341,7 +341,7 @@ class Level6 extends FlxState {
             }
         }
 
-        if (enemy2.isDead() && FlxG.save.data.version == "B" && !doorsRemoved) {
+        if (enemy2.isDead() && enemy3.isDead() && FlxG.save.data.version == "B" && !doorsRemoved) {
             remove(doors);
             doorsRemoved = true;
         }

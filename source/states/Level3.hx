@@ -91,7 +91,7 @@ class Level3 extends FlxState {
         } else {
             mapPath = "assets/levels/level3B_terrain.csv";
             doors = new FlxTilemap();
-            doors.loadMapFromCSV("assets/levels/level3B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
+            doors.loadMapFromCSV("assets/doors/level3B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
             add(doors);
         }
         map = new FlxTilemap();
