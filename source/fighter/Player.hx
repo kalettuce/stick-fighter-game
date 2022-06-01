@@ -31,6 +31,8 @@ class Player extends FightUnit {
 
     public var enemies:FlxTypedGroup<Enemy>;
     private var enemiesHit:Array<Bool>;
+    public var minions:FlxTypedGroup<Minion>;
+    private var minionsHit:Array<Bool>;
 
     private var cumulativeJumpVelocity:Int;
     private var readyCancel:Bool;
@@ -45,6 +47,8 @@ class Player extends FightUnit {
         super(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
         enemies = new FlxTypedGroup<Enemy>();
         enemiesHit = new Array<Bool>();
+        minions = new FlxTypedGroup<Minion>();
+        minionsHit = new Array<Bool>();
         stunned = false;
         cancelling = false;
         readyCancel = false;
@@ -117,6 +121,11 @@ class Player extends FightUnit {
     public function addEnemy(enemy:Enemy) {
         enemies.add(enemy);
         enemiesHit.push(false);
+    }
+
+    public function addMinion(minion:Minion) {
+        minions.add(minion);
+        minionsHit.push(false);
     }
 
     public function attackImminent():Bool {
@@ -456,12 +465,27 @@ class Player extends FightUnit {
                     }
                 }
             }
+            
+            // do the same for minions
+            for (i in 0...minions.members.length) {
+                if (!minionsHit[i] && !minions.members[i].isDead() && FlxG.pixelPerfectOverlap(hitArea, minions.members[i], 1)) {
+                    if (status == FighterStates.LIGHT) {
+                        minions.members[i].lightHit(20);
+                    } else {
+                        minions.members[i].heavyHit(30);
+                    }
+                    minionsHit[i] = true;
+                }
+            }
         }
     }
 
     private function resetEnemiesHit() {
         for (i in 0...enemiesHit.length) {
             enemiesHit[i] = false;
+        }
+        for (i in 0...minionsHit.length) {
+            minionsHit[i] = false;
         }
     }
 

@@ -124,6 +124,8 @@ class FightUnit extends FlxSprite {
     private function setFacing(direction:FlxDirectionFlags) {
         facing = direction;
         hitArea.facing = direction;
-        effects.facing = direction;
+        if (effects != null) {
+            effects.facing = direction;
+        }
     }
 }

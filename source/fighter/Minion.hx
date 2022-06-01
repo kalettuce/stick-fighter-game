@@ -5,53 +5,36 @@ import actions.ActionStatus;
 import ai.ActionDecider;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.math.FlxRandom;
-import flixel.util.FlxColor;
 import flixel.util.FlxDirectionFlags;
 
-class Enemy extends FightUnit {
+class Minion extends FightUnit {
     private static final GRAVITY:Int = 1000;
-    private static final ATTACK_RANGE:Int = 145;
+    private static final ATTACK_RANGE:Int = 100;
     private static final MOVE_VELOCITY:Int = 200;
     private static final ACTION_INTERVAL:Float = 2;
-    private static final STAMINA_RECOVERY_RATE:Int = 16;
-    public static final LIGHT_STAMINA_USAGE:Int = 10;
-    public static final HEAVY_STAMINA_USAGE:Int = 20;
-    public static final CANCEL_STAMINA_USAGE:Int = 10;
+    private static final COLLIDER_OFFSET_X:Int = 104;
+    private static final COLLIDER_OFFSET_Y:Int = 58;
 
-    private static final COLLIDER_OFFSET_X:Int = 127;
-    private static final COLLIDER_OFFSET_Y:Int = 104;
-
-    public var stamina:Float;
-
-    // enemy of the Enemy class
     public var player:Player;
     private var playerHit:Bool;
 
-    /************************* Combat AI ****************************/
     private var combatAI:ActionDecider;
-
-    // help compute the time to advance to next action
     private var timeSinceLastAction:Float;
     private var prevActionStatus:ActionStatus;
 
     override public function new(x:Int = 0, y:Int = 0, player:Player) {
         super(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
+        this.player = player;
 
         // rendered image
-        loadGraphic("assets/images/sword_sprites_render.png", true, 300, 350);
-        animation.add("idle", [1, 2, 3, 0], 10);
-        animation.add("parry", [4, 5, 6, 7, 8, 9], 10, false);
-        animation.add("jump", [0, 10, 11], 10, false);
-        animation.add("float", [11], 10);
-        animation.add("land", [10, 0], 10, false);
-        animation.add("walk", [20, 21, 22, 23, 0], 10);
+        loadGraphic("assets/images/minion_sprites_render.png", true, 250, 200);
+        animation.add("idle", [0, 1], 6);
+        animation.add("float", [0, 1], 3);
         animation.add("light", [30, 31, 32, 33, 34, 35, 0], 10, false);
-        animation.add("heavy", [43, 44, 45, 46, 47, 48, 49], 5, false);
-        animation.add("light-hit", [40, 41, 42, 0], 10, false);
-        animation.add("heavy-hit", [40, 41, 41, 42, 42, 0], 10, false);
-        animation.add("parried", [12, 13, 14, 15, 16, 17, 0], 5, false);
-        animation.add("block", [18], 10);
+        animation.add("walk", [20, 21, 22, 23, 0], 10);
+        animation.add("light-hit", [40, 41, 42], 10, false);
+        animation.add("heavy-hit", [40, 41, 42], 7, false);
+        animation.add("parried", [40, 40, 40, 41, 41, 42, 42], 7, false);
         animation.add("death", [24, 25, 26], 10, false);
         setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
@@ -61,51 +44,40 @@ class Enemy extends FightUnit {
 
         // collider
         collider = new FlxSprite(x, y);
-        collider.loadGraphic("assets/images/sword_sprites_collider.png");
-
+        collider.loadGraphic("assets/images/minion_sprites_collider.png");
         collider.acceleration.y = GRAVITY;
         collider.maxVelocity.y = GRAVITY;
         collider.active = false;
 
         // hit detection sprite
         hitArea = new FlxSprite(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
-        hitArea.loadGraphic("assets/images/sword_hit_area.png", true, 300, 350);
+        hitArea.loadGraphic("assets/images/minion_hit_area.png", true, 250, 200);
         hitArea.animation.add("idle", [0], 10);
-        hitArea.animation.add("light", [0, 0, 0, 0, 34, 35, 0], 10, false);
-        hitArea.animation.add("heavy", [0, 0, 0, 0, 47, 48, 0], 5, false);
+        hitArea.animation.add("light", [0, 0, 0, 0, 0, 35, 0], 10, false);
         hitArea.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
-        hitArea.animation.play("idle");
         hitArea.alpha = 0.01;
 
-        // effects
-        effects = new FlxSprite(x-COLLIDER_OFFSET_X, y-COLLIDER_OFFSET_Y);
-        effects.loadGraphic("assets/images/sword_effect.png", true, 300, 350);
-        effects.animation.add("idle", [0], 10);
-        effects.animation.add("hit-block", [1, 2, 3, 4, 5, 6, 7], 25, false);
-        effects.animation.callback = effectsAnimationFrameCallback;
-        effects.animation.finishCallback = effectsAnimationFinishCallback;
-        effects.setFacingFlip(FlxDirectionFlags.LEFT, false, false);
-        effects.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
-        effects.animation.play("idle");
+        // effects (leave empty for now) 
 
         // other initializations
         setFacing(FlxDirectionFlags.LEFT);
         stunned = false;
         playerHit = false;
-        health = 100;
-        stamina = 100;
+        health = 40;
         timeSinceLastAction = 0.0;
         prevActionStatus = ActionStatus.NEUTRAL;
         dead = false;
+        platformIndex = 0;
     }
 
     /* -------------------------- Queries ------------------------ */
+    // minion cannot parry
     override public function isParrying():Bool {
-        return animation.frameIndex == 5 || animation.frameIndex == 6;
+        return false;
     }
 
-    // return the range of the sprite's attack
+    // return the range of this sprite's attack
     override public function getRange():Int {
         return ATTACK_RANGE;
     }
@@ -122,7 +94,7 @@ class Enemy extends FightUnit {
         if ((status == FighterStates.IDLE || status == FighterStates.WALK) && collider.velocity.y > 0) {
             float();
         } else if (collider.isTouching(FlxDirectionFlags.FLOOR) && collider.velocity.y == 0 && status == FighterStates.AIR) {
-            play("land");
+            play("idle");
             status = FighterStates.IDLE;
             updatePlatformIndex();
         }
@@ -130,11 +102,7 @@ class Enemy extends FightUnit {
 
     private function animationFinishCallback(name:String) {
         switch (name) {
-            case "jump":
-                animation.play("float");
-                stunned = true;
-                status = FighterStates.AIR;
-            case "light", "heavy":
+            case "light":
                 idle();
                 playerHit = false;
                 status = FighterStates.IDLE;
@@ -145,22 +113,10 @@ class Enemy extends FightUnit {
                 status = FighterStates.IDLE;
         }
     }
-    private function effectsAnimationFrameCallback(name:String, frameNumber:Int, frameIndex:Int) {
-        switch (name) {
-            case "hit-block": collider.velocity.x = 0;
-            default:
-        }
-    }
-
-    private function effectsAnimationFinishCallback(name:String) {
-       effects.animation.play("idle");
-    }
 
     /* ---------------------------------- Actions Functions --------------------------------- */
     private function idle() {
-        // only idles if on the floor
-        // does not interrupt jumping or landing animations
-        if (collider.isTouching(FlxDirectionFlags.FLOOR) && status != FighterStates.JUMP && !(!animation.finished && animation.name == "land")) {
+        if (collider.isTouching(FlxDirectionFlags.FLOOR)) {
             play("idle");
             status = FighterStates.IDLE;
         } else if (collider.velocity.y > 0) {
@@ -182,32 +138,7 @@ class Enemy extends FightUnit {
         play("light");
         collider.velocity.x = 0;
         collider.velocity.y = 0;
-        stamina -= LIGHT_STAMINA_USAGE;
         stunned = true;
-    }
-
-    private function heavy() {
-        status = FighterStates.HEAVY;
-        play("heavy");
-        collider.velocity.x = 0;
-        collider.velocity.y = 0;
-        stamina -= HEAVY_STAMINA_USAGE;
-        stunned = true;
-    }
-
-    private function block() {
-        play("block");
-        collider.velocity.x = 0;
-        stunned = false;
-        status = FighterStates.BLOCK;
-    }
-
-    private function parry() {
-        play("parry");
-        collider.velocity.x = 0;
-        stunned = true;
-        status = FighterStates.PARRY;
-        prevActionStatus = ActionStatus.PARRY_MISS;
     }
 
     private function parried() {
@@ -215,21 +146,13 @@ class Enemy extends FightUnit {
         play("parried");
         collider.velocity.x = 0;
         stunned = true;
-        if (status == FighterStates.LIGHT) {
-            status = FighterStates.LIGHTPARRIED;
-            Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "ENEMY light attack PARRIED"});
-        } else {
-            status = FighterStates.HEAVYPARRIED;
-            Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "ENEMY heavy attack PARRIED"});
-        }
+        status = FighterStates.LIGHTPARRIED;
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "MINION light attack PARRIED"});
     }
 
     private function move() {
-        if (animation.name != "land") {
-            play("walk");
-        }
+        play("walk");
         stunned = false;
-
         if (facing == FlxDirectionFlags.LEFT) {
             collider.velocity.x = -MOVE_VELOCITY;
         } else {
@@ -239,9 +162,8 @@ class Enemy extends FightUnit {
     }
 
     /********************************************* Passive Action Functions *********************************************/
-    // should be called when "this" enemy is hit
     public function lightHit(damage:Float) {
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER light attack HIT ENEMY"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER light attack HIT MINION"});
         status = FighterStates.HITSTUNLIGHT;
         play("light-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
@@ -255,7 +177,7 @@ class Enemy extends FightUnit {
     }
 
     public function heavyHit(damage:Float) {
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER heavy attack HIT ENEMY"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER heavy attack HIT MINION"});
         status = FighterStates.HITSTUNHEAVY;
         play("heavy-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
@@ -268,33 +190,14 @@ class Enemy extends FightUnit {
         hurt(damage);
     }
 
-    // should be called when "this" enemy is hit while blocking
-    public function hitBlock() {
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_BLOCKED, {event: "PLAYER heavy attack BLOCKED"});
-
-        effects.animation.play("hit-block", true);
-        prevActionStatus = ActionStatus.BLOCK_HIT;
-        if (facing == FlxDirectionFlags.LEFT) {
-            collider.velocity.x = 150;
-        } else {
-            collider.velocity.x = -150;
-        }
-    }
-
-    // should be called when "this" enmemy hits the player while blocking
     public function hitBlocking() {
         prevActionStatus = ActionStatus.BLOCKED;
     }
 
-    public function hitParry() {
-        prevActionStatus = ActionStatus.PARRY_HIT;
-    }
-
-    private function actions(elapsed:Float) {
+    public function actions(elapsed:Float) {
         if (stunned || !collider.isTouching(FlxDirectionFlags.FLOOR)) {
             return;
         } else {
-            // execute a new action if we're ready
             var nextAction = combatAI.nextAction(prevActionStatus, elapsed);
             prevActionStatus = ActionStatus.NEUTRAL;
             switch (nextAction) {
@@ -302,14 +205,10 @@ class Enemy extends FightUnit {
                     idle();
                 case AIAction.LIGHT_ACTION:
                     light();
-                case AIAction.HEAVY_ACTION:
-                    heavy();
-                case AIAction.BLOCK_ACTION:
-                    block();
-                case AIAction.PARRY_ACTION:
-                    parry();
                 case AIAction.MOVE_ACTION:
                     move();
+                default:
+                    idle();
             }
             setFacing(combatAI.getDirection());
         }
@@ -319,7 +218,7 @@ class Enemy extends FightUnit {
         if (playerHit || player.isDead()) return;
         if (hitArea.animation.frameIndex != 0) {
             if (FlxG.pixelPerfectOverlap(hitArea, player.collider, 1)) {
-                if (player.isParrying()){
+                if (player.isParrying()) {
                     parried();
                 } else if (player.isBlocking() && status == FighterStates.LIGHT && player.facing != facing) {
                     playerHit = true;
@@ -327,14 +226,19 @@ class Enemy extends FightUnit {
                     hitBlocking();
                 } else {
                     playerHit = true;
-                    if (status == FighterStates.LIGHT) {
-                        player.lightHit(5);
-                    } else {
-                        player.heavyHit(10);
-                    }
+                    player.lightHit(2);
                 }
             }
         }
+    }
+
+    override public function kill() {
+        animation.play("death");
+        stunned = true;
+        dead = true;
+        FlxG.save.data.killCount += 1;
+        FlxG.save.flush();
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_KILLED, {event: "minion killed"});
     }
 
     // sets the collider to the given location and the other layers to their
@@ -344,24 +248,10 @@ class Enemy extends FightUnit {
         final originalY:Float = y - COLLIDER_OFFSET_Y;
         super.setPosition(originalX, originalY);
         hitArea.setPosition(originalX, originalY);
-        effects.setPosition(originalX, originalY);
         collider.setPosition(x, y);
     }
 
-    override public function kill() {
-        animation.play("death");
-        stunned = true;
-        dead = true;
-        FlxG.save.data.killCount += 1;
-        FlxG.save.flush();
-        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_KILLED, {event: "enemy killed"});
-    }
-
     override public function update(elapsed:Float) {
-        // recovers stamina if not attacking
-        if (animation.name != "light" && animation.name != "heavy") {
-            stamina = Math.min(stamina + elapsed * STAMINA_RECOVERY_RATE, 100);
-        }
         setPosition(collider.x, collider.y);
         if (!dead) {
             actions(elapsed);

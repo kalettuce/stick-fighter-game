@@ -3,11 +3,13 @@ package states;
 import actions.AIAction;
 import actions.ActionStatus;
 import ai.ActionDecider;
+import ai.MinionActionDecider;
 import ai.RandomActionDecider;
 import ai.SequentialActionDecider;
 import ai.TerrainSolver;
 import ai.TilePlatform;
 import fighter.Enemy;
+import fighter.Minion;
 import fighter.Player;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -28,6 +30,7 @@ import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
+import helder.Set;
 import motion.Actuate;
 
 class Level2 extends FlxState {
@@ -38,6 +41,8 @@ class Level2 extends FlxState {
     var enemyAI2:RandomActionDecider;
     var enemy3:Enemy;
     var enemyAI3:RandomActionDecider;
+    var minions:Set<Minion>;
+
     var map:FlxTilemap;
     var doors:FlxTilemap;
     var doorsRemoved:Bool = false;
@@ -134,6 +139,21 @@ class Level2 extends FlxState {
         enemy3.setCombatAI(enemyAI3);
         enemy3.setPlatforms(platforms);
         player.addEnemy(enemy3);
+
+        // create minions
+        final xPosArr:Array<Int> = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+        final yPosArr:Array<Int> = [100, 100, 100, 100, 100, 100, 100, 100, 100];
+        minions = new Set<Minion>();
+        for (i in 0...xPosArr.length) {
+            var minion:Minion = new Minion(xPosArr[i], yPosArr[i], player);
+            var minionAI:ActionDecider = new MinionActionDecider(minion, player);
+            minion.setCombatAI(minionAI);
+            minion.setPlatforms(platforms);
+            minions.add(minion);
+            player.addMinion(minion);
+            add(minion.hitArea);
+            add(minion);
+        }
 
         exitButton = new FlxButton(0, 0, "Return to Menu", exit);
         exitButton.scale.set(2, 2);
@@ -373,6 +393,9 @@ class Level2 extends FlxState {
         FlxG.collide(enemy.collider, map);
         FlxG.collide(enemy2.collider, map);
         FlxG.collide(enemy3.collider, map);
+        for (minion in minions) {
+            FlxG.collide(minion.collider, map);
+        }
 
         if (FlxG.save.data.version == "B" && !doorsRemoved) {
             FlxG.collide(player.collider, doors);

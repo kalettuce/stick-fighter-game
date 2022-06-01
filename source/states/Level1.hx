@@ -276,7 +276,7 @@ class Level1 extends FlxState {
     }
 
     override public function update(elapsed:Float) {
-        if (paused && FlxG.keys.justPressed.P) {
+        if (paused && FlxG.keys.anyJustPressed([SPACE, W, A, S, D, J, K, I])) {
             unpause();
             promptText.color = FlxColor.BLACK;
             if (!player.invincible) {
