@@ -397,9 +397,9 @@ class Player extends FightUnit {
         final rightJustPressed:Bool = FlxG.keys.justPressed.D;
         // decides whether to initiate attack, block, or jump
         if (status == FighterStates.IDLE || status == FighterStates.WALK) {
-            if (FlxG.keys.pressed.J && stamina >= 10) {
+            if (FlxG.keys.pressed.J && stamina >= LIGHT_STAMINA_USAGE) {
                 light();
-            } else if (FlxG.keys.pressed.I) {
+            } else if (FlxG.keys.pressed.I && stamina >= HEAVY_STAMINA_USAGE) {
                 heavy();
             } else if (FlxG.keys.pressed.K) {
                 block();
