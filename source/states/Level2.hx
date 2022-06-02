@@ -131,7 +131,7 @@ class Level2 extends FlxState {
         player.addEnemy(enemy2);
 
         // create the enemy
-        enemy3 = new Enemy(950, 700, player);
+        enemy3 = new Enemy(950, 900, player);
         enemyAI3 = new RandomActionDecider(enemy3, player);
         enemyAI3.setAttackedWeights([30, 60, 10]);
         enemyAI3.setNeutralWeights([70, 25, 5]);
@@ -141,8 +141,8 @@ class Level2 extends FlxState {
         player.addEnemy(enemy3);
 
         // create minions
-        final xPosArr:Array<Int> = [100, 200, 300, 400, 500, 600, 700, 800, 900];
-        final yPosArr:Array<Int> = [100, 100, 100, 100, 100, 100, 100, 100, 100];
+        final xPosArr:Array<Int> = [1700, 1800, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
+        final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
         minions = new Set<Minion>();
         for (i in 0...xPosArr.length) {
             var minion:Minion = new Minion(xPosArr[i], yPosArr[i], player);
@@ -250,10 +250,10 @@ class Level2 extends FlxState {
     function exit():Void
      {
         // log clicking "exit" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT, {version: FlxG.save.data.version});
 
         // log level end
-        Main.LOGGER.logLevelEnd({won: false});
+        Main.LOGGER.logLevelEnd({won: false, version: FlxG.save.data.version});
         FlxG.switchState(new MenuState());
      }
 
@@ -370,13 +370,13 @@ class Level2 extends FlxState {
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished &&
             FlxG.save.data.version == "B") {
-            Main.LOGGER.logLevelEnd({won: true});
+            Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();
 
             popupComplete();
         } else if (enemy2.isDead() && enemy2.animation.finished && FlxG.save.data.version == "A") {
-            Main.LOGGER.logLevelEnd({won: true});
+            Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();
 
@@ -384,7 +384,7 @@ class Level2 extends FlxState {
         }
 
         if (player.isDead() && player.animation.finished) {
-            Main.LOGGER.logLevelEnd({won: false});
+            Main.LOGGER.logLevelEnd({won: false, version: FlxG.save.data.version});
 
             level_lost();
         }

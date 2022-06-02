@@ -48,10 +48,10 @@ class MenuState extends FlxState
 
 
         // Log clicking "Play" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_PLAY);
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_PLAY, {version: FlxG.save.data.version});
 
         // Log start of Level 1
-        Main.LOGGER.logLevelStart(1);
+        Main.LOGGER.logLevelStart(1, {version: FlxG.save.data.version});
         FlxG.switchState(new Level1());
     }
 
@@ -60,7 +60,7 @@ class MenuState extends FlxState
     {
 
         // Log clicking "Select Levels" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_LEVELS_MENU);
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_LEVELS_MENU, {version: FlxG.save.data.version});
         FlxG.switchState(new LevelsState());
     }
 

@@ -107,7 +107,7 @@ class LevelsState extends FlxState
     function selectLevel1():Void
     {
         // Log start of Level 1
-        Main.LOGGER.logLevelStart(1);
+        Main.LOGGER.logLevelStart(1, {version: FlxG.save.data.version});
         FlxG.switchState(new Level1());
     }
 
@@ -115,7 +115,7 @@ class LevelsState extends FlxState
     {
         if (FlxG.save.data.unlockedTwo) {
             // Log start of Level 2
-            Main.LOGGER.logLevelStart(2);
+            Main.LOGGER.logLevelStart(2, {version: FlxG.save.data.version});
             FlxG.switchState(new Level2());
         }
     }
@@ -124,7 +124,7 @@ class LevelsState extends FlxState
     {
         if (FlxG.save.data.unlockedThree) {
             // Log start of Level 3
-            Main.LOGGER.logLevelStart(3);
+            Main.LOGGER.logLevelStart(3, {version: FlxG.save.data.version});
             FlxG.switchState(new Level3());
         }
     }
@@ -133,7 +133,7 @@ class LevelsState extends FlxState
     {
         if (FlxG.save.data.unlockedFour) {
             // Log start of Level 4
-            Main.LOGGER.logLevelStart(4);
+            Main.LOGGER.logLevelStart(4, {version: FlxG.save.data.version});
             FlxG.switchState(new Level4());
         }
     }
@@ -142,7 +142,7 @@ class LevelsState extends FlxState
     {
         if (FlxG.save.data.unlockedFive) {
             // Log start of Level 5
-            Main.LOGGER.logLevelStart(5);
+            Main.LOGGER.logLevelStart(5, {version: FlxG.save.data.version});
             FlxG.switchState(new Level5());
         }
     }
@@ -151,7 +151,7 @@ class LevelsState extends FlxState
     {
         if (FlxG.save.data.unlockedSix) {
             // Log start of Level 6
-            Main.LOGGER.logLevelStart(6);
+            Main.LOGGER.logLevelStart(6, {version: FlxG.save.data.version});
             FlxG.switchState(new Level6());
         }
     }
@@ -159,7 +159,7 @@ class LevelsState extends FlxState
     function selectMainMenu():Void
     {
         // Log clicking "Main Menu" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_MAIN_MENU);
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_MAIN_MENU, {version: FlxG.save.data.version});
         FlxG.switchState(new MenuState());
     }
 

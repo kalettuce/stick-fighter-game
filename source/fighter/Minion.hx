@@ -58,7 +58,7 @@ class Minion extends FightUnit {
         hitArea.setFacingFlip(FlxDirectionFlags.RIGHT, true, false);
         hitArea.alpha = 0.01;
 
-        // effects (leave empty for now) 
+        // effects (leave empty for now)
 
         // other initializations
         setFacing(FlxDirectionFlags.LEFT);
@@ -147,7 +147,7 @@ class Minion extends FightUnit {
         collider.velocity.x = 0;
         stunned = true;
         status = FighterStates.LIGHTPARRIED;
-        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "MINION light attack PARRIED"});
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_PARRIED, {event: "MINION light attack PARRIED", version: FlxG.save.data.version});
     }
 
     private function move() {
@@ -163,7 +163,7 @@ class Minion extends FightUnit {
 
     /********************************************* Passive Action Functions *********************************************/
     public function lightHit(damage:Float) {
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER light attack HIT MINION"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER light attack HIT MINION", version: FlxG.save.data.version});
         status = FighterStates.HITSTUNLIGHT;
         play("light-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
@@ -177,7 +177,7 @@ class Minion extends FightUnit {
     }
 
     public function heavyHit(damage:Float) {
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER heavy attack HIT MINION"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_HIT, {event: "PLAYER heavy attack HIT MINION", version: FlxG.save.data.version});
         status = FighterStates.HITSTUNHEAVY;
         play("heavy-hit");
         if (prevActionStatus == ActionStatus.NEUTRAL) {
@@ -238,7 +238,7 @@ class Minion extends FightUnit {
         dead = true;
         FlxG.save.data.killCount += 1;
         FlxG.save.flush();
-        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_KILLED, {event: "minion killed"});
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_KILLED, {event: "minion killed", version: FlxG.save.data.version});
     }
 
     // sets the collider to the given location and the other layers to their

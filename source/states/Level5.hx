@@ -3,11 +3,13 @@ package states;
 import actions.AIAction;
 import actions.ActionStatus;
 import ai.ActionDecider;
+import ai.MinionActionDecider;
 import ai.RandomActionDecider;
 import ai.SequentialActionDecider;
 import ai.TerrainSolver;
 import ai.TilePlatform;
 import fighter.Enemy;
+import fighter.Minion;
 import fighter.Player;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -28,6 +30,7 @@ import flixel.util.FlxAxes;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
+import helder.Set;
 import motion.Actuate;
 
 class Level5 extends FlxState {
@@ -38,6 +41,7 @@ class Level5 extends FlxState {
     var enemyAI2:RandomActionDecider;
     var enemy3:Enemy;
     var enemyAI3:RandomActionDecider;
+    var minions:Set<Minion>;
     var map:FlxTilemap;
     var doors:FlxTilemap;
     var doorsRemoved:Bool = false;
@@ -191,6 +195,21 @@ class Level5 extends FlxState {
         enemyStaminaBar3.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar3.trackParent(175, 20);
 
+        // create minions
+        final xPosArr:Array<Int> = [1300, 1400, 1500, 700, 800, 900, 300, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
+        final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1300, 1300, 1300, 700, 700];
+        minions = new Set<Minion>();
+        for (i in 0...xPosArr.length) {
+            var minion:Minion = new Minion(xPosArr[i], yPosArr[i], player);
+            var minionAI:ActionDecider = new MinionActionDecider(minion, player);
+            minion.setCombatAI(minionAI);
+            minion.setPlatforms(platforms);
+            minions.add(minion);
+            player.addMinion(minion);
+            add(minion.hitArea);
+            add(minion);
+        }
+
         // set a background color
         bgColor = FlxColor.GRAY;
 
@@ -230,10 +249,10 @@ class Level5 extends FlxState {
     function exit():Void
      {
         // log clicking "exit" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT, {version: FlxG.save.data.version});
 
         // log level end
-        Main.LOGGER.logLevelEnd({won: false});
+        Main.LOGGER.logLevelEnd({won: false, version: FlxG.save.data.version});
         FlxG.switchState(new MenuState());
      }
 
@@ -349,7 +368,7 @@ class Level5 extends FlxState {
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished) {
-            Main.LOGGER.logLevelEnd({won: true});
+            Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedSix = true;
             FlxG.save.flush();
 
@@ -357,7 +376,7 @@ class Level5 extends FlxState {
         }
 
         if (player.isDead() && player.animation.finished) {
-            Main.LOGGER.logLevelEnd({won: false});
+            Main.LOGGER.logLevelEnd({won: false, version: FlxG.save.data.version});
 
             level_lost();
         }
@@ -366,6 +385,9 @@ class Level5 extends FlxState {
         FlxG.collide(enemy.collider, map);
         FlxG.collide(enemy2.collider, map);
         FlxG.collide(enemy3.collider, map);
+        for (minion in minions) {
+            FlxG.collide(minion.collider, map);
+        }
 
         if (FlxG.save.data.version == "B" && !doorsRemoved) {
             FlxG.collide(player.collider, doors);

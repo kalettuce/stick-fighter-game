@@ -224,7 +224,7 @@ class Player extends FightUnit {
         stamina -= LIGHT_STAMINA_USAGE;
         collider.velocity.x = 0;
         // log light attack
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {type: "light attack"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {type: "light attack", version: FlxG.save.data.version});
     }
 
     private function heavy() {
@@ -236,7 +236,7 @@ class Player extends FightUnit {
         stamina -= HEAVY_STAMINA_USAGE;
         collider.velocity.x = 0;
         // log heavy attack
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {type: "heavy attack"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK, {type: "heavy attack", version: FlxG.save.data.version});
     }
 
     private function block() {
@@ -245,7 +245,7 @@ class Player extends FightUnit {
         status = FighterStates.BLOCK;
         collider.velocity.x = 0;
         // log move "block"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {action: "block"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_BLOCK, {action: "block", version: FlxG.save.data.version});
     }
 
     private function parry() {
@@ -254,7 +254,7 @@ class Player extends FightUnit {
         status = FighterStates.PARRY;
         collider.velocity.x = 0;
         // log move "parry"
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {action: "parry"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_PARRY, {action: "parry", version: FlxG.save.data.version});
     }
 
     // handles jumping, needs to be called before super.update()
@@ -262,7 +262,7 @@ class Player extends FightUnit {
         play("jump");
         stunned = false;
         status = FighterStates.JUMP;
-        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {action: "jump"});
+        Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {action: "jump", version: FlxG.save.data.version});
     }
 
     // float in air
@@ -274,22 +274,22 @@ class Player extends FightUnit {
     }
 
     private function parried() {
-        
+
         animation.play("parried");
         hitArea.animation.play("idle");
         if (status == FighterStates.LIGHT) {
             status = FighterStates.LIGHTPARRIED;
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER light attack PARRIED"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER light attack PARRIED", version: FlxG.save.data.version});
         } else {
             status = FighterStates.HEAVYPARRIED;
-            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER heavy attack PARRIED"});
+            Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER heavy attack PARRIED", version: FlxG.save.data.version});
         }
         stunned = true;
     }
 
     /***************************************** Passive Actions Functions ******************************************/
     public function lightHit(damage:Float) {
-        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY light attack HIT"});
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY light attack HIT", version: FlxG.save.data.version});
         animation.play("light-hit");
         hitArea.animation.play("idle");
         stunned = true;
@@ -301,7 +301,7 @@ class Player extends FightUnit {
     }
 
     public function heavyHit(damage:Float) {
-        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY heavy attack HIT"});
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY heavy attack HIT", version: FlxG.save.data.version});
         animation.play("heavy-hit");
         hitArea.animation.play("idle");
         stunned = true;
@@ -313,7 +313,7 @@ class Player extends FightUnit {
     }
 
     public function hitBlock() {
-        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY attack BLOCKED"});
+        Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY attack BLOCKED", version: FlxG.save.data.version});
         effects.animation.play("hit-block", true);
 
         if (facing == FlxDirectionFlags.LEFT) {
@@ -427,7 +427,7 @@ class Player extends FightUnit {
             }
             // log only on justPress
             if (leftJustPressed) {
-                Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left"});
+                Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "left", version: FlxG.save.data.version});
             }
         } else if (rightPressed) {
             setFacing(FlxDirectionFlags.RIGHT);
@@ -437,7 +437,7 @@ class Player extends FightUnit {
                 walk();
             }
             if (rightJustPressed) {
-                Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right"});
+                Main.LOGGER.logLevelAction(LoggingActions.PLAYER_MOVE, {direction: "right", version: FlxG.save.data.version});
             }
         } else {
             idle();
@@ -465,7 +465,7 @@ class Player extends FightUnit {
                     }
                 }
             }
-            
+
             // do the same for minions
             for (i in 0...minions.members.length) {
                 if (!minionsHit[i] && !minions.members[i].isDead() && FlxG.pixelPerfectOverlap(hitArea, minions.members[i], 1)) {

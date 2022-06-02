@@ -194,10 +194,10 @@ class Level1 extends FlxState {
     function exit():Void
      {
         // log clicking "exit" button
-        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT);
+        Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_EXIT, {version: FlxG.save.data.version});
 
         // log level end
-        Main.LOGGER.logLevelEnd({won: false});
+        Main.LOGGER.logLevelEnd({won: false, version: FlxG.save.data.version});
         FlxG.switchState(new MenuState());
      }
 
@@ -341,7 +341,7 @@ class Level1 extends FlxState {
         }
 
         if (enemy.isDead() && enemy.animation.finished) {
-            Main.LOGGER.logLevelEnd({won: true});
+            Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedTwo = true;
             FlxG.save.flush();
 
@@ -349,7 +349,7 @@ class Level1 extends FlxState {
         }
 
         if (player.isDead() && player.animation.finished) {
-            Main.LOGGER.logLevelEnd({won: false});
+            Main.LOGGER.logLevelEnd({won: false, version: FlxG.save.data.version});
 
             level_lost();
         }
