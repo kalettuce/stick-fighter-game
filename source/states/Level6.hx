@@ -234,7 +234,7 @@ class Level6 extends FlxState {
         curLevel = Level6;
 
         levelScreen = new FlxSprite();
-        // levelScreen.loadGraphic("assets/images/Level6.png");
+        levelScreen.loadGraphic("assets/images/Level6.png");
         levelScreen.screenCenter(XY);
         levelScreen.scrollFactor.set(0, 0);
         add(levelScreen);

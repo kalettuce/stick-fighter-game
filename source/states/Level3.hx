@@ -234,7 +234,7 @@ class Level3 extends FlxState {
         curLevel = Level3;
 
         levelScreen = new FlxSprite();
-        // levelScreen.loadGraphic("assets/images/Level3.png");
+        levelScreen.loadGraphic("assets/images/Level3.png");
         levelScreen.screenCenter(XY);
         levelScreen.scrollFactor.set(0, 0);
         add(levelScreen);
