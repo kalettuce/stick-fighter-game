@@ -103,17 +103,19 @@ class Level3 extends FlxState {
         final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain(mapPath, 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
+        FlxG.camera.style = FlxCameraFollowStyle.PLATFORMER;
         add(map);
 
         // create the player character
         player = new Player(300, 100);
         player.setPlatforms(platforms);
+        player.setCamera(FlxG.camera);
 
         // create enemy#1
         enemy = new Enemy(1627, 200, player);
         enemyAI = new RandomActionDecider(enemy, player);
-        enemyAI.setAttackedWeights([30, 60, 10]);
-        enemyAI.setNeutralWeights([70, 25, 5]);
+        enemyAI.setAttackedWeights([5, 85, 10]);
+        enemyAI.setNeutralWeights([15, 80, 5]);
         enemy.setPlayer(player);
         enemy.setCombatAI(enemyAI);
         enemy.setPlatforms(platforms);
@@ -122,8 +124,8 @@ class Level3 extends FlxState {
         // create enemy#2
         enemy2 = new Enemy(600, 200, player);
         enemyAI2 = new RandomActionDecider(enemy2, player);
-        enemyAI2.setAttackedWeights([30, 60, 10]);
-        enemyAI2.setNeutralWeights([70, 25, 5]);
+        enemyAI2.setAttackedWeights([10, 10, 80]);
+        enemyAI2.setNeutralWeights([90, 5, 5]);
         enemy2.setPlayer(player);
         enemy2.setCombatAI(enemyAI2);
         enemy2.setPlatforms(platforms);
@@ -132,8 +134,8 @@ class Level3 extends FlxState {
         // create the enemy
         enemy3 = new Enemy(950, 700, player);
         enemyAI3 = new RandomActionDecider(enemy3, player);
-        enemyAI3.setAttackedWeights([30, 60, 10]);
-        enemyAI3.setNeutralWeights([70, 25, 5]);
+        enemyAI3.setAttackedWeights([5, 90, 5]);
+        enemyAI3.setNeutralWeights([90, 5, 5]);
         enemy3.setPlayer(player);
         enemy3.setCombatAI(enemyAI3);
         enemy3.setPlatforms(platforms);

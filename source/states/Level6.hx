@@ -103,11 +103,13 @@ class Level6 extends FlxState {
         final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain(mapPath, 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
+        FlxG.camera.style = FlxCameraFollowStyle.PLATFORMER;
         add(map);
 
         // create the player character
         player = new Player(300, 100);
         player.setPlatforms(platforms);
+        player.setCamera(FlxG.camera);
 
         // create enemy#1
         enemy = new Enemy(1627, 200, player);

@@ -320,6 +320,11 @@ class Enemy extends FightUnit {
         if (hitArea.animation.frameIndex != 0) {
             if (FlxG.pixelPerfectOverlap(hitArea, player.collider, 1)) {
                 if (player.isParrying()){
+                    if (status == FighterStates.LIGHT) {
+                        player.hitLightParry();
+                    } else {
+                        player.hitHeavyParry();
+                    }
                     parried();
                 } else if (player.isBlocking() && status == FighterStates.LIGHT && player.facing != facing) {
                     playerHit = true;

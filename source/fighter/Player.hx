@@ -1,11 +1,13 @@
 package fighter;
 
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.system.FlxSplash;
 import flixel.tile.FlxTilemap;
 import flixel.util.FlxCollision;
+import flixel.util.FlxColor;
 import flixel.util.FlxDirectionFlags;
 import openfl.geom.Point;
 
@@ -26,6 +28,8 @@ class Player extends FightUnit {
     // offset of the collider relative to the rendered sprite
     private static final COLLIDER_OFFSET_X = 205;
     private static final COLLIDER_OFFSET_Y = 152;
+
+    private var externalCam:FlxCamera;
 
     public var stamina:Float;
 
@@ -126,6 +130,10 @@ class Player extends FightUnit {
     public function addMinion(minion:Minion) {
         minions.add(minion);
         minionsHit.push(false);
+    }
+
+    public function setCamera(camera:FlxCamera) {
+        externalCam = camera;
     }
 
     public function attackImminent():Bool {
@@ -274,14 +282,16 @@ class Player extends FightUnit {
     }
 
     private function parried() {
-
         animation.play("parried");
         hitArea.animation.play("idle");
         if (status == FighterStates.LIGHT) {
             status = FighterStates.LIGHTPARRIED;
+            camera.flash(0xb0000000, 0.8, null, true);
+            camera.shake(0.01, 0.1, null, true);
             Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER light attack PARRIED", version: FlxG.save.data.version});
         } else {
             status = FighterStates.HEAVYPARRIED;
+            camera.flash(0x70000000, 0.4, null, true);
             Main.LOGGER.logLevelAction(LoggingActions.PLAYER_ATTACK_PARRIED, {event: "PLAYER heavy attack PARRIED", version: FlxG.save.data.version});
         }
         stunned = true;
@@ -290,6 +300,7 @@ class Player extends FightUnit {
     /***************************************** Passive Actions Functions ******************************************/
     public function lightHit(damage:Float) {
         Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY light attack HIT", version: FlxG.save.data.version});
+        camera.flash(0x30ff0000, 0.5, null, true);
         animation.play("light-hit");
         hitArea.animation.play("idle");
         stunned = true;
@@ -302,6 +313,7 @@ class Player extends FightUnit {
 
     public function heavyHit(damage:Float) {
         Main.LOGGER.logLevelAction(LoggingActions.ENEMY_ATTACK_HIT, {event: "ENEMY heavy attack HIT", version: FlxG.save.data.version});
+        camera.flash(0x80ff0000, 0.5, null, true);
         animation.play("heavy-hit");
         hitArea.animation.play("idle");
         stunned = true;
@@ -323,6 +335,12 @@ class Player extends FightUnit {
         }
     }
 
+    public function hitLightParry() {
+        camera.flash(0xb0ffffff, 0.6, null, true);
+    }
+    public function hitHeavyParry() {
+        camera.flash(0x50ffffff, 0.3, null, true);
+    }
 
     /********************************************* Animation Callbacks *********************************************/
     private function animationFinishCallback(name:String) {

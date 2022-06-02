@@ -88,11 +88,13 @@ class Level1 extends FlxState {
         final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain("assets/levels/level1_terrain.csv", 64, 64);
         FlxG.camera.setScrollBoundsRect(0, 0, map.width, map.height);
         FlxG.worldBounds.set(0, 0, map.width, map.height);
+        FlxG.camera.style = FlxCameraFollowStyle.PLATFORMER;
         add(map);
 
         // create the player character
         player = new Player(400, 100);
         player.setPlatforms(platforms);
+        player.setCamera(FlxG.camera);
 
         // create the enemy
         var combatSequence:Array<AIAction> = [AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.LIGHT_ACTION, AIAction.HEAVY_ACTION, AIAction.HEAVY_ACTION, AIAction.HEAVY_ACTION,
