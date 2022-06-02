@@ -167,7 +167,7 @@ class Level2 extends FlxState {
         exitButton.x = 1090;
         exitButton.y = 20;
 
-        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount.toString());
+        killCountText = new FlxButton(0, 0, "Kill Count: " + FlxG.save.data.killCount);
         killCountText.loadGraphic("assets/images/transparent.png", true, 150, 20);
         killCountText.label.setFormat(null, 16, FlxColor.BLACK);
         killCountText.x = 20;
@@ -315,7 +315,7 @@ class Level2 extends FlxState {
 
     override public function update(elapsed:Float) {
         super.update(elapsed);
-        killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount.toString();
+        killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
         if (enemy2.health != enemyHealth2) {
