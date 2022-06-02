@@ -13,9 +13,9 @@ class Player extends FightUnit {
     private static final WALK_VELOCITY:Int = 230;
     private static final RUN_VELOCITY:Int = 400;
     private static final JUMP_CUMULATIVE_STEP:Int = 4200;
-    private static final MAX_JUMP_VELOCITY:Int = 800;
-    private static final MIN_JUMP_VELOCITY:Int = 400;
-    private static final GRAVITY:Int = 1000;
+    private static final MAX_JUMP_VELOCITY:Int = 1500;
+    private static final MIN_JUMP_VELOCITY:Int = 600;
+    private static final GRAVITY:Int = 1500;
     private static final DRAG_Y:Int = 300;
     private static final ATTACK_RANGE:Int = 219;
     private static final STAMINA_RECOVERY_RATE:Int = 16;
@@ -80,7 +80,7 @@ class Player extends FightUnit {
         collider.loadGraphic("assets/images/spear_sprites_collider.png", false);
 
         collider.acceleration.y = GRAVITY;
-        collider.maxVelocity.y = GRAVITY;
+        collider.maxVelocity.y = 2*GRAVITY;
         collider.drag.y = DRAG_Y;
         collider.active = false; // prevents collider.update() from being automatically called
 

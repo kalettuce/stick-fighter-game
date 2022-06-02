@@ -2,12 +2,14 @@ import cse481d.logging.CapstoneLogger;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 import states.Level1;
+import states.MenuState;
 
 class Main extends Sprite {
 
     // A bit of an ugly hack, basically using a global variable so it can be
     // fetched in any arbitrary class.
     public static var LOGGER:CapstoneLogger;
+    private var newPlayer:Bool;
 
     public function new() {
 
@@ -30,13 +32,20 @@ class Main extends Sprite {
         {
             userId = Main.LOGGER.generateUuid();
             Main.LOGGER.setSavedUserId(userId);
+            newPlayer = true;
+        } else {
+            newPlayer = false;
         }
         Main.LOGGER.startNewSession(userId, this.onSessionReady);
     }
 
     private function onSessionReady(sessionRecieved:Bool):Void
     {
-        addChild(new FlxGame(0, 0, Level1, 1, 60, 60, true));
+        if (newPlayer) {
+            addChild(new FlxGame(0, 0, Level1, 1, 60, 60, true));
+        } else {
+            addChild(new FlxGame(0, 0, MenuState, 1, 60, 60, true));
+        }
     }
 
 }

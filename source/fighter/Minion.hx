@@ -10,7 +10,7 @@ import flixel.util.FlxDirectionFlags;
 class Minion extends FightUnit {
     private static final GRAVITY:Int = 1000;
     private static final ATTACK_RANGE:Int = 100;
-    private static final MOVE_VELOCITY:Int = 200;
+    private static final MOVE_VELOCITY:Int = 150;
     private static final ACTION_INTERVAL:Float = 2;
     private static final COLLIDER_OFFSET_X:Int = 104;
     private static final COLLIDER_OFFSET_Y:Int = 58;
