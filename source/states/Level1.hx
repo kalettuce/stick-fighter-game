@@ -278,7 +278,7 @@ class Level1 extends FlxState {
     }
 
     override public function update(elapsed:Float) {
-        if (paused && FlxG.keys.anyJustPressed([SPACE, W, A, S, D, J, K, I])) {
+        if (paused && FlxG.keys.justReleased.SPACE) {
             unpause();
             promptText.color = FlxColor.BLACK;
             if (!player.invincible) {
@@ -292,7 +292,7 @@ class Level1 extends FlxState {
             enemy.invincible = false;
 
             promptText.text = "Now face the enemy with what you learned!";
-            promptText.color = FlxColor.RED;
+            promptText.color = 0xffa00000;
             pause();
 
             final newAI:RandomActionDecider = new RandomActionDecider(enemy, player);
@@ -308,35 +308,35 @@ class Level1 extends FlxState {
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
         showStaminaBar(false, enemy.stamina, enemyStaminaBar, elapsed);
 
-        promptTimer += elapsed;
+         promptTimer += elapsed;
         if (promptTimer >= 2 && player.invincible) {
             final curSeqIndex = cast(enemyAI, SequentialActionDecider).getSeqIndex();
             switch (curSeqIndex) {
                 case 0:
-                    promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (1/3)\nhint: press [P] to unpause the game";
+                    promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (1/3)\nhint: press SPACE to unpause the game";
                 case 1:
                     promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (2/3)";
                 case 2:
                     promptText.text = "The enemy is approaching!\nPress [K] to block incoming attacks (3/3)";
                 case 3:
-                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [J] while blocking to parry (1/3)";
+                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [K + J] (blocking + light attack) to parry (1/3)";
                 case 4:
-                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [J] while blocking to parry (2/3)";
+                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [K + J] (blocking + light attack) to parry (2/3)";
                 case 5:
-                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [J] while blocking to parry (3/3)";
+                    promptText.text = "The enemy is trying to break through your block with a heavy attack!\nPress [K + J] (blocking + light attack) to parry (3/3)";
                 case 6:
                     promptText.text = "The enemy is trying to recover stamina\nPress [I] to break through the block with your own heavy attack (1/2)";
                 case 7:
                     promptText.text = "The enemy is trying to recover stamina\nPress [I] to break through the block with your own heavy attack (2/2)";
                 case 8:
-                    promptText.text = "The enemy learned your moves and is ready to parry you!\nInitiate a heavy attack, and press [E] to cancel to bait the parry (1/2)";
+                    promptText.text = "The enemy learned your moves and is ready to parry you!\nInitiate a heavy attack [I], and immediately press [E] to cancel to bait the parry (1/2)";
                 case 9:
-                    promptText.text = "The enemy learned your moves and is ready to parry you!\nInitiate a heavy attack, and press [E] to cancel to bait the parry (2/2)";
+                    promptText.text = "The enemy learned your moves and is ready to parry you!\nInitiate a heavy attack [I], and immediately press [E] to cancel to bait the parry (2/2)";
             }
 
             if (prevSeqIndex != curSeqIndex && (curSeqIndex == 0 || curSeqIndex == 3 || curSeqIndex == 6 || curSeqIndex == 8)) {
                 pause();
-                promptText.color = FlxColor.RED;
+                promptText.color = 0xffa00000;
             }
             prevSeqIndex = curSeqIndex;
             promptText.screenCenter(FlxAxes.X);
