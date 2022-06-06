@@ -399,12 +399,7 @@ class Level5 extends FlxState {
     override public function update(elapsed:Float) {
         super.update(elapsed);
         killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
-        if (minKills - FlxG.save.data.minionsKilled <= 0) {
-            minKills = 0;
-            FlxG.save.data.minionsKilled = 0;
-            FlxG.save.flush();
-        }
-        minKillsText.label.text = "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled);
+        minKillsText.label.text = "Minimum Minion Kills: " + FlxG.save.data.minionsKilled + "/" + minKills;
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
         if (enemy2.health != enemyHealth2) {

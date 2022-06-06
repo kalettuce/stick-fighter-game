@@ -336,11 +336,6 @@ class Level3 extends FlxState {
             trace("player is at (" + player.x + ", " + player.y + ")");
         }
         killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
-        if (minKills - FlxG.save.data.minionsKilled <= 0) {
-            minKills = 0;
-            FlxG.save.data.minionsKilled = 0;
-            FlxG.save.flush();
-        }
         minKillsText.label.text = "Minimum Minion Kills: " + FlxG.save.data.minionsKilled + "/" + minKills;
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
