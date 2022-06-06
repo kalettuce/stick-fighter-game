@@ -215,8 +215,8 @@ class Level3 extends FlxState {
         enemyStaminaBar3.trackParent(175, 20);
 
         // create minions
-        final xPosArr:Array<Int> = [1700, 1800, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
-        final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
+        final xPosArr:Array<Int> = [1700, 1800, 1900, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
+        final yPosArr:Array<Int> = [200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
         minions = new Set<Minion>();
         for (i in 0...xPosArr.length) {
             var minion:Minion = new Minion(xPosArr[i], yPosArr[i], player);
@@ -332,6 +332,9 @@ class Level3 extends FlxState {
 
     override public function update(elapsed:Float) {
         super.update(elapsed);
+        if (FlxG.keys.justReleased.V) {
+            trace("player is at (" + player.x + ", " + player.y + ")");
+        }
         killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
         if (minKills - FlxG.save.data.minionsKilled <= 0) {
             minKills = 0;
