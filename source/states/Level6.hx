@@ -208,8 +208,8 @@ class Level6 extends FlxState {
         killCountText.x = 20;
         killCountText.y = 20;
 
-        minKillsText = new FlxButton(0, 0, "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled));
-        minKillsText.loadGraphic("assets/images/transparent.png", true, 165, 20);
+        minKillsText = new FlxButton(0, 0, "Minimum Minion Kills: " + FlxG.save.data.minionsKilled + "/" + minKills);
+        minKillsText.loadGraphic("assets/images/transparent.png", true, 270, 20);
         minKillsText.label.setFormat(null, 16, FlxColor.BLACK);
         minKillsText.x = 20;
         minKillsText.y = 50;
@@ -404,7 +404,7 @@ class Level6 extends FlxState {
             FlxG.save.data.minionsKilled = 0;
             FlxG.save.flush();
         }
-        minKillsText.label.text = "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled);
+        minKillsText.label.text = "Minimum Minion Kills: " + FlxG.save.data.minionsKilled + "/" + minKills;
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
         if (enemy2.health != enemyHealth2) {
