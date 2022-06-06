@@ -387,7 +387,7 @@ class Level3 extends FlxState {
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished &&
-            (minKills - FlxG.save.data.minionsKilled) == 0) {
+            (minKills - FlxG.save.data.minionsKilled) <= 0) {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedFour = true;
             FlxG.save.flush();

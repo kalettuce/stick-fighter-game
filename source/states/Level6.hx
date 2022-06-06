@@ -496,7 +496,7 @@ class Level6 extends FlxState {
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished &&
-            (minKills - FlxG.save.data.minionsKilled) == 0 &&
+            (minKills - FlxG.save.data.minionsKilled) <= 0 &&
             FlxG.save.data.version == "A") {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
 
@@ -506,7 +506,7 @@ class Level6 extends FlxState {
             enemy3.isDead() && enemy3.animation.finished &&
             enemy4.isDead() && enemy4.animation.finished &&
             enemy5.isDead() && enemy5.animation.finished &&
-            (minKills - FlxG.save.data.minionsKilled) == 0 &&
+            (minKills - FlxG.save.data.minionsKilled) <= 0 &&
             FlxG.save.data.version == "B") {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedFive = true;
