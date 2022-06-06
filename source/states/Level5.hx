@@ -42,6 +42,10 @@ class Level5 extends FlxState {
     var enemyAI2:RandomActionDecider;
     var enemy3:Enemy;
     var enemyAI3:RandomActionDecider;
+    var enemy4:Enemy;
+    var enemyAI4:RandomActionDecider;
+    var enemy5:Enemy;
+    var enemyAI5:RandomActionDecider;
     var minions:Set<Minion>;
     var map:FlxTilemap;
     var exitButton:FlxButton;
@@ -85,6 +89,22 @@ class Level5 extends FlxState {
     var enemyStamina3:Float = 100;
     var enemyStaminaTimer3:Float = 0;
     var enemyStaminaBar3:FlxBar;
+
+    var enemyHealth4:Float = 100;
+    var enemyHealthTimer4:Float = 0;
+    var enemyHealthBar4:FlxBar;
+
+    var enemyStamina4:Float = 100;
+    var enemyStaminaTimer4:Float = 0;
+    var enemyStaminaBar4:FlxBar;
+
+    var enemyHealth5:Float = 100;
+    var enemyHealthTimer5:Float = 0;
+    var enemyHealthBar5:FlxBar;
+
+    var enemyStamina5:Float = 100;
+    var enemyStaminaTimer5:Float = 0;
+    var enemyStaminaBar5:FlxBar;
 
     // Declare nextLevel and curLevel variables
     var nextLevel:Class<FlxState>;
@@ -152,6 +172,26 @@ class Level5 extends FlxState {
         enemy3.setPlatforms(platforms);
         player.addEnemy(enemy3);
 
+        // create the enemy#4
+        enemy4 = new Enemy(2000, 700, player);
+        enemyAI4 = new RandomActionDecider(enemy4, player);
+        enemyAI4.setAttackedWeights([30, 60, 10]);
+        enemyAI4.setNeutralWeights([70, 25, 5]);
+        enemy4.setPlayer(player);
+        enemy4.setCombatAI(enemyAI4);
+        enemy4.setPlatforms(platforms);
+        player.addEnemy(enemy4);
+
+        // create the enemy#5
+        enemy5 = new Enemy(500, 100, player);
+        enemyAI5 = new RandomActionDecider(enemy5, player);
+        enemyAI5.setAttackedWeights([30, 60, 10]);
+        enemyAI5.setNeutralWeights([70, 25, 5]);
+        enemy5.setPlayer(player);
+        enemy5.setCombatAI(enemyAI5);
+        enemy5.setPlatforms(platforms);
+        player.addEnemy(enemy5);
+
         exitButton = new FlxButton(0, 0, "Return to Menu", exit);
         exitButton.scale.set(2, 2);
         exitButton.updateHitbox();
@@ -214,6 +254,26 @@ class Level5 extends FlxState {
         enemyStaminaBar3.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar3.trackParent(175, 20);
 
+         // create health bar
+        enemyHealthBar4 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy4, "health", 0, 100, true);
+        enemyHealthBar4.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
+        enemyHealthBar4.trackParent(175, 0);
+
+        // create stamina bar
+        enemyStaminaBar4 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy4, "stamina", 0, 100, true);
+        enemyStaminaBar4.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
+        enemyStaminaBar4.trackParent(175, 20);
+
+        // create health bar
+        enemyHealthBar5 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy5, "health", 0, 100, true);
+        enemyHealthBar5.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
+        enemyHealthBar5.trackParent(175, 0);
+
+        // create stamina bar
+        enemyStaminaBar5 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy5, "stamina", 0, 100, true);
+        enemyStaminaBar5.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
+        enemyStaminaBar5.trackParent(175, 20);
+
         // create minions
         final xPosArr:Array<Int> = [1600, 1700, 1800, 500, 400, 300, 300, 300, 500, 875, 775, 675, 1050, 1150, 1250, 1800, 2000];
         final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1300, 1300, 1300, 700, 700];
@@ -241,6 +301,12 @@ class Level5 extends FlxState {
         add(enemy3.hitArea);
         add(enemy3);
         add(enemy3.effects);
+        if (FlxG.save.data.version == "B") {
+            add(enemy4);
+            add(enemy4.effects);
+            add(enemy5);
+            add(enemy5.effects);
+        }
         add(player.hitArea);
         add(player);
         add(player.effects);
@@ -386,12 +452,71 @@ class Level5 extends FlxState {
             }
         }
 
+        if (FlxG.save.data.version == "B") {
+            if (enemy4.health != enemyHealth4) {
+                add(enemyHealthBar4);
+                enemyHealth4 = enemy4.health;
+                enemyHealthTimer4 = 0;
+            } else {
+                enemyHealthTimer4 += elapsed;
+                if (enemyHealthTimer4 > timerMax) {
+                    remove(enemyHealthBar4);
+                    enemyHealthTimer4 = 0;
+                }
+            }
+            if (enemy4.health != enemyHealth4) {
+                add(enemyHealthBar4);
+                enemyHealth4 = enemy4.health;
+                enemyHealthTimer4 = 0;
+            } else {
+                enemyHealthTimer4 += elapsed;
+                if (enemyHealthTimer4 > timerMax) {
+                    remove(enemyHealthBar4);
+                    enemyHealthTimer4 = 0;
+                }
+            }
+
+            if (enemy5.stamina != enemyStamina5) {
+                add(enemyStaminaBar5);
+                enemyStamina5 = enemy5.stamina;
+                enemyStaminaTimer5 = 0;
+            } else {
+                enemyStaminaTimer5 += elapsed;
+                if (enemyStaminaTimer5 > timerMax) {
+                    remove(enemyStaminaBar5);
+                }
+            }
+            if (enemy5.stamina != enemyStamina5) {
+                    add(enemyStaminaBar5);
+                    enemyStamina5 = enemy5.stamina;
+                    enemyStaminaTimer5 = 0;
+            } else {
+                enemyStaminaTimer5 += elapsed;
+                if (enemyStaminaTimer5 > timerMax) {
+                    remove(enemyStaminaBar5);
+                }
+            }
+        }
+
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished &&
-            (minKills - FlxG.save.data.minionsKilled) == 0) {
+            (minKills - FlxG.save.data.minionsKilled) == 0 &&
+            FlxG.save.data.version == "A") {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedSix = true;
+            FlxG.save.flush();
+
+            popupComplete();
+        } else if (enemy.isDead() && enemy.animation.finished &&
+            enemy2.isDead() && enemy2.animation.finished &&
+            enemy3.isDead() && enemy3.animation.finished &&
+            enemy4.isDead() && enemy4.animation.finished &&
+            enemy5.isDead() && enemy5.animation.finished &&
+            (minKills - FlxG.save.data.minionsKilled) == 0 &&
+            FlxG.save.data.version == "B") {
+            Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
+            FlxG.save.data.unlockedFive = true;
             FlxG.save.flush();
 
             popupComplete();
@@ -407,6 +532,10 @@ class Level5 extends FlxState {
         FlxG.collide(enemy.collider, map);
         FlxG.collide(enemy2.collider, map);
         FlxG.collide(enemy3.collider, map);
+        if (FlxG.save.data.version == "B") {
+            FlxG.collide(enemy4.collider, map);
+            FlxG.collide(enemy5.collider, map);
+        }
         for (minion in minions) {
             FlxG.collide(minion.collider, map);
         }
