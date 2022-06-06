@@ -21,6 +21,7 @@ import flixel.input.actions.FlxAction.FlxActionAnalog;
 import flixel.input.actions.FlxActionManager.ResetPolicy;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
+import flixel.math.FlxRandom;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
@@ -37,15 +38,10 @@ class Level2 extends FlxState {
     var player:Player;
     var enemy:Enemy;
     var enemyAI:RandomActionDecider;
-    var enemy2:Enemy;
-    var enemyAI2:RandomActionDecider;
-    var enemy3:Enemy;
-    var enemyAI3:RandomActionDecider;
     var minions:Set<Minion>;
+    var rand:FlxRandom;
 
     var map:FlxTilemap;
-    var doors:FlxTilemap;
-    var doorsRemoved:Bool = false;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
@@ -69,36 +65,27 @@ class Level2 extends FlxState {
     var enemyStaminaTimer:Float = 0;
     var enemyStaminaBar:FlxBar;
 
-    var enemyHealth2:Float = 100;
-    var enemyHealthTimer2:Float = 0;
-    var enemyHealthBar2:FlxBar;
-
-    var enemyStamina2:Float = 100;
-    var enemyStaminaTimer2:Float = 0;
-    var enemyStaminaBar2:FlxBar;
-
-    var enemyHealth3:Float = 100;
-    var enemyHealthTimer3:Float = 0;
-    var enemyHealthBar3:FlxBar;
-
-    var enemyStamina3:Float = 100;
-    var enemyStaminaTimer3:Float = 0;
-    var enemyStaminaBar3:FlxBar;
-
     // Declare nextLevel and curLevel variables
     var nextLevel:Class<FlxState>;
     var curLevel:Class<FlxState>;
 
     override public function create() {
-        // add the terrain
-        if (FlxG.save.data.version == "A") {
-            mapPath = "assets/levels/level2A_terrain.csv";
-        } else {
-            mapPath = "assets/levels/level2B_terrain.csv";
-            doors = new FlxTilemap();
-            doors.loadMapFromCSV("assets/doors/level2B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
-            add(doors);
+        // Log start of Level 2
+        Main.LOGGER.logLevelStart(2, {version: FlxG.save.data.version});
+
+        // pick version A or B
+        if (!FlxG.save.data.version) {
+            rand = new FlxRandom();
+            if (rand.bool()) {
+                FlxG.save.data.version = "A";
+            } else {
+                FlxG.save.data.version = "B";
+            }
+            FlxG.save.flush();
         }
+
+        // add the terrain
+        mapPath = "assets/levels/level2A_terrain.csv";
         map = new FlxTilemap();
         map.loadMapFromCSV(mapPath, "assets/images/sf_level_tiles.png", 64, 64);
         final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain(mapPath, 64, 64);
@@ -112,8 +99,8 @@ class Level2 extends FlxState {
         player.setPlatforms(platforms);
         player.setCamera(FlxG.camera);
 
-        // create enemy#1
-        enemy = new Enemy(1627, 200, player);
+        // create enemy
+        enemy = new Enemy(600, 200, player);
         enemyAI = new RandomActionDecider(enemy, player);
         enemyAI.setAttackedWeights([30, 60, 10]);
         enemyAI.setNeutralWeights([70, 25, 5]);
@@ -121,26 +108,6 @@ class Level2 extends FlxState {
         enemy.setCombatAI(enemyAI);
         enemy.setPlatforms(platforms);
         player.addEnemy(enemy);
-
-        // create enemy#2
-        enemy2 = new Enemy(600, 200, player);
-        enemyAI2 = new RandomActionDecider(enemy2, player);
-        enemyAI2.setAttackedWeights([30, 60, 10]);
-        enemyAI2.setNeutralWeights([70, 25, 5]);
-        enemy2.setPlayer(player);
-        enemy2.setCombatAI(enemyAI2);
-        enemy2.setPlatforms(platforms);
-        player.addEnemy(enemy2);
-
-        // create the enemy
-        enemy3 = new Enemy(950, 900, player);
-        enemyAI3 = new RandomActionDecider(enemy3, player);
-        enemyAI3.setAttackedWeights([30, 60, 10]);
-        enemyAI3.setNeutralWeights([70, 25, 5]);
-        enemy3.setPlayer(player);
-        enemy3.setCombatAI(enemyAI3);
-        enemy3.setPlatforms(platforms);
-        player.addEnemy(enemy3);
 
         // create minions
         final xPosArr:Array<Int> = [1700, 1800, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
@@ -193,38 +160,12 @@ class Level2 extends FlxState {
         enemyStaminaBar.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
         enemyStaminaBar.trackParent(175, 20);
 
-        // create health bar
-        enemyHealthBar2 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy2, "health", 0, 100, true);
-        enemyHealthBar2.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
-        enemyHealthBar2.trackParent(175, 0);
-
-        // create stamina bar
-        enemyStaminaBar2 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy2, "stamina", 0, 100, true);
-        enemyStaminaBar2.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
-        enemyStaminaBar2.trackParent(175, 20);
-
-        // create health bar
-        enemyHealthBar3 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy3, "health", 0, 100, true);
-        enemyHealthBar3.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
-        enemyHealthBar3.trackParent(175, 0);
-
-        // create stamina bar
-        enemyStaminaBar3 = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, enemy3, "stamina", 0, 100, true);
-        enemyStaminaBar3.createFilledBar(FlxColor.WHITE, FlxColor.GREEN, true);
-        enemyStaminaBar3.trackParent(175, 20);
-
         // set a background color
         bgColor = FlxColor.GRAY;
 
         // construct the scene
         add(enemy.hitArea);
         add(enemy);
-        add(enemy2.hitArea);
-        add(enemy2);
-        add(enemy2.effects);
-        add(enemy3.hitArea);
-        add(enemy3);
-        add(enemy3.effects);
         add(player.hitArea);
         add(player);
         add(player.effects);
@@ -318,66 +259,20 @@ class Level2 extends FlxState {
         killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
-        if (enemy2.health != enemyHealth2) {
-            add(enemyHealthBar2);
-            enemyHealth2 = enemy2.health;
-            enemyHealthTimer2 = 0;
-        } else {
-            enemyHealthTimer2 += elapsed;
-            if (enemyHealthTimer2 > timerMax) {
-                remove(enemyHealthBar2);
-                enemyHealthTimer2 = 0;
-            }
-        }
-        if (enemy3.health != enemyHealth3) {
-            add(enemyHealthBar3);
-            enemyHealth3 = enemy3.health;
-            enemyHealthTimer3 = 0;
-        } else {
-            enemyHealthTimer3 += elapsed;
-            if (enemyHealthTimer3 > timerMax) {
-                remove(enemyHealthBar3);
-                enemyHealthTimer3 = 0;
-            }
-        }
 
         showStaminaBar(true, player.stamina, playerStaminaBar, elapsed);
-        if (enemy2.stamina != enemyStamina2) {
-                add(enemyStaminaBar2);
-                enemyStamina2 = enemy2.stamina;
-                enemyStaminaTimer2 = 0;
+        if (enemy.stamina != enemyStamina) {
+                add(enemyStaminaBar);
+                enemyStamina = enemy.stamina;
+                enemyStaminaTimer = 0;
         } else {
-            enemyStaminaTimer2 += elapsed;
-            if (enemyStaminaTimer2 > timerMax) {
-                remove(enemyStaminaBar2);
-            }
-        }
-        if (enemy3.stamina != enemyStamina3) {
-                add(enemyStaminaBar3);
-                enemyStamina3 = enemy3.stamina;
-                enemyStaminaTimer3 = 0;
-        } else {
-            enemyStaminaTimer3 += elapsed;
-            if (enemyStaminaTimer3 > timerMax) {
-                remove(enemyStaminaBar3);
+            enemyStaminaTimer += elapsed;
+            if (enemyStaminaTimer > timerMax) {
+                remove(enemyStaminaBar);
             }
         }
 
-        if (enemy2.isDead() && FlxG.save.data.version == "B" && !doorsRemoved) {
-            remove(doors);
-            doorsRemoved = true;
-        }
-
-        if (enemy.isDead() && enemy.animation.finished &&
-            enemy2.isDead() && enemy2.animation.finished &&
-            enemy3.isDead() && enemy3.animation.finished &&
-            FlxG.save.data.version == "B") {
-            Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
-            FlxG.save.data.unlockedThree = true;
-            FlxG.save.flush();
-
-            popupComplete();
-        } else if (enemy2.isDead() && enemy2.animation.finished && FlxG.save.data.version == "A") {
+        if (enemy.isDead() && enemy.animation.finished) {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();
@@ -393,17 +288,8 @@ class Level2 extends FlxState {
 
         FlxG.collide(player.collider, map);
         FlxG.collide(enemy.collider, map);
-        FlxG.collide(enemy2.collider, map);
-        FlxG.collide(enemy3.collider, map);
         for (minion in minions) {
             FlxG.collide(minion.collider, map);
-        }
-
-        if (FlxG.save.data.version == "B" && !doorsRemoved) {
-            FlxG.collide(player.collider, doors);
-            FlxG.collide(enemy.collider, doors);
-            FlxG.collide(enemy2.collider, doors);
-            FlxG.collide(enemy3.collider, doors);
         }
     }
 

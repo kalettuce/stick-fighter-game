@@ -70,6 +70,9 @@ class Level1 extends FlxState {
     var paused:Bool;
 
     override public function create() {
+        // Log start of Level 1
+        Main.LOGGER.logLevelStart(1, {version: FlxG.save.data.version});
+
         // pick version A or B
         if (!FlxG.save.data.version) {
             rand = new FlxRandom();

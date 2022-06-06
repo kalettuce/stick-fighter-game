@@ -21,6 +21,7 @@ import flixel.input.actions.FlxAction.FlxActionAnalog;
 import flixel.input.actions.FlxActionManager.ResetPolicy;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.mouse.FlxMouseEventManager;
+import flixel.math.FlxRandom;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
@@ -43,14 +44,13 @@ class Level6 extends FlxState {
     var enemyAI3:RandomActionDecider;
     var minions:Set<Minion>;
     var map:FlxTilemap;
-    var doors:FlxTilemap;
-    var doorsRemoved:Bool = false;
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
     var mapPath:String;
+    var rand:FlxRandom;
 
     var playerHealth:Float = 100;
     var playerHealthTimer:Float = 0;
@@ -89,15 +89,22 @@ class Level6 extends FlxState {
     var curLevel:Class<FlxState>;
 
     override public function create() {
-        // add the terrain
-        if (FlxG.save.data.version == "A") {
-            mapPath = "assets/levels/level6A_terrain.csv";
-        } else {
-            mapPath = "assets/levels/level6B_terrain.csv";
-            doors = new FlxTilemap();
-            doors.loadMapFromCSV("assets/doors/level6B_doors.csv", "assets/images/sf_level_tiles.png", 64, 64);
-            add(doors);
+        // Log start of Level 6
+        Main.LOGGER.logLevelStart(6, {version: FlxG.save.data.version});
+
+        // pick version A or B
+        if (!FlxG.save.data.version) {
+            rand = new FlxRandom();
+            if (rand.bool()) {
+                FlxG.save.data.version = "A";
+            } else {
+                FlxG.save.data.version = "B";
+            }
+            FlxG.save.flush();
         }
+
+        // add the terrain
+        mapPath = "assets/levels/level6A_terrain.csv";
         map = new FlxTilemap();
         map.loadMapFromCSV(mapPath, "assets/images/sf_level_tiles.png", 64, 64);
         final platforms:Array<TilePlatform> = TerrainSolver.solveCSVTerrain(mapPath, 64, 64);
@@ -362,11 +369,6 @@ class Level6 extends FlxState {
             }
         }
 
-        if (enemy2.isDead() && enemy3.isDead() && FlxG.save.data.version == "B" && !doorsRemoved) {
-            remove(doors);
-            doorsRemoved = true;
-        }
-
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
             enemy3.isDead() && enemy3.animation.finished) {
@@ -387,13 +389,6 @@ class Level6 extends FlxState {
         FlxG.collide(enemy3.collider, map);
         for (minion in minions) {
             FlxG.collide(minion.collider, map);
-        }
-
-        if (FlxG.save.data.version == "B" && !doorsRemoved) {
-            FlxG.collide(player.collider, doors);
-            FlxG.collide(enemy.collider, doors);
-            FlxG.collide(enemy2.collider, doors);
-            FlxG.collide(enemy3.collider, doors);
         }
     }
 

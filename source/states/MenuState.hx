@@ -3,6 +3,7 @@ package states;
 // Update imports
 import flixel.FlxG;
 import flixel.FlxState;
+import flixel.math.FlxRandom;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 
@@ -11,9 +12,21 @@ class MenuState extends FlxState
 
     var playButton:FlxButton;
     var levelsButton:FlxButton;
+    var rand:FlxRandom;
 
     override public function create():Void
     {
+        // pick version A or B
+        if (!FlxG.save.data.version) {
+            rand = new FlxRandom();
+            if (rand.bool()) {
+                FlxG.save.data.version = "A";
+            } else {
+                FlxG.save.data.version = "B";
+            }
+            FlxG.save.flush();
+        }
+
         // Play Button
         playButton = new FlxButton(0, 0, "Play", clickPlay);
         playButton.scale.set(4, 4);
@@ -50,8 +63,6 @@ class MenuState extends FlxState
         // Log clicking "Play" button
         Main.LOGGER.logActionWithNoLevel(LoggingActions.CLICK_PLAY, {version: FlxG.save.data.version});
 
-        // Log start of Level 1
-        Main.LOGGER.logLevelStart(1, {version: FlxG.save.data.version});
         FlxG.switchState(new Level1());
     }
 
