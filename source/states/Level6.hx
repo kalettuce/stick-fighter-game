@@ -47,6 +47,8 @@ class Level6 extends FlxState {
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
+    var minKills:Float = 11;
+    var minKillsText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
     var mapPath:String;
@@ -91,6 +93,8 @@ class Level6 extends FlxState {
     override public function create() {
         // Log start of Level 6
         Main.LOGGER.logLevelStart(6, {version: FlxG.save.data.version});
+        FlxG.save.data.minionsKilled = 0;
+        FlxG.save.flush();
 
         // pick version A or B
         if (!FlxG.save.data.version) {
@@ -164,6 +168,12 @@ class Level6 extends FlxState {
         killCountText.x = 20;
         killCountText.y = 20;
 
+        minKillsText = new FlxButton(0, 0, "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled));
+        minKillsText.loadGraphic("assets/images/transparent.png", true, 165, 20);
+        minKillsText.label.setFormat(null, 16, FlxColor.BLACK);
+        minKillsText.x = 20;
+        minKillsText.y = 50;
+
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
         playerHealthBar.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
@@ -206,7 +216,7 @@ class Level6 extends FlxState {
 
         // create minions
         final xPosArr:Array<Int> = [1400, 1300, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
-        final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
+        final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 900, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
         minions = new Set<Minion>();
         for (i in 0...xPosArr.length) {
             var minion:Minion = new Minion(xPosArr[i], yPosArr[i], player);
@@ -237,6 +247,7 @@ class Level6 extends FlxState {
         add(enemy.effects);
         add(exitButton);
         add(killCountText);
+        add(minKillsText);
 
         // Initialize nextLevel and curLevel variable
         nextLevel = MenuState;
@@ -322,6 +333,12 @@ class Level6 extends FlxState {
     override public function update(elapsed:Float) {
         super.update(elapsed);
         killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
+        if (minKills - FlxG.save.data.minionsKilled <= 0) {
+            minKills = 0;
+            FlxG.save.data.minionsKilled = 0;
+            FlxG.save.flush();
+        }
+        minKillsText.label.text = "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled);
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
         if (enemy2.health != enemyHealth2) {
@@ -371,7 +388,8 @@ class Level6 extends FlxState {
 
         if (enemy.isDead() && enemy.animation.finished &&
             enemy2.isDead() && enemy2.animation.finished &&
-            enemy3.isDead() && enemy3.animation.finished) {
+            enemy3.isDead() && enemy3.animation.finished &&
+            (minKills - FlxG.save.data.minionsKilled) == 0) {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
 
             popupComplete();

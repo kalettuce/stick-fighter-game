@@ -45,6 +45,8 @@ class Level2 extends FlxState {
     var exitButton:FlxButton;
     var timerMax:Float = 5;
     var killCountText:FlxButton;
+    var minKills:Float = 3;
+    var minKillsText:FlxButton;
     var levelScreen:FlxSprite;
     var tween:FlxTween;
     var mapPath:String;
@@ -72,6 +74,8 @@ class Level2 extends FlxState {
     override public function create() {
         // Log start of Level 2
         Main.LOGGER.logLevelStart(2, {version: FlxG.save.data.version});
+        FlxG.save.data.minionsKilled = 0;
+        FlxG.save.flush();
 
         // pick version A or B
         if (!FlxG.save.data.version) {
@@ -140,6 +144,12 @@ class Level2 extends FlxState {
         killCountText.x = 20;
         killCountText.y = 20;
 
+        minKillsText = new FlxButton(0, 0, "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled));
+        minKillsText.loadGraphic("assets/images/transparent.png", true, 165, 20);
+        minKillsText.label.setFormat(null, 16, FlxColor.BLACK);
+        minKillsText.x = 20;
+        minKillsText.y = 50;
+
         // create health bar
         playerHealthBar = new FlxBar(0, 0, LEFT_TO_RIGHT, 70, 10, player, "health", 0, 100, true);
         playerHealthBar.createFilledBar(FlxColor.WHITE, FlxColor.RED, true);
@@ -172,6 +182,7 @@ class Level2 extends FlxState {
         add(enemy.effects);
         add(exitButton);
         add(killCountText);
+        add(minKillsText);
 
         // Initialize nextLevel and curLevel variable
         nextLevel = Level3;
@@ -257,6 +268,7 @@ class Level2 extends FlxState {
     override public function update(elapsed:Float) {
         super.update(elapsed);
         killCountText.label.text = "Kill Count: " + FlxG.save.data.killCount;
+        minKillsText.label.text = "Minimum Kills: " + (minKills - FlxG.save.data.minionsKilled);
         showHealthBar(true, player.health, playerHealthBar, elapsed);
         showHealthBar(false, enemy.health, enemyHealthBar, elapsed);
 
@@ -272,7 +284,7 @@ class Level2 extends FlxState {
             }
         }
 
-        if (enemy.isDead() && enemy.animation.finished) {
+        if (enemy.isDead() && enemy.animation.finished && (minKills - FlxG.save.data.minionsKilled) == 0) {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
             FlxG.save.data.unlockedThree = true;
             FlxG.save.flush();

@@ -237,6 +237,7 @@ class Minion extends FightUnit {
         stunned = true;
         dead = true;
         FlxG.save.data.killCount += 1;
+        FlxG.save.data.minionsKilled += 1;
         FlxG.save.flush();
         Main.LOGGER.logLevelAction(LoggingActions.ENEMY_KILLED, {event: "minion killed", version: FlxG.save.data.version});
     }
