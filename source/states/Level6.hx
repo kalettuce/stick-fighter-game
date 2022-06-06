@@ -119,7 +119,7 @@ class Level6 extends FlxState {
         player.setCamera(FlxG.camera);
 
         // create enemy#1
-        enemy = new Enemy(1627, 200, player);
+        enemy = new Enemy(1475, 200, player);
         enemyAI = new RandomActionDecider(enemy, player);
         enemyAI.setAttackedWeights([30, 60, 10]);
         enemyAI.setNeutralWeights([70, 25, 5]);
@@ -129,7 +129,7 @@ class Level6 extends FlxState {
         player.addEnemy(enemy);
 
         // create enemy#2
-        enemy2 = new Enemy(600, 200, player);
+        enemy2 = new Enemy(515, 200, player);
         enemyAI2 = new RandomActionDecider(enemy2, player);
         enemyAI2.setAttackedWeights([30, 60, 10]);
         enemyAI2.setNeutralWeights([70, 25, 5]);
@@ -205,7 +205,7 @@ class Level6 extends FlxState {
         enemyStaminaBar3.trackParent(175, 20);
 
         // create minions
-        final xPosArr:Array<Int> = [1700, 1800, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
+        final xPosArr:Array<Int> = [1400, 1300, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
         final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
         minions = new Set<Minion>();
         for (i in 0...xPosArr.length) {

@@ -139,7 +139,7 @@ class Level5 extends FlxState {
         player.addEnemy(enemy2);
 
         // create the enemy
-        enemy3 = new Enemy(950, 700, player);
+        enemy3 = new Enemy(975, 700, player);
         enemyAI3 = new RandomActionDecider(enemy3, player);
         enemyAI3.setAttackedWeights([30, 60, 10]);
         enemyAI3.setNeutralWeights([70, 25, 5]);

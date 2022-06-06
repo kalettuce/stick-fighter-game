@@ -100,7 +100,7 @@ class Level2 extends FlxState {
         player.setCamera(FlxG.camera);
 
         // create enemy
-        enemy = new Enemy(600, 200, player);
+        enemy = new Enemy(1000, 200, player);
         enemyAI = new RandomActionDecider(enemy, player);
         enemyAI.setAttackedWeights([30, 60, 10]);
         enemyAI.setNeutralWeights([70, 25, 5]);
@@ -110,8 +110,8 @@ class Level2 extends FlxState {
         player.addEnemy(enemy);
 
         // create minions
-        final xPosArr:Array<Int> = [1700, 1800, 1900, 700, 800, 900, 100, 300, 500, 1150, 1250, 1350, 1050, 1150, 1250, 1800, 2000];
-        final yPosArr:Array<Int> = [200, 200, 200, 200, 200, 200, 700, 900, 700, 700, 700, 700, 1400, 1400, 1400, 700, 700];
+        final xPosArr:Array<Int> = [700, 800, 900];
+        final yPosArr:Array<Int> = [200, 200, 200];
         minions = new Set<Minion>();
         for (i in 0...xPosArr.length) {
             var minion:Minion = new Minion(xPosArr[i], yPosArr[i], player);
