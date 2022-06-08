@@ -1,0 +1,39 @@
+a_detail, COUNT(a_detail)
+{"action":"block" "version":"A"}, 2036
+{"action":"block" "version":"B"}, 1658
+{"action":"parry" "version":"A"}, 991
+{"action":"parry" "version":"B"}, 700
+{"event":"ENEMY attack BLOCKED" "version":"A"}, 469
+{"event":"ENEMY attack BLOCKED" "version":"B"}, 451
+{"event":"ENEMY heavy attack HIT" "version":"A"}, 696
+{"event":"ENEMY heavy attack HIT" "version":"B"}, 622
+{"event":"ENEMY heavy attack PARRIED" "version":"A"}, 377
+{"event":"ENEMY heavy attack PARRIED" "version":"B"}, 300
+{"event":"enemy killed" "version":"A"}, 480
+{"event":"enemy killed" "version":"B"}, 874
+{"event":"ENEMY light attack HIT" "version":"A"}, 1434
+{"event":"ENEMY light attack HIT" "version":"B"}, 1786
+{"event":"ENEMY light attack PARRIED" "version":"A"}, 35
+{"event":"ENEMY light attack PARRIED" "version":"B"}, 32
+{"event":"minion killed" "version":"A"}, 1663
+{"event":"minion killed" "version":"B"}, 2164
+{"event":"MINION light attack PARRIED" "version":"A"}, 20
+{"event":"MINION light attack PARRIED" "version":"B"}, 26
+{"event":"PLAYER heavy attack BLOCKED" "version":"A"}, 530
+{"event":"PLAYER heavy attack BLOCKED" "version":"B"}, 805
+{"event":"PLAYER heavy attack HIT ENEMY" "version":"A"}, 721
+{"event":"PLAYER heavy attack HIT ENEMY" "version":"B"}, 1465
+{"event":"PLAYER heavy attack HIT MINION" "version":"A"}, 835
+{"event":"PLAYER heavy attack HIT MINION" "version":"B"}, 1084
+{"event":"PLAYER heavy attack PARRIED" "version":"A"}, 149
+{"event":"PLAYER heavy attack PARRIED" "version":"B"}, 139
+{"event":"PLAYER light attack HIT ENEMY" "version":"A"}, 2828
+{"event":"PLAYER light attack HIT ENEMY" "version":"B"}, 3217
+{"event":"PLAYER light attack HIT MINION" "version":"A"}, 2534
+{"event":"PLAYER light attack HIT MINION" "version":"B"}, 3298
+{"event":"PLAYER light attack PARRIED" "version":"A"}, 165
+{"event":"PLAYER light attack PARRIED" "version":"B"}, 208
+{"type":"heavy attack" "version":"A"}, 1479
+{"type":"heavy attack" "version":"B"}, 2321
+{"type":"light attack" "version":"A"}, 4802
+{"type":"light attack" "version":"B"}, 5295

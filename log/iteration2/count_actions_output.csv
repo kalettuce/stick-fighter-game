@@ -1,0 +1,39 @@
+a_detail, COUNT(a_detail)
+{"action":"block" "version":"A"}, 438
+{"action":"block" "version":"B"}, 460
+{"action":"parry" "version":"A"}, 211
+{"action":"parry" "version":"B"}, 186
+{"event":"ENEMY attack BLOCKED" "version":"A"}, 107
+{"event":"ENEMY attack BLOCKED" "version":"B"}, 130
+{"event":"ENEMY heavy attack HIT" "version":"A"}, 110
+{"event":"ENEMY heavy attack HIT" "version":"B"}, 101
+{"event":"ENEMY heavy attack PARRIED" "version":"A"}, 74
+{"event":"ENEMY heavy attack PARRIED" "version":"B"}, 78
+{"event":"enemy killed" "version":"A"}, 102
+{"event":"enemy killed" "version":"B"}, 82
+{"event":"ENEMY light attack HIT" "version":"A"}, 382
+{"event":"ENEMY light attack HIT" "version":"B"}, 578
+{"event":"ENEMY light attack PARRIED" "version":"A"}, 11
+{"event":"ENEMY light attack PARRIED" "version":"B"}, 17
+{"event":"minion killed" "version":"A"}, 324
+{"event":"minion killed" "version":"B"}, 278
+{"event":"MINION light attack PARRIED" "version":"A"}, 14
+{"event":"MINION light attack PARRIED" "version":"B"}, 3
+{"event":"PLAYER heavy attack BLOCKED" "version":"A"}, 110
+{"event":"PLAYER heavy attack BLOCKED" "version":"B"}, 102
+{"event":"PLAYER heavy attack HIT ENEMY" "version":"A"}, 168
+{"event":"PLAYER heavy attack HIT ENEMY" "version":"B"}, 140
+{"event":"PLAYER heavy attack HIT MINION" "version":"A"}, 146
+{"event":"PLAYER heavy attack HIT MINION" "version":"B"}, 86
+{"event":"PLAYER heavy attack PARRIED" "version":"A"}, 29
+{"event":"PLAYER heavy attack PARRIED" "version":"B"}, 20
+{"event":"PLAYER light attack HIT ENEMY" "version":"A"}, 397
+{"event":"PLAYER light attack HIT ENEMY" "version":"B"}, 382
+{"event":"PLAYER light attack HIT MINION" "version":"A"}, 506
+{"event":"PLAYER light attack HIT MINION" "version":"B"}, 482
+{"event":"PLAYER light attack PARRIED" "version":"A"}, 42
+{"event":"PLAYER light attack PARRIED" "version":"B"}, 19
+{"type":"heavy attack" "version":"A"}, 361
+{"type":"heavy attack" "version":"B"}, 318
+{"type":"light attack" "version":"A"}, 895
+{"type":"light attack" "version":"B"}, 983

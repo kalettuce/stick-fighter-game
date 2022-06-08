@@ -509,8 +509,6 @@ class Level6 extends FlxState {
             (minKills - FlxG.save.data.minionsKilled) <= 0 &&
             FlxG.save.data.version == "B") {
             Main.LOGGER.logLevelEnd({won: true, version: FlxG.save.data.version});
-            FlxG.save.data.unlockedFive = true;
-            FlxG.save.flush();
 
             popupComplete();
         }
