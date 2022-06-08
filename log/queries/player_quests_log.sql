@@ -1,0 +1,1 @@
+SELECT * FROM player_quests_log WHERE cid=4;

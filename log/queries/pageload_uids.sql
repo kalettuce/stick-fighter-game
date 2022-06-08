@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT uid) FROM player_pageload_log WHERE cid=4;
